@@ -17,7 +17,7 @@ const FlipButton = ({
     setBuyAmount(sellAmount)
   }
   return (
-    <div className='relative flex justify-center mb-1'>
+    <div className='relative flex justify-center mb-1 z-10'>
       <button
         onClick={handleSwapArrow}
         className='absolute bg-neutral text-white hover:text-gray-300 border-base-100 border-4 p-[0.4rem] rounded-xl -top-4'>

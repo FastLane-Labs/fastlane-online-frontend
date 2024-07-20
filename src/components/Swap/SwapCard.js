@@ -78,9 +78,7 @@ const SwapCard = () => {
   return (
     <div className='relative max-w-md mx-auto p-6 rounded-3xl'>
       <div className='flex justify-between items-center'>
-        <h2 className='btn bg-base-100 hover:bg-base-100 mb-2 rounded-xl w-24 text-center border border-secondary text-base-300 cursor-default hover:border-secondary'>
-          Exchange
-        </h2>
+        <h2 className='btn mb-2'>Exchange</h2>
         <SettingsButton settings={settings} setIsSettingsModalVisible={setIsSettingsModalVisible} />
       </div>
       <SellComponent

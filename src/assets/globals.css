@@ -19,3 +19,53 @@ select {
   -moz-appearance: none;
   appearance: none;
 }
+
+.btn:before {
+  border: 2px solid #0a0a0a !important;
+}
+
+.btn {
+  border-top: 2px solid white;
+  border-left: 2px solid white;
+  border-right: 2px solid #858585;
+  border-bottom: 2px solid #858585;
+  @apply border-2 shadow-sm shadow-black bg-gray-400 rounded-sm text-black
+  hover:border-t-gray-400 hover:border-l-gray-400 hover:border-r-gray-400 hover:border-b-gray-400
+  hover:bg-gray-400;
+}
+
+.legacy-btn {
+  @apply bg-neutral p-4 rounded-2xl mb-0 border-neutral hover:border-neutral-700 border;
+}
+
+.card {
+  @apply bg-neutral p-4 rounded-sm border-black shadow-sm shadow-black
+  hover:border-neutral-700 border;
+}
+
+.legacy-card {
+  @apply bg-neutral p-4 rounded-2xl border-neutral
+  hover:border-neutral-700 border;
+}
+
+.dropdown {
+  @apply h-[48px] bg-base-200 hover:bg-base-100 text-primary p-2 rounded-sm border border-black shadow-sm 
+  focus:outline-none appearance-none flex items-center text-nowrap w-max;
+}
+
+.dropdown-legacy {
+  @apply h-[48px] bg-base-200 hover:bg-base-100 text-primary p-2 rounded-xl 
+  focus:outline-none appearance-none flex items-center text-nowrap w-max;
+}
+
+.navbar {
+  @apply text-white;
+}
+
+.option {
+  @apply flex items-center p-2 cursor-pointer hover:bg-gray-700 rounded-none;
+}
+
+.option-legacy {
+  @apply flex items-center p-2 cursor-pointer hover:bg-gray-700 rounded-xl;
+}

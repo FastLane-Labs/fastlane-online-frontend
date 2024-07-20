@@ -13,9 +13,7 @@ const TokenSelect = ({ value, onChange, address, defaultLabel }) => {
 
   return (
     <div className='relative'>
-      <button
-        className='h-[48px] bg-base-200 hover:bg-base-100 text-primary p-2 rounded-xl focus:outline-none appearance-none flex items-center text-nowrap w-max'
-        onClick={() => setIsDropdownActive(true)}>
+      <button className='dropdown' onClick={() => setIsDropdownActive(true)}>
         {value && (
           <img
             src={tokenList.tokens.find((token) => token.symbol === value)?.logoURI}
@@ -33,10 +31,7 @@ const TokenSelect = ({ value, onChange, address, defaultLabel }) => {
           <div className='label text-lg font-bold mb-4'>Select a token</div>
           <ul className='space-y-2'>
             {tokenList.tokens.map((token) => (
-              <li
-                key={token.address}
-                className='flex items-center p-2 cursor-pointer hover:bg-gray-700 rounded-xl'
-                onClick={() => handleSelect(token.symbol)}>
+              <li key={token.address} className='option' onClick={() => handleSelect(token.symbol)}>
                 <img src={token.logoURI} alt={token.symbol} className='w-6 h-6 mr-2 rounded-full' />
                 <div className='flex flex-col'>
                   <span>{token.symbol}</span>
