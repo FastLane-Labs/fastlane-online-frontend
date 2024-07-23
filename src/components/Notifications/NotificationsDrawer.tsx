@@ -5,6 +5,7 @@ import { BellIcon as BellOutline, XCircleIcon } from '@heroicons/react/24/outlin
 import { BellIcon as BellSolid } from '@heroicons/react/24/solid'
 import { useNotifications } from '@/context/Notifications'
 import { Alert } from './Alert'
+import NotificationsExample from './NotificationsExample'
 
 export function NotificationsDrawer() {
   const { notifications, Clear } = useNotifications()
@@ -38,6 +39,7 @@ export function NotificationsDrawer() {
               <XCircleIcon className='shrink-0 h-6 w-6 cursor-pointer' />
             </span>
           </div>
+          <NotificationsExample />
           {notifications.length > 0 && (
             <div className='flex flex-col gap-2'>
               {notifications.map((notification, index) => (

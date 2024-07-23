@@ -1,3 +1,4 @@
+// currently not used
 import { useCallback } from 'react'
 import { normalize } from 'viem/ens'
 import { useEnsAddress, useEnsAvatar, useEnsText } from 'wagmi'
