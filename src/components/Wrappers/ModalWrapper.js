@@ -41,8 +41,8 @@ const ModalWrapper = ({ isVisible, onClose, children }) => {
     // dim background outside of modal
     <div className='fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50'>
       {/* modal */}
-      <div ref={modalRef} className='modal-box relative bg-base-200 text-primary rounded-xl w-96 p-4 shadow-lg'>
-        <button className='btn absolute top-3 right-2 text-primary' onClick={onClose}>
+      <div ref={modalRef} className='modal-box relative bg-base-200 text-neutral-content rounded-xl w-96 p-4 shadow-lg'>
+        <button className='btn absolute top-3 right-2 text-neutral-content' onClick={onClose}>
           <svg
             className='w-6 h-6'
             fill='none'

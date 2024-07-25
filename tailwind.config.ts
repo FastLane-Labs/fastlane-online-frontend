@@ -13,15 +13,25 @@ const config: Config = {
       {
         dark: {
           ...require('daisyui/src/theming/themes')['dark'],
-          primary: 'white',
-          'base-300': '#f2e6fa',
+          primary: 'F12379', // pink
+          secondary: '#F3A042', // orange
+          accent: '#A72F60', // dark pink
+          'accent-content': '#78143C', // darkest pink
+          neutral: '#0D0935', // dark blue
+          'neutral-content': 'white', // white
+          'base-300': '#020810',
         },
       },
       {
         retro: {
           ...require('daisyui/src/theming/themes')['retro'],
-          primary: '#302c2c',
-          'base-300': '#302c2c',
+          primary: 'F12379', // pink
+          secondary: '#F3A042', // orange
+          accent: '#A72F60', // dark pink
+          'accent-content': '#78143C', // darkest pink
+          // neutral: '#0D0935', // dark blue
+          'neutral-content': 'white', // white
+          'base-300': '#ECE2C9',
         },
       },
       {

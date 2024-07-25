@@ -30,10 +30,11 @@ const FlipButton: React.FC<FlipButtonProps> = ({
   }
 
   return (
-    <div className='relative flex justify-center mb-1'>
+    <div className='relative flex justify-center mb-2'>
       <button
         onClick={handleSwapArrow}
-        className='absolute bg-neutral text-white hover:text-gray-300 border-base-100 border-4 p-[0.4rem] rounded-xl -top-4'>
+        className='absolute bg-gradient-to-br from-primary to-secondary from-35% text-neutral-content hover:text-gray-300
+        border-none p-[0.3rem] rounded-lg -top-3'>
         <svg
           xmlns='http://www.w3.org/2000/svg'
           className='h-5 w-5'

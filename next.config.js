@@ -16,6 +16,7 @@ const nextConfig = {
   },
   images: {
     remotePatterns: [{ hostname: '*' }],
+    unoptimized: true,
   },
   output: 'export',
 }

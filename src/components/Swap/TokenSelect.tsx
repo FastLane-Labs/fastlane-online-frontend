@@ -21,7 +21,7 @@ const TokenSelect: React.FC<TokenSelectProps> = ({ value, onChange, address, def
   return (
     <div className='relative'>
       <button
-        className='h-[48px] bg-base-200 hover:bg-base-100 text-primary p-2 rounded-xl focus:outline-none appearance-none flex items-center text-nowrap w-max'
+        className='h-[48px] hover:bg-base-100 text-neutral-content p-2 rounded-xl focus:outline-none appearance-none flex items-center text-nowrap w-max'
         onClick={() => setIsDropdownActive(true)}>
         {value && (
           <img
@@ -31,7 +31,10 @@ const TokenSelect: React.FC<TokenSelectProps> = ({ value, onChange, address, def
           />
         )}
         <span>{value || defaultLabel}</span>
-        <svg className='w-4 h-4 fill-current text-primary ml-2' xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'>
+        <svg
+          className='w-4 h-4 fill-current text-neutral-content ml-2'
+          xmlns='http://www.w3.org/2000/svg'
+          viewBox='0 0 20 20'>
           <path d='M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z' />
         </svg>
       </button>

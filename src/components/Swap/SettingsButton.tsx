@@ -12,7 +12,7 @@ interface SettingsButtonProps {
 const SettingsButton: React.FC<SettingsButtonProps> = ({ settings, setIsSettingsModalVisible }) => {
   return (
     <button
-      className='btn bg-base-100 border-none flex gap-2 text-primary'
+      className='btn-outline p-2 border-none flex gap-2 text-neutral-content'
       onClick={() => setIsSettingsModalVisible(true)}>
       {settings.slippageTolerance !== 0.5 && (
         <span className='text-gray-600 font-normal text-xs'>{settings.slippageTolerance}% slippage</span>

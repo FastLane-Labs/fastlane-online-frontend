@@ -9,6 +9,10 @@ input[type='number']::-webkit-inner-spin-button {
   margin: 0;
 }
 
+.btn {
+  @apply border-none;
+}
+
 /* Hide number input spinners in Firefox */
 input[type='number'] {
   -moz-appearance: textfield;
@@ -18,4 +22,8 @@ select {
   -webkit-appearance: none;
   -moz-appearance: none;
   appearance: none;
+}
+
+.backdrop-filter {
+  backdrop-filter: blur(8px);
 }
