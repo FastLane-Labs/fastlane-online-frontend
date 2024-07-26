@@ -30,10 +30,10 @@ const SellComponent: React.FC<SellComponentProps> = ({
   }
 
   return (
-    <div className='bg-neutral p-4 rounded-2xl mb-0 border-accent-content hover:border-neutral-700 border'>
+    <div className='input-card mb-0'>
       <div className='flex justify-between items-center mb-2 text-sm'>
-        <span className='text-gray-400'>Sell</span>
-        <h1 className='text-gray-400'>
+        <span className='text-base-content'>Sell</span>
+        <h1 className='text-base-content'>
           <span>Balance: </span>
           <TokenBalance
             address={address}

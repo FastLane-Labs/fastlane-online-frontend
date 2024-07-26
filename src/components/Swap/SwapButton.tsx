@@ -21,28 +21,25 @@ const SwapButton: React.FC<SwapButtonProps> = ({ isConnected, sellAmount, buyTok
 
   if (!isConnected) {
     return (
-      <button className='btn bg-primary rounded-2xl w-full text-white' onClick={() => openConnectModal?.()}>
+      <button className='btn rounded-2xl w-full' onClick={() => openConnectModal?.()}>
         Connect wallet
       </button>
     )
   } else if (!sellAmount) {
     return (
-      <button className='btn bg-primary rounded-2xl w-full text-white' disabled>
+      <button className='btn rounded-2xl w-full' disabled>
         Enter an amount
       </button>
     )
   } else if (!buyToken) {
     return (
-      <button className='btn bg-primary rounded-2xl w-full text-white' disabled>
+      <button className='btn rounded-2xl w-full' disabled>
         Select a token
       </button>
     )
   } else {
     return (
-      <button
-        className='btn bg-primary rounded-2xl w-full text-white'
-        onClick={handleClick}
-        disabled={isLoading || localLoading}>
+      <button className='btn rounded-2xl w-full' onClick={handleClick} disabled={isLoading || localLoading}>
         {localLoading ? (
           <>
             <span className='loading loading-spinner'></span>Initiating swap

@@ -10,7 +10,12 @@ input[type='number']::-webkit-inner-spin-button {
 }
 
 .btn {
-  @apply border-none;
+  @apply border-none bg-primary text-neutral-content
+  hover:bg-primary-content hover:shadow-primary hover:shadow-sm;
+}
+
+.btn-outline {
+  @apply border border-transparent hover:border-transparent hover:bg-transparent hover:text-primary-content;
 }
 
 /* Hide number input spinners in Firefox */
@@ -26,4 +31,8 @@ select {
 
 .backdrop-filter {
   backdrop-filter: blur(8px);
+}
+
+.input-card {
+  @apply bg-neutral p-4 rounded-2xl border-accent-content hover:border-accent border;
 }

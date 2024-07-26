@@ -14,12 +14,14 @@ const config: Config = {
         dark: {
           ...require('daisyui/src/theming/themes')['dark'],
           primary: 'F12379', // pink
+          'primary-content': '#FE3187', // lighter-pink
           secondary: '#F3A042', // orange
           accent: '#A72F60', // dark pink
           'accent-content': '#78143C', // darkest pink
           neutral: '#0D0935', // dark blue
           'neutral-content': 'white', // white
-          'base-300': '#020810',
+          'base-content': '#9CA3AF', // gray-300
+          'base-300': '#020810', // black blue bg
         },
       },
       {
@@ -31,7 +33,7 @@ const config: Config = {
           'accent-content': '#78143C', // darkest pink
           // neutral: '#0D0935', // dark blue
           'neutral-content': 'white', // white
-          'base-300': '#ECE2C9',
+          'base-300': '#ECE2C9', // beige
         },
       },
       {
