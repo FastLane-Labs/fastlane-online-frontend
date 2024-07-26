@@ -36,3 +36,24 @@ select {
 .input-card {
   @apply bg-neutral p-4 rounded-2xl border-accent-content hover:border-accent border;
 }
+
+.gradient-1-geoblock {
+  background: radial-gradient(50% 50% at 50% 50%, rgb(241, 35, 121) 0px, rgba(243, 160, 66, 0) 100%);
+  opacity: 0.1;
+
+  bottom: -20rem;
+  left: -15.5rem;
+  position: absolute;
+  width: 63rem;
+  height: 65rem;
+}
+
+.gradient-2-geoblock {
+  background: radial-gradient(50% 50% at 50% 50%, rgb(243, 160, 66) 0px, rgba(0, 9, 91, 0) 100%);
+  opacity: 0.14;
+  position: absolute;
+  right: -12rem;
+  top: -12rem;
+  width: 50rem;
+  height: 43rem;
+}

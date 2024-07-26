@@ -7,6 +7,7 @@ import ClientWeb3Provider from '../context/ClientWeb3Provider'
 import { NotificationProvider } from '@/context/Notifications'
 import '../assets/globals.css'
 import React from 'react'
+import GeoBlock from '@/components/GeoBlock/GeoBlock'
 
 export const metadata: Metadata = {
   applicationName: SITE_NAME,
@@ -41,6 +42,8 @@ export const viewport: Viewport = {
 }
 
 export default function RootLayout(props: PropsWithChildren) {
+  let isRestricted: boolean = true
+  let country: string = 'US'
   return (
     <html lang='en'>
       <head>
@@ -50,13 +53,17 @@ export default function RootLayout(props: PropsWithChildren) {
         />
       </head>
       <body>
-        <ClientWeb3Provider>
-          <NotificationProvider>
-            <AppRouter>
-              <Layout>{props.children}</Layout>
-            </AppRouter>
-          </NotificationProvider>
-        </ClientWeb3Provider>
+        {isRestricted ? (
+          <GeoBlock country={country} />
+        ) : (
+          <ClientWeb3Provider>
+            <NotificationProvider>
+              <AppRouter>
+                <Layout>{props.children}</Layout>
+              </AppRouter>
+            </NotificationProvider>
+          </ClientWeb3Provider>
+        )}
       </body>
     </html>
   )
