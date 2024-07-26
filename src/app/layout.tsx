@@ -42,7 +42,7 @@ export const viewport: Viewport = {
 }
 
 export default function RootLayout(props: PropsWithChildren) {
-  let isRestricted: boolean = true
+  let isRestricted: boolean = false
   let country: string = 'US'
   return (
     <html lang='en'>
