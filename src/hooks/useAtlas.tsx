@@ -1,6 +1,6 @@
 'use client'
+import { EthersProviderType } from '@/context/EthersProviderContext'
 import { useState } from 'react'
-import { createWalletClient } from 'viem'
 
 export interface SwapParameters {
   sellToken: string
@@ -10,7 +10,7 @@ export interface SwapParameters {
   transactionDeadline: number
   address?: string
   chainId: number
-  provider: ReturnType<typeof createWalletClient>
+  provider: EthersProviderType
   operationsRelayUrl: string
   dapp: string
   control: string

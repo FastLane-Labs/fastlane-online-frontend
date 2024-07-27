@@ -2,7 +2,7 @@ import { createContext, useContext, useMemo, ReactNode } from 'react'
 import { JsonRpcProvider, FallbackProvider } from 'ethers'
 import { useEthersProvider } from '@/hooks/useEthersProvider'
 
-type EthersProviderType = JsonRpcProvider | FallbackProvider | undefined
+expot type EthersProviderType = JsonRpcProvider | FallbackProvider | undefined
 
 interface EthersProviderContextType {
   ethersProvider: EthersProviderType
