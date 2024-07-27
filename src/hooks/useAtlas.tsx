@@ -1,5 +1,5 @@
 'use client'
-import { EthersProviderType } from '@/context/EthersProviderContext'
+import { ethers } from 'ethers'
 import { useState } from 'react'
 
 export interface SwapParameters {
@@ -10,7 +10,7 @@ export interface SwapParameters {
   transactionDeadline: number
   address?: string
   chainId: number
-  provider: EthersProviderType
+  provider: ethers.AbstractProvider
   operationsRelayUrl: string
   dapp: string
   control: string
