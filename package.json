@@ -31,6 +31,7 @@
     "axios": "^1.7.2",
     "dayjs": "^1.11.10",
     "ethers": "^6.13.0",
+    "ethers-multicall-provider": "^6.4.0",
     "fastlane-atlas-sdk": "file:./atlas-sdk-rfq",
     "iron-session": "^6.3.1",
     "next": "^14.1.4",

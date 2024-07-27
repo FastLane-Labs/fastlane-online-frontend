@@ -3,8 +3,10 @@ import ModalWrapper from '@/components/Wrappers/ModalWrapper'
 import { useTokenList } from '@/hooks/useTokenList'
 import { useChainId, useAccount } from 'wagmi'
 import { Token } from '@/types'
-import { TokenBalance } from '../TokenBalance/TokenBalance'
+import { useBalances } from '@/hooks/useBalances'
 import { useSwapContext } from '@/context/SwapContext'
+import { formatBalance } from '@/utils/formatBalance'
+import { formatBalanceFixed } from '@/utils/format'
 
 interface TokenSelectModalProps {
   selectedToken: Token | null
@@ -12,6 +14,8 @@ interface TokenSelectModalProps {
   direction: 'buy' | 'sell'
   defaultLabel: string
 }
+
+type TokenWithBalance = Token & { balance: string }
 
 const TokenSelectModal: React.FC<TokenSelectModalProps> = ({
   selectedToken,
@@ -26,18 +30,17 @@ const TokenSelectModal: React.FC<TokenSelectModalProps> = ({
   const { address } = useAccount()
   const { fromToken, toToken } = useSwapContext()
 
-  useEffect(() => {
-    if (!isOpen) {
-      setSearchTerm('')
-    }
-  }, [isOpen])
+  const balancesQuery = useBalances({
+    tokens: tokens,
+    userAddress: address as string,
+  })
 
-  const handleSelect = (token: Token) => {
-    onSelectToken(token)
-    setIsOpen(false)
-  }
+  const tokensWithBalances: TokenWithBalance[] = tokens.map((token, index) => ({
+    ...token,
+    balance: balancesQuery.data ? balancesQuery.data[index] : '0',
+  }))
 
-  const filteredTokens = tokens.filter((token) => {
+  const filteredTokensWithBalances = tokensWithBalances.filter((token) => {
     if (direction === 'sell' && toToken && token.address.toLowerCase() === toToken.address.toLowerCase()) {
       return false
     }
@@ -49,6 +52,21 @@ const TokenSelectModal: React.FC<TokenSelectModalProps> = ({
       token.name.toLowerCase().includes(searchTerm.toLowerCase())
     )
   })
+
+  const sortedTokensWithBalances = filteredTokensWithBalances.sort(
+    (a, b) => parseFloat(b.balance) - parseFloat(a.balance)
+  )
+
+  useEffect(() => {
+    if (!isOpen) {
+      setSearchTerm('')
+    }
+  }, [isOpen])
+
+  const handleSelect = (token: Token) => {
+    onSelectToken(token)
+    setIsOpen(false)
+  }
 
   return (
     <div className='relative'>
@@ -80,11 +98,11 @@ const TokenSelectModal: React.FC<TokenSelectModalProps> = ({
           {error && <div className='text-center text-red-500'>Error loading tokens: {error.message}</div>}
           {!loading && !error && (
             <ul className='space-y-2'>
-              {filteredTokens.map((token) => (
+              {sortedTokensWithBalances.map((token) => (
                 <li
                   key={token.address}
                   className={`flex items-center p-2 cursor-pointer hover:bg-gray-700 rounded-xl ${
-                    token.address.toLowerCase() === selectedToken?.address.toLowerCase() ? 'bg-gray-600' : ''
+                    token.address.toLowerCase() === selectedToken?.address?.toLowerCase() ? 'bg-gray-600' : ''
                   }`}
                   onClick={() => handleSelect(token)}>
                   <img src={token.logoURI} alt={token.symbol} className='w-6 h-6 mr-2 rounded-full' />
@@ -92,9 +110,7 @@ const TokenSelectModal: React.FC<TokenSelectModalProps> = ({
                     <span>{token.symbol}</span>
                     <span className='text-gray-500 text-sm'>{token.name}</span>
                   </div>
-                  <span className='ml-auto'>
-                    <TokenBalance address={address} tokenAddress={token.address as `0x${string}`} toFixed={2} />
-                  </span>
+                  <span className='ml-auto'>{formatBalanceFixed(token.balance, token.decimals)}</span>
                 </li>
               ))}
             </ul>

@@ -5,3 +5,8 @@ export function TruncateMiddle(text: string, length: number = 5) {
 
   return text
 }
+
+export const formatBalanceFixed = (balance: string, decimals: number, fixed: number = 5): string => {
+  const formattedBalance = parseFloat(balance).toFixed(fixed)
+  return formattedBalance
+}
