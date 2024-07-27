@@ -17,6 +17,7 @@ interface SwapState {
   resetSelections: () => void
 }
 
+// useSwapContext over useSwap
 export const useSwap = (): SwapState => {
   const chainId = useChainId()
   const [fromToken, setFromToken] = useState<Token | null>(null)

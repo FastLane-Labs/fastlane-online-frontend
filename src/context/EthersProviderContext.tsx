@@ -1,8 +1,10 @@
-import { createContext, useContext, useMemo, ReactNode } from 'react'
+'use client'
+import React, { createContext, useContext, useMemo, ReactNode } from 'react'
 import { JsonRpcProvider, FallbackProvider } from 'ethers'
+import { useChainId } from 'wagmi'
 import { useEthersProvider } from '@/hooks/useEthersProvider'
 
-expot type EthersProviderType = JsonRpcProvider | FallbackProvider | undefined
+export type EthersProviderType = JsonRpcProvider | FallbackProvider | undefined
 
 interface EthersProviderContextType {
   ethersProvider: EthersProviderType
@@ -11,7 +13,8 @@ interface EthersProviderContextType {
 const EthersProviderContext = createContext<EthersProviderContextType | null>(null)
 
 export const EthersProviderWrapper: React.FC<{ children: ReactNode }> = ({ children }) => {
-  const ethersProvider = useEthersProvider()
+  const chainId = useChainId()
+  const ethersProvider = useEthersProvider({ chainId })
   const value = useMemo(() => ({ ethersProvider }), [ethersProvider])
 
   return <EthersProviderContext.Provider value={value}>{children}</EthersProviderContext.Provider>
