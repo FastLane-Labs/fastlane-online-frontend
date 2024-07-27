@@ -1,51 +1,35 @@
 'use client'
-import { useBalance, useReadContract } from 'wagmi'
-import { toBigInt } from 'ethers'
+import { useAccount } from 'wagmi'
 import { useEffect } from 'react'
 import { formatBalance } from '@/utils/formatBalance'
-import { erc20Abi } from 'viem'
+import { Token } from '@/types'
+import { useBalance } from '@/hooks/useBalance'
 
 interface TokenBalanceProps {
-  readonly address?: string
-  readonly tokenAddress?: string
+  readonly token?: Token
   readonly className?: string
   readonly toFixed?: number
   readonly onBalanceChange?: ({ balance, formattedBalance }: { balance: bigint; formattedBalance?: string }) => void
 }
 
-export const TokenBalance: React.FC<TokenBalanceProps> = ({
-  address,
-  tokenAddress,
-  toFixed,
-  onBalanceChange,
-  className,
-}) => {
-  const ETHBalance = useBalance({ address: address as `0x${string}` })
-
-  const tokenBalance = useReadContract({
-    abi: erc20Abi,
-    address: tokenAddress as `0x${string}`,
-    functionName: 'balanceOf',
-    args: [address as `0x${string}`],
+export const TokenBalance: React.FC<TokenBalanceProps> = ({ token, toFixed, onBalanceChange, className }) => {
+  const { address } = useAccount()
+  const balanceQuery = useBalance({
+    token,
+    userAddress: address as string,
   })
-
   useEffect(() => {
-    // Pass the value of the balance to the parent component on change
-    if (tokenBalance.data && onBalanceChange) {
-      onBalanceChange({ balance: tokenBalance.data, formattedBalance: formatBalance(tokenBalance.data, toFixed) })
-      return
-    } else if (ETHBalance.data && onBalanceChange) {
+    if (balanceQuery.data && onBalanceChange) {
       onBalanceChange({
-        balance: ETHBalance.data.value,
-        formattedBalance: formatBalance(ETHBalance.data.value, toFixed),
+        balance: BigInt(balanceQuery.data),
+        formattedBalance: balanceQuery.data,
       })
-      return
     }
-  }, [ETHBalance.data, tokenBalance.data, onBalanceChange, toFixed])
+  }, [balanceQuery.data, onBalanceChange, toFixed, token?.decimals])
 
-  if (!ETHBalance.data && !tokenBalance.data) return null
-  if (tokenAddress && tokenBalance.data) {
-    return <span className={`${className}`}>{formatBalance(tokenBalance.data, toFixed)}</span>
+  if (!balanceQuery.data) {
+    return <span className={`${className}`}>0</span>
   }
-  return <span className={` ${className}`}>{formatBalance(ETHBalance.data?.value ?? toBigInt(0), toFixed)}</span>
+
+  return <span className={`${className}`}>{balanceQuery.data}</span>
 }

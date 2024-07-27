@@ -24,7 +24,7 @@ const SellComponent: React.FC = () => {
         <span className='text-base-content'>Sell</span>
         <h1 className='text-base-content'>
           <span>Balance: </span>
-          <TokenBalance address={sellToken?.address} tokenAddress={sellToken?.address} toFixed={4} />
+          <TokenBalance token={sellToken || undefined} toFixed={4} />
         </h1>
       </div>
       <SellAmount
