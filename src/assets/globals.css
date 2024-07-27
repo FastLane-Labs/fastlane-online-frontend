@@ -14,6 +14,14 @@ input[type='number']::-webkit-inner-spin-button {
   hover:bg-primary-content hover:shadow-primary hover:shadow-sm;
 }
 
+.btn-navbar {
+  @apply bg-[#1a1b1f] h-10 shadow-black !important;
+}
+
+.btn-navbar:hover {
+  @apply scale-105 !important;
+}
+
 .btn-outline {
   @apply border border-transparent hover:border-transparent hover:bg-transparent hover:text-primary-content;
 }

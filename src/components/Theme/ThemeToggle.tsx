@@ -5,7 +5,7 @@ const ThemeToggle = () => {
     <div className='drawer drawer-end text-gray-600'>
       <input id='my-drawer' type='checkbox' className='drawer-toggle' />
       <div className='drawer-content'>
-        <label className='btn btn-ghost btn-sm  drawer-button swap swap-rotate'>
+        <label className='btn btn-navbar btn-ghost btn-sm  drawer-button swap swap-rotate'>
           {/* this hidden checkbox controls the state */}
           <input type='checkbox' className='theme-controller' value='retro' />
 

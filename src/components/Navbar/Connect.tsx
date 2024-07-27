@@ -3,8 +3,8 @@ import { ConnectButton } from '@rainbow-me/rainbowkit'
 
 export function Connect() {
   return (
-    <div>
-      <ConnectButton label='Connect' showBalance={false} />
+    <div className='min-w-max'>
+      <ConnectButton label='Connect' showBalance={false} accountStatus='full' chainStatus='icon' />
     </div>
   )
 }

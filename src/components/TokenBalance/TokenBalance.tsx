@@ -45,7 +45,7 @@ export const TokenBalance: React.FC<TokenBalanceProps> = ({
 
   if (!ETHBalance.data && !tokenBalance.data) return null
   if (tokenAddress && tokenBalance.data) {
-    return <span className={`stat-value ${className}`}>{formatBalance(tokenBalance.data, toFixed)}</span>
+    return <span className={`${className}`}>{formatBalance(tokenBalance.data, toFixed)}</span>
   }
   return <span className={` ${className}`}>{formatBalance(ETHBalance.data?.value ?? toBigInt(0), toFixed)}</span>
 }
