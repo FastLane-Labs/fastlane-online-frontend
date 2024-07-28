@@ -1,4 +1,4 @@
-import React, { ChangeEvent } from 'react'
+import React, { ChangeEvent, useEffect, useState } from 'react'
 import TokenSelectModal from '../Modals/TokenSelectModal'
 import { Token } from '@/types'
 
@@ -12,6 +12,12 @@ interface SellAmountProps {
 }
 
 const SellAmount: React.FC<SellAmountProps> = ({ sellToken, setSellToken, sellAmount, setSellAmount, balance }) => {
+  const [currentBalance, setCurrentBalance] = useState<string>(balance)
+
+  useEffect(() => {
+    setCurrentBalance(balance)
+  }, [balance, sellToken])
+
   const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value
     // Ensure the input is valid (numbers and one decimal point)
@@ -21,7 +27,7 @@ const SellAmount: React.FC<SellAmountProps> = ({ sellToken, setSellToken, sellAm
   }
 
   const handleSetMax = () => {
-    setSellAmount(balance)
+    setSellAmount(currentBalance)
   }
 
   return (
@@ -33,9 +39,11 @@ const SellAmount: React.FC<SellAmountProps> = ({ sellToken, setSellToken, sellAm
         className='bg-neutral text-white p-2 rounded-2xl flex-grow text-4xl w-full focus:outline-none'
         placeholder='0'
       />
-      <button className='btn-outline text-primary' onClick={handleSetMax}>
-        MAX
-      </button>
+      {sellToken && parseFloat(currentBalance) > 0 && (
+        <button className='btn-outline text-primary' onClick={handleSetMax}>
+          MAX
+        </button>
+      )}
       <TokenSelectModal
         selectedToken={sellToken}
         onSelectToken={setSellToken}

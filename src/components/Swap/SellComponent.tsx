@@ -18,17 +18,21 @@ const SellComponent: React.FC = () => {
   const { address } = useAccount()
   const [balance, setBalance] = useState<string>('0')
 
-  const { data: fetchedBalance } = useBalance({
+  const {
+    data: fetchedBalance,
+    isLoading,
+    error,
+  } = useBalance({
     token: sellToken as Token,
     userAddress: address as string,
     enabled: !!sellToken && !!address,
   })
 
   useEffect(() => {
-    if (fetchedBalance && sellToken) {
-      setBalance(ethers.formatUnits(fetchedBalance, sellToken.decimals))
+    if (sellToken && !isLoading && !error) {
+      setBalance(ethers.formatUnits(fetchedBalance ?? 0n, sellToken.decimals))
     }
-  }, [fetchedBalance, sellToken])
+  }, [fetchedBalance, sellToken, isLoading, error])
 
   return (
     <div className='input-card mb-0'>
