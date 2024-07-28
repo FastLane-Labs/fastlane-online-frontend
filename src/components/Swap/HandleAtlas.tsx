@@ -8,7 +8,6 @@ import { useAccount, useWalletClient } from 'wagmi'
 import { getDappAddress, getControlAddress } from '@/utils/getContractAddress'
 import SwapButton from '../Buttons/SwapButton'
 import useAtlas, { SwapParameters } from '@/hooks/useAtlas'
-import { useEthersProvider } from '@/hooks/useEthersProvider'
 import { useEthersProviderContext } from '@/context/EthersProviderContext'
 
 interface HandleAtlasProps {
@@ -43,7 +42,6 @@ const HandleAtlas: React.FC<HandleAtlasProps> = ({
     const operationsRelayUrl = 'https://eth-sepolia.atlas-operations-relay.fastlane.xyz'
     const dapp = getDappAddress(chain)
     const control = getControlAddress(chain)
-    let value, gasEstimate, deadline, data
     /////////////////////////////////////////////////
 
     const swapParams = {

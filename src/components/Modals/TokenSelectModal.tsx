@@ -5,8 +5,8 @@ import { useChainId, useAccount } from 'wagmi'
 import { Token } from '@/types'
 import { useBalances } from '@/hooks/useBalances'
 import { useSwapContext } from '@/context/SwapContext'
-import { formatBalance } from '@/utils/formatBalance'
-import { formatBalanceFixed } from '@/utils/format'
+
+import { formatBalanceToFixedDecimal } from '@/utils/format'
 
 interface TokenSelectModalProps {
   selectedToken: Token | null
@@ -110,7 +110,7 @@ const TokenSelectModal: React.FC<TokenSelectModalProps> = ({
                     <span>{token.symbol}</span>
                     <span className='text-gray-500 text-sm'>{token.name}</span>
                   </div>
-                  <span className='ml-auto'>{formatBalanceFixed(token.balance, token.decimals)}</span>
+                  <span className='ml-auto'>{formatBalanceToFixedDecimal(token.balance)}</span>
                 </li>
               ))}
             </ul>

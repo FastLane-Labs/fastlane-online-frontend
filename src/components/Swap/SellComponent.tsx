@@ -1,7 +1,11 @@
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import { TokenBalance } from '@/components/TokenBalance/TokenBalance'
 import SellAmount from './SellAmount'
 import { useSwapContext } from '@/context/SwapContext'
+import { useAccount } from 'wagmi'
+import { useBalance } from '@/hooks/useBalance'
+import { Token } from '@/types'
+import { ethers } from 'ethers'
 
 const SellComponent: React.FC = () => {
   const {
@@ -11,12 +15,20 @@ const SellComponent: React.FC = () => {
     setFromAmount: setSellAmount,
   } = useSwapContext()
 
-  const balance = '1'
-  const decimals = 18
+  const { address } = useAccount()
+  const [balance, setBalance] = useState<string>('0')
 
-  const formatBalance = (balance: string, decimals: number = 18): number => {
-    return Number(balance) / Math.pow(10, decimals)
-  }
+  const { data: fetchedBalance } = useBalance({
+    token: sellToken as Token,
+    userAddress: address as string,
+    enabled: !!sellToken && !!address,
+  })
+
+  useEffect(() => {
+    if (fetchedBalance && sellToken) {
+      setBalance(ethers.formatUnits(fetchedBalance, sellToken.decimals))
+    }
+  }, [fetchedBalance, sellToken])
 
   return (
     <div className='input-card mb-0'>

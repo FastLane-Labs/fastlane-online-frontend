@@ -9,7 +9,7 @@ import {
 import { LinkComponent } from '../LinkComponent'
 import dayjs from 'dayjs'
 import relativeTime from 'dayjs/plugin/relativeTime'
-import { TruncateMiddle } from '@/utils/format'
+import { truncateAddress } from '@/utils/format'
 import { NotificationType } from '@/utils/types'
 dayjs.extend(relativeTime)
 
@@ -67,7 +67,7 @@ export function Alert(props: Props) {
             <>
               <span className='text-xs'> · </span>
               <span className='text-xs text-secondary'>
-                {props.from.startsWith('0x') ? TruncateMiddle(props.from) : props.from}
+                {props.from.startsWith('0x') ? truncateAddress(props.from) : props.from}
               </span>
             </>
           )}

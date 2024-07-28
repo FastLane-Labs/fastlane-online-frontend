@@ -26,22 +26,22 @@ const createBalanceQueryOptions = ({
   token,
   userAddress,
   enabled = true,
-}: UseBalanceParams & { provider: ethers.AbstractProvider }): UseQueryOptions<string, Error> => {
+}: UseBalanceParams & { provider: ethers.AbstractProvider }): UseQueryOptions<bigint, Error> => {
   const queryKey = keys({ address: userAddress }).balance(token?.chainId, token?.address, userAddress)
 
-  const queryFn = async (): Promise<string> => {
-    if (!userAddress || !token) return '0.0'
+  const queryFn = async (): Promise<bigint> => {
+    if (!userAddress || !token) return BigInt(0)
 
     if (token.address.toLowerCase() === nativeEvmTokenAddress.toLowerCase()) {
       const balance = await provider.getBalance(userAddress)
-      return ethers.formatUnits(balance, token?.decimals)
+      return BigInt(balance.toString())
     } else {
       const contract = new ethers.Contract(token.address, ERC20_ABI, provider)
       try {
         const balance = await contract.balanceOf(userAddress)
-        return ethers.formatUnits(balance, token.decimals)
+        return BigInt(balance.toString())
       } catch {
-        return '0.0'
+        return 0n
       }
     }
   }
@@ -55,8 +55,8 @@ const createBalanceQueryOptions = ({
   }
 }
 
-export const useBalance = (params: UseBalanceParams): UseQueryResult<string, Error> => {
+export const useBalance = (params: UseBalanceParams): UseQueryResult<bigint, Error> => {
   const provider = useEthersProviderContext()
   const options = createBalanceQueryOptions({ ...params, provider })
-  return useQuery<string, Error>(options)
+  return useQuery<bigint, Error>(options)
 }
