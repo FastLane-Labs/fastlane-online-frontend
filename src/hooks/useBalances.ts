@@ -28,12 +28,20 @@ const fetchBalances = async (
 ): Promise<string[]> => {
   const calls = tokens.map((token) => {
     if (token.address.toLowerCase() === nativeEvmTokenAddress.toLowerCase()) {
-      return multicallProvider.getBalance(userAddress).then((balance) => ethers.formatUnits(balance, token.decimals))
+      return multicallProvider
+        .getBalance(userAddress)
+        .then((balance) => ethers.formatUnits(balance, token.decimals))
+        .catch(() => {
+          return '0'
+        })
     } else {
       const contract = new ethers.Contract(token.address, ERC20_ABI, multicallProvider)
       return contract
         .balanceOf(userAddress)
         .then((balance: BigNumberish) => ethers.formatUnits(balance, token.decimals))
+        .catch(() => {
+          return '0'
+        })
     }
   })
 

@@ -21,5 +21,8 @@ export const formatBalanceFixed = (balance: bigint, decimals: number, fixed: num
 
 // Formats decimal balance string to a fixed number of decimal places
 export const formatBalanceToFixedDecimal = (balance: string, fixed: number = 5): string => {
+  if (balance === '0' || balance === '0.0') {
+    return '0'
+  }
   return parseFloat(balance).toFixed(fixed)
 }
