@@ -26,3 +26,9 @@ export const formatBalanceToFixedDecimal = (balance: string, fixed: number = 5):
   }
   return parseFloat(balance).toFixed(fixed)
 }
+
+export const toBigInt = (amount: string, decimals: number): bigint => {
+  const [integer, fraction = ''] = amount.split('.')
+  const fractionPadded = fraction.padEnd(decimals, '0')
+  return BigInt(integer + fractionPadded)
+}

@@ -50,7 +50,7 @@ const SwapView: React.FC = () => {
           <FlipButton />
           <BuyComponent />
 
-          <SwapButton isConnected={!!account} handleSwap={handleSwap} isLoading={isSwapping || isQuoteLoading} />
+          <SwapButton handleSwap={handleSwap} isLoading={isSwapping || isQuoteLoading} />
 
           <SettingsModal
             isVisible={isSettingsModalVisible}

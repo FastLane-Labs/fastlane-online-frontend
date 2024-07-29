@@ -3,6 +3,7 @@ import { useConnectModal } from '@rainbow-me/rainbowkit'
 import { useAccount } from 'wagmi'
 import { useBalance } from '@/hooks/useBalance'
 import { useSwapContext } from '@/context/SwapContext'
+import { toBigInt } from '@/utils/format'
 
 interface SwapButtonProps {
   handleSwap: () => Promise<void>
@@ -11,8 +12,8 @@ interface SwapButtonProps {
 
 const SwapButton: React.FC<SwapButtonProps> = ({ handleSwap, isLoading }) => {
   const { openConnectModal } = useConnectModal()
-  const { fromToken, toToken, fromAmount, quoteLoading } = useSwapContext()
-  const { address: userAddress, status, isConnecting, isConnected } = useAccount()
+  const { fromToken, toToken, fromAmount } = useSwapContext()
+  const { address: userAddress, status, isConnected } = useAccount()
   const [localLoading, setLocalLoading] = useState(false)
   const [initialized, setInitialized] = useState(false)
   const { data: balance, isLoading: balanceLoading } = useBalance({ token: fromToken!, userAddress: userAddress! })
@@ -28,6 +29,9 @@ const SwapButton: React.FC<SwapButtonProps> = ({ handleSwap, isLoading }) => {
     await handleSwap()
     setLocalLoading(false)
   }
+
+  const hasSufficientBalance =
+    balance && fromToken && toBigInt(fromAmount, fromToken.decimals) <= BigInt(balance.toString())
 
   if (!initialized) {
     return (
@@ -61,7 +65,7 @@ const SwapButton: React.FC<SwapButtonProps> = ({ handleSwap, isLoading }) => {
         Enter an amount
       </button>
     )
-  } else if (balance && parseFloat(fromAmount) > Number(balance)) {
+  } else if (!hasSufficientBalance) {
     return (
       <button className='btn rounded-2xl w-full' disabled>
         Insufficient {fromToken.symbol} balance
