@@ -6,7 +6,7 @@
         "name": "Matic",
         "symbol": "MATIC",
         "logoURI": "https://raw.githubusercontent.com/Uniswap/assets/master/blockchains/polygon/assets/0x0000000000000000000000000000000000001010/logo.png",
-        "tags": ["native", "popular"]
+        "tags": ["native", "popular", "default"]
     },
     {
         "chainId": 137,

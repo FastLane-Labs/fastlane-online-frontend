@@ -6,6 +6,7 @@ import { useAccount } from 'wagmi'
 import { useBalance } from '@/hooks/useBalance'
 import { Token } from '@/types'
 import { ethers } from 'ethers'
+import { useCurrentTokenList, useTokenList } from '@/hooks/useTokenList'
 
 const SellComponent: React.FC = () => {
   const {
@@ -18,10 +19,12 @@ const SellComponent: React.FC = () => {
   const { address } = useAccount()
   const [balance, setBalance] = useState<string>('0')
 
+  const tokens = useCurrentTokenList()
+
   const {
     data: fetchedBalance,
-    isLoading,
-    error,
+    isLoading: balanceLoading,
+    error: balanceError,
   } = useBalance({
     token: sellToken as Token,
     userAddress: address as string,
@@ -29,10 +32,19 @@ const SellComponent: React.FC = () => {
   })
 
   useEffect(() => {
-    if (sellToken && !isLoading && !error) {
+    if (!sellToken && tokens.length > 0) {
+      const defaultToken = tokens.find((token) => token.tags?.includes('default'))
+      if (defaultToken) {
+        setSellToken(defaultToken)
+      }
+    }
+  }, [sellToken, tokens, setSellToken])
+
+  useEffect(() => {
+    if (sellToken && !balanceLoading && !balanceError) {
       setBalance(ethers.formatUnits(fetchedBalance ?? 0n, sellToken.decimals))
     }
-  }, [fetchedBalance, sellToken, isLoading, error])
+  }, [fetchedBalance, sellToken, balanceLoading, balanceError])
 
   return (
     <div className='input-card mb-0'>
