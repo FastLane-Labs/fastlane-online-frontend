@@ -4,16 +4,7 @@ import { useMulticallProvider, multiCall } from '@/hooks/useMulticallProvider'
 import { Token } from '@/types'
 import { nativeEvmTokenAddress } from '@/constants'
 import { keys } from '@/core/queries/query-keys'
-
-const ERC20_ABI = [
-  {
-    constant: true,
-    inputs: [{ name: '_owner', type: 'address' }],
-    name: 'balanceOf',
-    outputs: [{ name: 'balance', type: 'uint256' }],
-    type: 'function',
-  },
-]
+import { ierc20Abi } from '@/abis'
 
 type UseBalancesParams = {
   tokens: Token[]
@@ -35,7 +26,7 @@ const fetchBalances = async (
           return '0'
         })
     } else {
-      const contract = new ethers.Contract(token.address, ERC20_ABI, multicallProvider)
+      const contract = new ethers.Contract(token.address, ierc20Abi, multicallProvider)
       return contract
         .balanceOf(userAddress)
         .then((balance: BigNumberish) => ethers.formatUnits(balance, token.decimals))
