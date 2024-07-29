@@ -118,7 +118,7 @@ const TokenSelectModal: React.FC<TokenSelectModalProps> = ({
           {!loading && !error && (
             <>
               <TokenGrid tokens={popularTokens} selectedToken={selectedToken!} handleSelect={handleSelect} />
-              <h3 className='text-xl font-bold mb-2'>Your Tokens</h3>
+              {tokensWithUserBalances.length > 0 && <h3 className='text-xl font-bold mb-2'>Your Tokens</h3>}
               <ul className='space-y-2'>
                 {tokensWithUserBalances.map((token) => (
                   <TokenItem
