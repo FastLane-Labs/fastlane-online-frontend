@@ -66,7 +66,7 @@ const TokenSelectModal: React.FC<TokenSelectModalProps> = ({
     if (balancesQuery.error || balancesQuery.data === undefined) {
       balancesQuery.refetch({ cancelRefetch: true }) // Force refetch with canceling any running requests
     }
-  }, [balancesQuery.error, balancesQuery.data])
+  }, [balancesQuery, balancesQuery.error, balancesQuery.data])
 
   useEffect(() => {
     if (!isOpen) {

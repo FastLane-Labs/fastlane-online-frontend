@@ -1,38 +1,28 @@
-import React, { useState, useEffect } from 'react'
-import { useAccount } from 'wagmi'
-import SellComponent from '@/components/Swap/SellComponent'
-import BuyComponent from '@/components/Swap/BuyComponent'
+import React, { useState } from 'react'
 import FlipButton from '@/components/Buttons/FlipButton'
 import SettingsButton from '@/components/Buttons/SettingsButton'
+import SwapButton from '@/components/Buttons/SwapButton'
 import SettingsModal from '@/components/Modals/SettingsModal'
-import HandleAtlas from '@/components/Swap/HandleAtlas'
+import BuyComponent from '@/components/Swap/BuyComponent'
+import SellComponent from '@/components/Swap/SellComponent'
 import BackgroundGradient from '@/components/Theme/BackgroundGradient'
-import { Settings } from '@/types'
 import { useSwapContext } from '@/context/SwapContext'
+import { useHandleSwap } from '@/hooks/useHandleSwap'
+import { useBaselineQuote } from '@/hooks/useBaselineQuote'
+import { Settings } from '@/types'
+import { useAccount } from 'wagmi'
 
 const SwapView: React.FC = () => {
-  const { address, isConnected } = useAccount()
-  const { fromToken, fromAmount, toToken, setToAmount, setQuoteLoading } = useSwapContext()
-
+  const { fromToken, fromAmount, toToken } = useSwapContext()
+  const { address: account } = useAccount()
   const [isSettingsModalVisible, setIsSettingsModalVisible] = useState<boolean>(false)
   const [settings, setSettings] = useState<Settings>({
     slippageTolerance: 0.5,
     transactionDeadline: 20,
   })
 
-  // Simulating quote fetching
-  useEffect(() => {
-    const fetchQuote = async () => {
-      if (fromToken && fromAmount) {
-        setQuoteLoading(true)
-        // Simulate API call delay
-        await new Promise((resolve) => setTimeout(resolve, 1000))
-        setToAmount('100') // Dummy value, replace with actual quote logic
-        setQuoteLoading(false)
-      }
-    }
-    fetchQuote()
-  }, [fromToken, fromAmount, setToAmount, setQuoteLoading])
+  const { handleSwap, isSwapping } = useHandleSwap()
+  const { isQuoteLoading } = useBaselineQuote()
 
   const handleSettingsSave = (newSettings: Settings) => {
     setSettings(newSettings)
@@ -57,18 +47,10 @@ const SwapView: React.FC = () => {
           </div>
 
           <SellComponent />
-
           <FlipButton />
-
           <BuyComponent />
 
-          <HandleAtlas
-            sellToken={fromToken?.symbol || ''}
-            buyToken={toToken?.symbol || ''}
-            sellAmount={fromAmount}
-            slippageTolerance={settings.slippageTolerance}
-            transactionDeadline={settings.transactionDeadline}
-          />
+          <SwapButton isConnected={!!account} handleSwap={handleSwap} isLoading={isSwapping || isQuoteLoading} />
 
           <SettingsModal
             isVisible={isSettingsModalVisible}
