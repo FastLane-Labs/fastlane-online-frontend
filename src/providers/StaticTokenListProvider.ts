@@ -1,5 +1,5 @@
 import { ITokenProvider, Token } from '@/types'
-import polygonTokens from '@/constants/tokenListPolygon.json'
+import polygonTokens from '@/config/tokenListPolygon.json'
 
 export class StaticTokenListProvider implements ITokenProvider {
   private static instance: StaticTokenListProvider

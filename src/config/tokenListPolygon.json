@@ -1,10 +1,19 @@
 [
     {
         "chainId": 137,
+        "address": "0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE",
+        "decimals": 18,
+        "name": "Matic",
+        "symbol": "MATIC",
+        "logoURI": "https://raw.githubusercontent.com/Uniswap/assets/master/blockchains/polygon/assets/0x0000000000000000000000000000000000001010/logo.png",
+        "tags": ["native", "popular"]
+    },
+    {
+        "chainId": 137,
         "address": "0x2791Bca1f2de4661ED88A30C99A7a9449Aa84174",
         "decimals": 6,
-        "name": "USD Coin (PoS)",
-        "symbol": "USDC",
+        "name": "Bridged USDC",
+        "symbol": "USDC.e",
         "logoURI": "https://raw.githubusercontent.com/Uniswap/assets/master/blockchains/ethereum/assets/0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48/logo.png"
     },
     {
@@ -13,7 +22,8 @@
         "decimals": 6,
         "name": "USD Coin",
         "symbol": "USDC",
-        "logoURI": "https://coin-images.coingecko.com/coins/images/6319/large/usdc.png?1696506694"
+        "logoURI": "https://coin-images.coingecko.com/coins/images/6319/large/usdc.png?1696506694",
+        "tags": ["popular"]
     },
     {
         "chainId": 137,
@@ -21,7 +31,8 @@
         "decimals": 8,
         "name": "(PoS) Wrapped BTC",
         "symbol": "WBTC",
-        "logoURI": "https://raw.githubusercontent.com/Uniswap/assets/master/blockchains/ethereum/assets/0x2260FAC5E5542a773Aa44fBCfeDf7C193bc2C599/logo.png"
+        "logoURI": "https://raw.githubusercontent.com/Uniswap/assets/master/blockchains/ethereum/assets/0x2260FAC5E5542a773Aa44fBCfeDf7C193bc2C599/logo.png",
+        "tags": ["popular"]
     },
     {
         "chainId": 137,
@@ -29,14 +40,15 @@
         "decimals": 18,
         "name": "Wrapped Ether",
         "symbol": "WETH",
-        "logoURI": "https://raw.githubusercontent.com/Uniswap/assets/master/blockchains/ethereum/assets/0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2/logo.png"
+        "logoURI": "https://raw.githubusercontent.com/Uniswap/assets/master/blockchains/ethereum/assets/0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2/logo.png",
+        "tags": ["popular"]
     },
     {
         "chainId": 137,
         "address": "0x11CD37bb86F65419713f30673A480EA33c826872",
         "decimals": 18,
         "name": "Wrapped Ether (Wormhole)",
-        "symbol": "WETH",
+        "symbol": "WETH.wh",
         "logoURI": "https://raw.githubusercontent.com/Uniswap/assets/master/blockchains/polygon/assets/0x11CD37bb86F65419713f30673A480EA33c826872/logo.png"
     },
     {
@@ -53,7 +65,8 @@
         "decimals": 6,
         "name": "(PoS) Tether USD",
         "symbol": "USDT",
-        "logoURI": "https://raw.githubusercontent.com/Uniswap/assets/master/blockchains/ethereum/assets/0xdAC17F958D2ee523a2206206994597C13D831ec7/logo.png"
+        "logoURI": "https://raw.githubusercontent.com/Uniswap/assets/master/blockchains/ethereum/assets/0xdAC17F958D2ee523a2206206994597C13D831ec7/logo.png",
+        "tags": ["popular"]
     },
     {
         "chainId": 137,
@@ -109,7 +122,7 @@
         "decimals": 18,
         "name": "ANGLE",
         "symbol": "ANGLE",
-        "logoURI": ""
+        "logoURI": "https://assets.coingecko.com/coins/images/19060/standard/ANGLE_Token-light.png?1696518509"
     },
     {
         "chainId": 137,
@@ -117,7 +130,8 @@
         "decimals": 18,
         "name": "(PoS) Dai Stablecoin",
         "symbol": "DAI",
-        "logoURI": "https://raw.githubusercontent.com/Uniswap/assets/master/blockchains/ethereum/assets/0x6B175474E89094C44Da98b954EedeAC495271d0F/logo.png"
+        "logoURI": "https://raw.githubusercontent.com/Uniswap/assets/master/blockchains/ethereum/assets/0x6B175474E89094C44Da98b954EedeAC495271d0F/logo.png",
+        "tags": ["popular"]
     },
     {
         "chainId": 137,
@@ -133,7 +147,7 @@
         "decimals": 18,
         "name": "CRISP Scored Mangroves",
         "symbol": "CRISP-M",
-        "logoURI": ""
+        "logoURI": "https://s2.coinmarketcap.com/static/img/coins/64x64/25862.png"
     },
     {
         "chainId": 137,
@@ -203,7 +217,7 @@
         "chainId": 137,
         "address": "0x750e4C4984a9e0f12978eA6742Bc1c5D248f40ed",
         "decimals": 6,
-        "name": "Axelar Wrapped USDC",
+        "name": "Axelar Bridged USDC",
         "symbol": "axlUSDC",
         "logoURI": "https://raw.githubusercontent.com/Uniswap/assets/master/blockchains/polygon/assets/0x750e4C4984a9e0f12978eA6742Bc1c5D248f40ed/logo.png"
     },
@@ -277,7 +291,7 @@
         "decimals": 18,
         "name": "Universus Token",
         "symbol": "UNX",
-        "logoURI": ""
+        "logoURI": "https://www.geckoterminal.com/_next/image?url=https%3A%2F%2Fassets.geckoterminal.com%2Fyb14pu0ti39rwa3qafelrten6c8s&w=32&q=75"
     },
     {
         "chainId": 137,
@@ -318,14 +332,6 @@
         "name": "Wrapped SOL (Wormhole)",
         "symbol": "SOL",
         "logoURI": "https://coin-images.coingecko.com/coins/images/22876/large/SOL_wh_small.png?1696522175"
-    },
-    {
-        "chainId": 137,
-        "address": "0xa0e2B472Ad04de673266263547a8d04643594e23",
-        "decimals": 8,
-        "name": "Saffron",
-        "symbol": "SFC",
-        "logoURI": ""
     },
     {
         "chainId": 137,
@@ -389,7 +395,7 @@
         "decimals": 18,
         "name": "South African Tether (PoS)",
         "symbol": "XZAR",
-        "logoURI": ""
+        "logoURI": "https://s2.coinmarketcap.com/static/img/coins/64x64/5946.png"
     },
     {
         "chainId": 137,
@@ -397,7 +403,7 @@
         "decimals": 18,
         "name": "OxChange",
         "symbol": "OC",
-        "logoURI": ""
+        "logoURI": "https://dapp.oxchange.finance/tokens/0x6eA4BaBF46AfC7895ee20594b86fDcF74526c3ec/logo.png"
     },
     {
         "chainId": 137,
