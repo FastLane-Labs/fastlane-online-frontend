@@ -47,7 +47,7 @@ const createBalanceQueryOptions = ({
 }
 
 export const useBalance = (params: UseBalanceParams): UseQueryResult<bigint, Error> => {
-  const provider = useEthersProviderContext()
+  const { provider } = useEthersProviderContext()
   const options = createBalanceQueryOptions({ ...params, provider })
   return useQuery<bigint, Error>(options)
 }
