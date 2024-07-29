@@ -38,7 +38,7 @@ const TokenSelectModal: React.FC<TokenSelectModalProps> = ({
 
   const tokensWithBalances: TokenWithBalance[] = tokens.map((token, index) => ({
     ...token,
-    balance: balancesQuery.data ? balancesQuery.data[index] : '0',
+    balance: balancesQuery.data && balancesQuery.data.length > 0 ? balancesQuery.data[index] : '0',
   }))
 
   const filteredTokensWithBalances = tokensWithBalances.filter((token) => {
