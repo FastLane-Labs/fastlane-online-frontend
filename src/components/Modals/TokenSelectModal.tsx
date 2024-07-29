@@ -5,7 +5,9 @@ import { useChainId, useAccount } from 'wagmi'
 import { Token } from '@/types'
 import { useBalances } from '@/hooks/useBalances'
 import { useSwapContext } from '@/context/SwapContext'
-import { formatBalanceToFixedDecimal } from '@/utils/format'
+import TokenItem from '@/components/TokenItem/TokenItem'
+import TokenGrid from '@/components/TokenGrid/TokenGrid'
+import UnknownToken from 'src/assets/svg/unknownToken.svg'
 
 interface TokenSelectModalProps {
   selectedToken: Token | null
@@ -56,6 +58,14 @@ const TokenSelectModal: React.FC<TokenSelectModalProps> = ({
     (a, b) => parseFloat(b.balance) - parseFloat(a.balance)
   )
 
+  const popularTokens = sortedTokensWithBalances.filter((token) => token.tags?.includes('popular'))
+
+  useEffect(() => {
+    if (balancesQuery.error || balancesQuery.data === undefined) {
+      balancesQuery.refetch({ cancelRefetch: true }) // Force refetch with canceling any running requests
+    }
+  }, [balancesQuery.error, balancesQuery.data])
+
   useEffect(() => {
     if (!isOpen) {
       setSearchTerm('')
@@ -72,10 +82,18 @@ const TokenSelectModal: React.FC<TokenSelectModalProps> = ({
       <button
         className='h-[48px] hover:bg-base-100 text-neutral-content p-2 rounded-xl focus:outline-none appearance-none flex items-center text-nowrap w-max'
         onClick={() => setIsOpen(true)}>
-        {selectedToken && (
-          <img src={selectedToken.logoURI} alt={selectedToken.symbol} className='w-6 h-6 mr-2 rounded-full' />
+        {selectedToken ? (
+          <>
+            {selectedToken.logoURI ? (
+              <img src={selectedToken.logoURI} alt={selectedToken.symbol} className='w-6 h-6 mr-2 rounded-full' />
+            ) : (
+              <img src={UnknownToken} alt='unknown' className='w-6 h-6 mr-2 rounded-full' />
+            )}
+            <span>{selectedToken.symbol}</span>
+          </>
+        ) : (
+          <span>{defaultLabel}</span>
         )}
-        <span>{selectedToken ? selectedToken.symbol : defaultLabel}</span>
         <svg
           className='w-4 h-4 fill-current text-neutral-content ml-2'
           xmlns='http://www.w3.org/2000/svg'
@@ -96,25 +114,25 @@ const TokenSelectModal: React.FC<TokenSelectModalProps> = ({
           {loading && <div className='text-center'>Loading tokens...</div>}
           {error && <div className='text-center text-red-500'>Error loading tokens: {error.message}</div>}
           {!loading && !error && (
-            <ul className='space-y-2'>
-              {sortedTokensWithBalances.map((token) => (
-                <li
-                  key={token.address}
-                  className={`flex items-center p-2 cursor-pointer hover:bg-gray-700 rounded-xl ${
-                    token.address.toLowerCase() === selectedToken?.address?.toLowerCase() ? 'bg-gray-600' : ''
-                  }`}
-                  onClick={() => handleSelect(token)}>
-                  <img src={token.logoURI} alt={token.symbol} className='w-6 h-6 mr-2 rounded-full' />
-                  <div className='flex flex-col'>
-                    <span>{token.symbol}</span>
-                    <span className='text-gray-500 text-sm'>{token.name}</span>
-                  </div>
-                  <span className='ml-auto'>
-                    {balancesQuery.data ? formatBalanceToFixedDecimal(token.balance) : '0'}
-                  </span>
-                </li>
-              ))}
-            </ul>
+            <>
+              {popularTokens.length > 0 && (
+                <>
+                  <h3 className='text-xl font-bold mb-2'>Popular tokens</h3>
+                  <TokenGrid tokens={popularTokens} selectedToken={selectedToken} handleSelect={handleSelect} />
+                </>
+              )}
+              <h3 className='text-xl font-bold mb-2'>Your tokens</h3>
+              <ul className='space-y-2'>
+                {sortedTokensWithBalances.map((token) => (
+                  <TokenItem
+                    key={token.address}
+                    token={token}
+                    selectedToken={selectedToken}
+                    handleSelect={handleSelect}
+                  />
+                ))}
+              </ul>
+            </>
           )}
         </div>
       </ModalWrapper>
