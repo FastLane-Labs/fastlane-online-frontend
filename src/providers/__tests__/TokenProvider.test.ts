@@ -1,5 +1,5 @@
 jest.mock(
-  '@/constants/tokenListPolygon.json',
+  '@/config/tokenListPolygon.json',
   () => [
     {
       chainId: 137,
