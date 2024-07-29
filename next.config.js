@@ -12,6 +12,10 @@ const nextConfig = {
     config.resolve.alias['@'] = path.resolve(__dirname, 'src')
     config.resolve.alias['fastlane-atlas-sdk'] = path.resolve(__dirname, 'atlas-sdk-rfq')
     config.externals.push('pino-pretty', 'lokijs', 'encoding')
+    config.module.rules.push({
+      test: /\.svg$/,
+      use: ['@svgr/webpack'],
+    })
     return config
   },
   images: {
