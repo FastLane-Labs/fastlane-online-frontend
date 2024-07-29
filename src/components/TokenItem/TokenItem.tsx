@@ -7,9 +7,10 @@ interface TokenItemProps {
   token: Token | TokenWithBalance
   selectedToken?: Token | TokenWithBalance
   handleSelect: (token: Token | TokenWithBalance) => void
+  isLoading?: boolean
 }
 
-const TokenItem: React.FC<TokenItemProps> = ({ token, selectedToken, handleSelect }) => (
+const TokenItem: React.FC<TokenItemProps> = ({ token, selectedToken, handleSelect, isLoading }) => (
   <li
     className={`flex items-center p-2 cursor-pointer hover:bg-gray-700 rounded-xl ${
       token.address.toLowerCase() === selectedToken?.address?.toLowerCase() ? 'bg-gray-600' : ''
@@ -25,7 +26,13 @@ const TokenItem: React.FC<TokenItemProps> = ({ token, selectedToken, handleSelec
       <span className='text-gray-500 text-sm'>{token.name}</span>
     </div>
     <span className='ml-auto'>
-      {(token as TokenWithBalance).balance ? formatBalanceToFixedDecimal((token as TokenWithBalance).balance) : '0'}
+      {isLoading ? (
+        <span className='loading loading-spinner'></span>
+      ) : (token as TokenWithBalance).balance ? (
+        formatBalanceToFixedDecimal((token as TokenWithBalance).balance)
+      ) : (
+        '0'
+      )}
     </span>
   </li>
 )

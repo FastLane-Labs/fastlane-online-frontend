@@ -36,6 +36,8 @@ const TokenSelectModal: React.FC<TokenSelectModalProps> = ({
     userAddress: address as string,
   })
 
+  const [hasAttemptedRefetch, setHasAttemptedRefetch] = useState(false)
+
   const tokensWithBalances: TokenWithBalance[] = tokens.map((token, index) => ({
     ...token,
     balance: balancesQuery.data && balancesQuery.data.length > 0 ? balancesQuery.data[index] : '0',
@@ -63,10 +65,11 @@ const TokenSelectModal: React.FC<TokenSelectModalProps> = ({
   const remainingTokens = sortedTokensWithBalances.filter((token) => parseFloat(token.balance) === 0)
 
   useEffect(() => {
-    if (balancesQuery.error || balancesQuery.data === undefined) {
-      balancesQuery.refetch({ cancelRefetch: true }) // Force refetch with canceling any running requests
+    if ((balancesQuery.error || balancesQuery.data === undefined) && !hasAttemptedRefetch) {
+      balancesQuery.refetch({ cancelRefetch: true })
+      setHasAttemptedRefetch(true) // Mark refetch attempt
     }
-  }, [balancesQuery, balancesQuery.error, balancesQuery.data])
+  }, [balancesQuery, balancesQuery.error, balancesQuery.data, hasAttemptedRefetch])
 
   useEffect(() => {
     if (!isOpen) {
@@ -126,6 +129,7 @@ const TokenSelectModal: React.FC<TokenSelectModalProps> = ({
                     token={token}
                     selectedToken={selectedToken!}
                     handleSelect={handleSelect}
+                    isLoading={balancesQuery.isLoading}
                   />
                 ))}
               </ul>
@@ -139,6 +143,7 @@ const TokenSelectModal: React.FC<TokenSelectModalProps> = ({
                       token={token}
                       selectedToken={selectedToken!}
                       handleSelect={handleSelect}
+                      isLoading={balancesQuery.isLoading}
                     />
                   ))}
               </ul>
