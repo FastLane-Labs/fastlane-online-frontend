@@ -58,7 +58,7 @@ const TokenSelectModal: React.FC<TokenSelectModalProps> = ({
     (a, b) => parseFloat(b.balance) - parseFloat(a.balance)
   )
 
-  const popularTokens = sortedTokensWithBalances.filter((token) => token.tags?.includes('popular'))
+  const popularTokens = tokensWithBalances.filter((token) => token.tags?.includes('popular'))
 
   useEffect(() => {
     if (balancesQuery.error || balancesQuery.data === undefined) {
@@ -115,22 +115,20 @@ const TokenSelectModal: React.FC<TokenSelectModalProps> = ({
           {error && <div className='text-center text-red-500'>Error loading tokens: {error.message}</div>}
           {!loading && !error && (
             <>
-              {popularTokens.length > 0 && (
-                <>
-                  <h3 className='text-xl font-bold mb-2'>Popular tokens</h3>
-                  <TokenGrid tokens={popularTokens} selectedToken={selectedToken} handleSelect={handleSelect} />
-                </>
-              )}
+              <h3 className='text-xl font-bold mb-2'>Popular tokens</h3>
+              <TokenGrid tokens={popularTokens} selectedToken={selectedToken!} handleSelect={handleSelect} />
               <h3 className='text-xl font-bold mb-2'>Your tokens</h3>
               <ul className='space-y-2'>
-                {sortedTokensWithBalances.map((token) => (
-                  <TokenItem
-                    key={token.address}
-                    token={token}
-                    selectedToken={selectedToken}
-                    handleSelect={handleSelect}
-                  />
-                ))}
+                {sortedTokensWithBalances
+                  .filter((token) => token.address !== selectedToken?.address)
+                  .map((token) => (
+                    <TokenItem
+                      key={token.address}
+                      token={token}
+                      selectedToken={selectedToken!}
+                      handleSelect={handleSelect}
+                    />
+                  ))}
               </ul>
             </>
           )}
