@@ -89,7 +89,7 @@ const TokenSelectModal: React.FC<TokenSelectModalProps> = ({
             {selectedToken.logoURI ? (
               <img src={selectedToken.logoURI} alt={selectedToken.symbol} className='w-6 h-6 mr-2 rounded-full' />
             ) : (
-              <img src={UnknownToken} alt='unknown' className='w-6 h-6 mr-2 rounded-full' />
+              <UnknownToken className='w-6 h-6 mr-2 rounded-full' />
             )}
             <span>{selectedToken.symbol}</span>
           </>
