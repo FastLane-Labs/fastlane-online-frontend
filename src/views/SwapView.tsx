@@ -6,15 +6,11 @@ import SettingsModal from '@/components/Modals/SettingsModal'
 import BuyComponent from '@/components/Swap/BuyComponent'
 import SellComponent from '@/components/Swap/SellComponent'
 import BackgroundGradient from '@/components/Theme/BackgroundGradient'
-import { useSwapContext } from '@/context/SwapContext'
 import { useHandleSwap } from '@/hooks/useHandleSwap'
 import { useBaselineQuote } from '@/hooks/useBaselineQuote'
 import { Settings } from '@/types'
-import { useAccount } from 'wagmi'
 
 const SwapView: React.FC = () => {
-  const { fromToken, fromAmount, toToken } = useSwapContext()
-  const { address: account } = useAccount()
   const [isSettingsModalVisible, setIsSettingsModalVisible] = useState<boolean>(false)
   const [settings, setSettings] = useState<Settings>({
     slippageTolerance: 0.5,

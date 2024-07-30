@@ -7,8 +7,8 @@ import { useBalances } from '@/hooks/useBalances'
 import { useSwapContext } from '@/context/SwapContext'
 import TokenItem from '@/components/TokenItem/TokenItem'
 import TokenGrid from '@/components/TokenGrid/TokenGrid'
-import UnknownToken from 'src/assets/svg/unknownToken.svg'
 import { MagnifyingGlassIcon } from '@heroicons/react/24/outline'
+import UnknownToken from '@/assets/svg/unknownToken.svg'
 
 interface TokenSelectModalProps {
   selectedToken: Token | null
