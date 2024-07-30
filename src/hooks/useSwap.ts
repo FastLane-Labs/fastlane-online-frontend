@@ -26,6 +26,7 @@ interface SwapState {
   swapTokens: () => void
   resetSelections: () => void
   updateAllowance: () => void
+  setSufficientAllowance: (sufficientAllowance: boolean) => void
 }
 
 export const useSwap = (): SwapState => {
@@ -41,6 +42,7 @@ export const useSwap = (): SwapState => {
   const [allowance, setAllowance] = useState<bigint>(BigInt(0))
   const [sufficientAllowance, setSufficientAllowance] = useState<boolean>(false)
   const [allowanceLoading, setAllowanceLoading] = useState<boolean>(false)
+  const [allowanceRefreshTrigger, setAllowanceRefreshTrigger] = useState(0)
 
   const { address: userAddress } = useAccount()
   const spenderAddress = getDappAddress(chainId)
@@ -54,12 +56,12 @@ export const useSwap = (): SwapState => {
     userAddress: userAddress!,
     spenderAddress: spenderAddress,
     requiredAmount: toBigInt(fromAmount, fromToken?.decimals ?? 0),
+    refreshTrigger: allowanceRefreshTrigger,
   })
 
   const updateAllowance = useCallback(() => {
     setAllowanceLoading(true)
-    // Trigger a re-fetch of allowance
-    // This could be implemented by invalidating a cache or re-running the useAllowance hook
+    setAllowanceRefreshTrigger((prev) => prev + 1)
   }, [])
 
   useEffect(() => {
@@ -115,5 +117,6 @@ export const useSwap = (): SwapState => {
     swapTokens: handleSwapTokens,
     resetSelections,
     updateAllowance,
+    setSufficientAllowance,
   }
 }

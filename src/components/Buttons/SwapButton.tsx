@@ -17,7 +17,7 @@ interface SwapButtonProps {
 const SwapButton: React.FC<SwapButtonProps> = ({ handleSwap, isLoading }) => {
   const { openConnectModal } = useConnectModal()
   const chainId = useChainId()
-  const { fromToken, toToken, fromAmount, sufficientAllowance, allowanceLoading } = useSwapContext()
+  const { fromToken, toToken, fromAmount, updateAllowance, setSufficientAllowance } = useSwapContext()
   const { address: userAddress, status, isConnected } = useAccount()
   const [localLoading, setLocalLoading] = useState(false)
   const [isSwapModalOpen, setIsSwapModalOpen] = useState(false)
@@ -37,6 +37,8 @@ const SwapButton: React.FC<SwapButtonProps> = ({ handleSwap, isLoading }) => {
     try {
       if (!signer || !spenderAddress) return false
       await approveErc20Token(signer, fromToken.address, spenderAddress, toBigInt(fromAmount, fromToken.decimals), true)
+      updateAllowance()
+      setSufficientAllowance(true)
       return true
     } catch (error) {
       console.error('Approval Error:', error)
@@ -89,7 +91,6 @@ const SwapButton: React.FC<SwapButtonProps> = ({ handleSwap, isLoading }) => {
       <SwapModal
         isVisible={isSwapModalOpen}
         onClose={() => setIsSwapModalOpen(false)}
-        approvalRequired={!sufficientAllowance}
         onSwap={handleSwapConfirm}
         onApprove={handleApprove}
       />

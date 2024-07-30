@@ -10,9 +10,10 @@ type UseAllowanceParams = {
   userAddress: string
   spenderAddress: string
   requiredAmount: bigint
+  refreshTrigger: number
 }
 
-const useAllowance = ({ token, userAddress, spenderAddress, requiredAmount }: UseAllowanceParams) => {
+const useAllowance = ({ token, userAddress, spenderAddress, requiredAmount, refreshTrigger }: UseAllowanceParams) => {
   const { provider } = useEthersProviderContext()
   const [allowance, setAllowance] = useState<bigint>(0n)
   const [loading, setLoading] = useState(false)
@@ -44,12 +45,12 @@ const useAllowance = ({ token, userAddress, spenderAddress, requiredAmount }: Us
 
   useEffect(() => {
     checkAllowance()
-  }, [checkAllowance])
+  }, [checkAllowance, refreshTrigger])
 
   const sufficientAllowance =
     !token || token.address.toLowerCase() === nativeEvmTokenAddress.toLowerCase() || allowance >= requiredAmount
 
-  return { allowance, loading, error, sufficientAllowance, refetch: checkAllowance }
+  return { allowance, loading, error, sufficientAllowance }
 }
 
 export default useAllowance

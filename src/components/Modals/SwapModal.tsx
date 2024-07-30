@@ -7,13 +7,12 @@ import { Token } from '@/types'
 interface SwapModalProps {
   isVisible: boolean
   onClose: () => void
-  approvalRequired: boolean
   onSwap: () => Promise<boolean>
   onApprove: () => Promise<boolean>
 }
 
-const SwapModal: React.FC<SwapModalProps> = ({ isVisible, onClose, approvalRequired, onSwap, onApprove }) => {
-  const { fromToken, toToken, fromAmount, toAmount } = useSwapContext()
+const SwapModal: React.FC<SwapModalProps> = ({ isVisible, onClose, onSwap, onApprove }) => {
+  const { fromToken, toToken, fromAmount, toAmount, sufficientAllowance } = useSwapContext()
   const [isApproving, setIsApproving] = useState(false)
   const [isSwapping, setIsSwapping] = useState(false)
   const [swapSuccess, setSwapSuccess] = useState(false)
@@ -21,11 +20,7 @@ const SwapModal: React.FC<SwapModalProps> = ({ isVisible, onClose, approvalRequi
   const handleApprove = async () => {
     setIsApproving(true)
     try {
-      const success = await onApprove()
-      if (success) {
-        // If approval was successful, you might want to update the approvalRequired state
-        // This might require lifting this state up or using a context
-      }
+      await onApprove()
     } catch (error) {
       console.error('Approval Error:', error)
     } finally {
@@ -46,7 +41,7 @@ const SwapModal: React.FC<SwapModalProps> = ({ isVisible, onClose, approvalRequi
   }
 
   const renderButton = () => {
-    if (approvalRequired) {
+    if (!sufficientAllowance) {
       return (
         <button
           onClick={handleApprove}
@@ -133,17 +128,21 @@ const SwapModal: React.FC<SwapModalProps> = ({ isVisible, onClose, approvalRequi
           <p className='text-center text-sm text-gray-400'>Proceed in your wallet</p>
         </>
       )
+    } else if (!sufficientAllowance && !isApproving) {
+      return (
+        <>
+          <h2 className='text-lg font-semibold mb-4 text-center'>Approve Token</h2>
+          <div className='flex flex-col items-center mb-4'>{renderTokenInfo(fromToken, fromAmount)}</div>
+          {renderButton()}
+        </>
+      )
     } else {
       return (
         <>
-          <h2 className='text-lg font-semibold mb-4 text-center'>
-            {approvalRequired ? 'Approve Token' : 'Confirm Swap'}
-          </h2>
+          <h2 className='text-lg font-semibold mb-4 text-center'>Confirm Swap</h2>
           {renderSwapDetails()}
           <p className='text-sm text-center mb-4'>
-            {approvalRequired
-              ? `Approve ${fromToken?.symbol} for spending`
-              : `Swap ${fromAmount} ${fromToken?.symbol} for ${toAmount} ${toToken?.symbol}`}
+            Swap {fromAmount} {fromToken?.symbol} for {toAmount} {toToken?.symbol}
           </p>
           {renderButton()}
         </>
