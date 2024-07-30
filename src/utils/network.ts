@@ -1,14 +1,3 @@
-import { mainnet, arbitrum, base, linea, polygon, optimism, scroll, sepolia, hardhat } from 'viem/chains'
-import { Chain } from 'viem/chains'
-
-const chains = [mainnet, arbitrum, base, linea, polygon, optimism, scroll, sepolia] as [Chain, ...Chain[]]
-
-if (process.env.NODE_ENV !== 'production') {
-  chains.push(hardhat)
-}
-
-export const ETH_CHAINS = chains
-
 export const NETWORK_COLORS = {
   ethereum: {
     color: 'green',

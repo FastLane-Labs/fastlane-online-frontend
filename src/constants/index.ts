@@ -1,5 +1,6 @@
 import { AppConfigState } from '@/store/useAppStore'
 import { Address } from 'viem'
+export * from './network'
 
 export enum ChainId {
   POLYGON = 137,

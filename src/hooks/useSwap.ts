@@ -6,6 +6,8 @@ import { useAccount } from 'wagmi'
 import { getDappAddress } from '@/utils/getContractAddress'
 import { toBigInt } from '@/utils/format'
 import useAllowance from '@/hooks/useAllowance'
+import { SUPPORTED_CHAINS } from '@/utils/network'
+import { useFastLaneOnline } from './useFastLaneOnline'
 
 interface SwapState {
   fromToken: Token | null
@@ -45,7 +47,9 @@ export const useSwap = (): SwapState => {
   const [allowanceRefreshTrigger, setAllowanceRefreshTrigger] = useState(0)
 
   const { address: userAddress } = useAccount()
-  const spenderAddress = getDappAddress(chainId)
+
+  // fastlane online contract address
+  const spenderAddress = useFastLaneOnline()
 
   const {
     allowance: fetchedAllowance,
