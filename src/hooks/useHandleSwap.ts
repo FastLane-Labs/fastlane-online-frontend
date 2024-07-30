@@ -11,7 +11,7 @@ export const useHandleSwap = () => {
   const [isSwapping, setIsSwapping] = useState(false)
 
   const handleSwap = useCallback(async () => {
-    if (!account || !provider || !fromToken || !toToken || !fromAmount) return
+    if (!account || !provider || !fromToken || !toToken || !fromAmount) return false
 
     setIsSwapping(true)
     try {
@@ -19,8 +19,10 @@ export const useHandleSwap = () => {
       console.log('Swapping', fromToken, 'for', toToken, 'with amount', fromAmount)
       // Simulate API call delay
       await new Promise((resolve) => setTimeout(resolve, 1000))
+      return true
     } catch (error) {
       console.error('Swap failed', error)
+      return false
     } finally {
       setIsSwapping(false)
     }
