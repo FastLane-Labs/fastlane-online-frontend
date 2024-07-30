@@ -6,8 +6,8 @@ import { useEthersProvider } from '@/hooks/helper/useEthersProvider'
 import { useEthersSigner } from '@/hooks/helper/useEthersSigner'
 
 interface EthersContextValue {
-  provider: JsonRpcProvider | FallbackProvider
-  signer: Signer
+  provider: JsonRpcProvider | FallbackProvider | null
+  signer: Signer | null
 }
 
 const EthersProviderContext = createContext<EthersContextValue | undefined>(undefined)
@@ -18,22 +18,15 @@ export const EthersProviderWrapper: React.FC<{ children: ReactNode }> = ({ child
   const signer = useEthersSigner({ chainId })
 
   const value = useMemo(() => {
-    if (ethersProvider && signer) {
-      return { provider: ethersProvider, signer }
-    }
-    return undefined
+    return { provider: ethersProvider || null, signer: signer || null }
   }, [ethersProvider, signer])
-
-  if (!value) {
-    return null // Or you can render a loading spinner or a fallback UI
-  }
 
   return <EthersProviderContext.Provider value={value}>{children}</EthersProviderContext.Provider>
 }
 
 export const useEthersProviderContext = (): EthersContextValue => {
   const context = useContext(EthersProviderContext)
-  if (!context) {
+  if (context === undefined) {
     throw new Error('useEthersProviderContext must be used within an EthersProviderWrapper')
   }
   return context

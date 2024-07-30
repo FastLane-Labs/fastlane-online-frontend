@@ -17,11 +17,11 @@ const createBalanceQueryOptions = ({
   token,
   userAddress,
   enabled = true,
-}: UseBalanceParams & { provider: ethers.AbstractProvider }): UseQueryOptions<bigint, Error> => {
+}: UseBalanceParams & { provider: ethers.AbstractProvider | null }): UseQueryOptions<bigint, Error> => {
   const queryKey = keys({ address: userAddress }).balance(token?.chainId, token?.address, userAddress)
 
   const queryFn = async (): Promise<bigint> => {
-    if (!userAddress || !token) return BigInt(0)
+    if (!provider || !userAddress || !token) return BigInt(0)
 
     if (token.address.toLowerCase() === nativeEvmTokenAddress.toLowerCase()) {
       const balance = await provider.getBalance(userAddress)

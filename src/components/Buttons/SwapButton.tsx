@@ -35,6 +35,7 @@ const SwapButton: React.FC<SwapButtonProps> = ({ handleSwap, isLoading }) => {
   const handleApprove = async () => {
     if (!fromToken) return false
     try {
+      if (!signer || !spenderAddress) return false
       await approveErc20Token(signer, fromToken.address, spenderAddress, toBigInt(fromAmount, fromToken.decimals), true)
       return true
     } catch (error) {
