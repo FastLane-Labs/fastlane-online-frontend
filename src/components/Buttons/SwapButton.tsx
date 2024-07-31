@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react'
-import { useConnectModal } from '@rainbow-me/rainbowkit'
+import { useChainModal, useConnectModal } from '@rainbow-me/rainbowkit'
 import { useAccount, useSwitchChain } from 'wagmi'
 import { useBalance } from '@/hooks/useBalance'
 import { useSwapContext } from '@/context/SwapContext'
@@ -17,6 +17,7 @@ interface SwapButtonProps {
 
 const SwapButton: React.FC<SwapButtonProps> = ({ handleSwap, isLoading }) => {
   const { openConnectModal } = useConnectModal()
+  const { openChainModal } = useChainModal()
   const { fromToken, toToken, fromAmount, updateAllowance, setSufficientAllowance } = useSwapContext()
   const { address: userAddress, status, isConnected, chainId } = useAccount()
   const [isSupportedChain, setIsSupportedChain] = useState(false)
@@ -64,7 +65,20 @@ const SwapButton: React.FC<SwapButtonProps> = ({ handleSwap, isLoading }) => {
     balance && fromToken && toBigInt(fromAmount, fromToken.decimals) <= BigInt(balance.toString())
 
   const isDisabled =
-    status === 'reconnecting' || !initialized || !fromToken || !toToken || !fromAmount || !hasSufficientBalance
+    status === 'reconnecting' ||
+    !initialized ||
+    (!fromToken && isSupportedChain) ||
+    (!toToken && isSupportedChain) ||
+    (!fromAmount && isSupportedChain) ||
+    (!hasSufficientBalance && isSupportedChain)
+
+  console.log('isDisabled', isDisabled)
+  console.log('status', status)
+  console.log('initialized', initialized)
+  console.log('fromToken', fromToken)
+  console.log('toToken', toToken)
+  console.log('fromAmount', fromAmount)
+  console.log('hasSufficientBalance', hasSufficientBalance)
 
   const getButtonText = () => {
     if (!isConnected) return 'Connect wallet'
@@ -87,7 +101,7 @@ const SwapButton: React.FC<SwapButtonProps> = ({ handleSwap, isLoading }) => {
     if (!isConnected) {
       openConnectModal?.()
     } else if (isConnected && !isSupportedChain) {
-      console.log('switching chain')
+      openChainModal?.()
     } else if (!isDisabled) {
       setIsSwapModalOpen(true)
     }
