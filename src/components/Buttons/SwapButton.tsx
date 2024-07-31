@@ -72,14 +72,6 @@ const SwapButton: React.FC<SwapButtonProps> = ({ handleSwap, isLoading }) => {
     (!fromAmount && isSupportedChain) ||
     (!hasSufficientBalance && isSupportedChain)
 
-  console.log('isDisabled', isDisabled)
-  console.log('status', status)
-  console.log('initialized', initialized)
-  console.log('fromToken', fromToken)
-  console.log('toToken', toToken)
-  console.log('fromAmount', fromAmount)
-  console.log('hasSufficientBalance', hasSufficientBalance)
-
   const getButtonText = () => {
     if (!isConnected) return 'Connect wallet'
     if (isConnected && !isSupportedChain) return 'Unsupported network'
