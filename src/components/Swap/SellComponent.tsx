@@ -7,6 +7,7 @@ import { useBalance } from '@/hooks/useBalance'
 import { Token } from '@/types'
 import { ethers } from 'ethers'
 import { useCurrentTokenList } from '@/hooks/useTokenList'
+import { SUPPORTED_CHAIN_IDS } from '@/constants'
 
 const SellComponent: React.FC = () => {
   const {
@@ -16,7 +17,7 @@ const SellComponent: React.FC = () => {
     setFromAmount: setSellAmount,
   } = useSwapContext()
 
-  const { address } = useAccount()
+  const { address, chainId } = useAccount()
   const [balance, setBalance] = useState<string>('0')
 
   const { tokens } = useCurrentTokenList()
@@ -32,13 +33,13 @@ const SellComponent: React.FC = () => {
   })
 
   useEffect(() => {
-    if (!sellToken && tokens.length > 0) {
+    if (chainId && !sellToken && tokens.length > 0) {
       const defaultToken = tokens.find((token) => token.tags?.includes('default'))
-      if (defaultToken) {
+      if (defaultToken && defaultToken.chainId === chainId) {
         setSellToken(defaultToken)
       }
     }
-  }, [sellToken, tokens, setSellToken])
+  }, [chainId, sellToken, tokens])
 
   useEffect(() => {
     if (sellToken && !balanceLoading && !balanceError) {

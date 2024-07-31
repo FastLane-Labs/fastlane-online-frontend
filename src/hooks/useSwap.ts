@@ -71,10 +71,11 @@ export const useSwap = (): SwapState => {
 
   useEffect(() => {
     if (chainId && tokens.length > 0) {
+      resetSelections()
       setDefaultToken(tokens.find((token) => token.tags?.includes('default')) as Token)
       setFromToken(defaultToken)
     }
-  }, [chainId, tokens])
+  }, [chainId])
 
   useEffect(() => {
     setAllowance(fetchedAllowance ?? BigInt(0))
