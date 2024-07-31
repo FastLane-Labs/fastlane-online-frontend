@@ -6,7 +6,7 @@ import { useAccount } from 'wagmi'
 import { useBalance } from '@/hooks/useBalance'
 import { Token } from '@/types'
 import { ethers } from 'ethers'
-import { useCurrentTokenList, useTokenList } from '@/hooks/useTokenList'
+import { useCurrentTokenList } from '@/hooks/useTokenList'
 
 const SellComponent: React.FC = () => {
   const {
@@ -19,7 +19,7 @@ const SellComponent: React.FC = () => {
   const { address } = useAccount()
   const [balance, setBalance] = useState<string>('0')
 
-  const tokens = useCurrentTokenList()
+  const { tokens } = useCurrentTokenList()
 
   const {
     data: fetchedBalance,

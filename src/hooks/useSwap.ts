@@ -1,12 +1,9 @@
 import { useState, useEffect, useCallback } from 'react'
-import { useChainId } from 'wagmi'
 import { Token } from '@/types'
 import { useCurrentTokenList } from './useTokenList'
 import { useAccount } from 'wagmi'
-import { getDappAddress } from '@/utils/getContractAddress'
 import { toBigInt } from '@/utils/format'
 import useAllowance from '@/hooks/useAllowance'
-import { SUPPORTED_CHAINS } from '@/utils/network'
 import { useFastLaneOnline } from './useFastLaneOnline'
 
 interface SwapState {
@@ -32,9 +29,13 @@ interface SwapState {
 }
 
 export const useSwap = (): SwapState => {
-  const chainId = useChainId()
-  const tokens = useCurrentTokenList()
-  const defaultToken = tokens.find((token) => token.tags?.includes('default')) as Token
+  const { chainId } = useAccount()
+  const { tokens } = useCurrentTokenList()
+
+  const [defaultToken, setDefaultToken] = useState<Token | null>(
+    tokens.find((token) => token.tags?.includes('default')) as Token
+  )
+
   const [fromToken, setFromToken] = useState<Token | null>(defaultToken)
   const [toToken, setToToken] = useState<Token | null>(null)
   const [fromAmount, setFromAmount] = useState<string>('')
@@ -67,6 +68,13 @@ export const useSwap = (): SwapState => {
     setAllowanceLoading(true)
     setAllowanceRefreshTrigger((prev) => prev + 1)
   }, [])
+
+  useEffect(() => {
+    if (chainId && tokens.length > 0) {
+      setDefaultToken(tokens.find((token) => token.tags?.includes('default')) as Token)
+      setFromToken(defaultToken)
+    }
+  }, [chainId, tokens])
 
   useEffect(() => {
     setAllowance(fetchedAllowance ?? BigInt(0))

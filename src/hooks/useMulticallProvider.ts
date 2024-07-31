@@ -6,7 +6,7 @@ export const useMulticallProvider = () => {
   const { provider } = useEthersProviderContext()
 
   if (!provider) {
-    throw new Error('Ethers provider is not available')
+    return null
   }
 
   const multicallProvider = MulticallWrapper.wrap(provider)

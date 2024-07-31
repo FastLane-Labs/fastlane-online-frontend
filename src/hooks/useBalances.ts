@@ -15,8 +15,12 @@ type UseBalancesParams = {
 const fetchBalances = async (
   tokens: Token[],
   userAddress: string,
-  multicallProvider: ethers.AbstractProvider
+  multicallProvider: ethers.AbstractProvider | null
 ): Promise<string[]> => {
+  if (!multicallProvider) {
+    return tokens.map(() => '0')
+  }
+
   const calls = tokens.map((token) => {
     if (token.address.toLowerCase() === nativeEvmTokenAddress.toLowerCase()) {
       return multicallProvider

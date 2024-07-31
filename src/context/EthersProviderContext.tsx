@@ -1,7 +1,6 @@
 'use client'
 import React, { createContext, useContext, useMemo, ReactNode } from 'react'
 import { JsonRpcProvider, FallbackProvider, Signer } from 'ethers'
-import { useChainId } from 'wagmi'
 import { useEthersProvider } from '@/hooks/helper/useEthersProvider'
 import { useEthersSigner } from '@/hooks/helper/useEthersSigner'
 
@@ -13,9 +12,8 @@ interface EthersContextValue {
 const EthersProviderContext = createContext<EthersContextValue | undefined>(undefined)
 
 export const EthersProviderWrapper: React.FC<{ children: ReactNode }> = ({ children }) => {
-  const chainId = useChainId()
-  const ethersProvider = useEthersProvider({ chainId })
-  const signer = useEthersSigner({ chainId })
+  const ethersProvider = useEthersProvider()
+  const signer = useEthersSigner()
 
   const value = useMemo(() => {
     return { provider: ethersProvider || null, signer: signer || null }
