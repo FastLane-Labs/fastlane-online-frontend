@@ -100,5 +100,5 @@ select {
 }
 
 .expandable-content.expanded {
-  max-height: 200px;
+  max-height: 400px;
 }
