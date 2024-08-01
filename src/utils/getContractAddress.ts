@@ -6,3 +6,12 @@ export const getDappAddress = (chainId: number) => {
       throw new Error('Unsupported chain ID')
   }
 }
+
+export const getDappVerificationAddress = (chainId: number) => {
+  switch (chainId) {
+    case 137:
+      return '0xc05DDBe9745ce9DB45C32F5e4C1DA7a3c4FDa220'
+    default:
+      throw new Error('Unsupported chain ID')
+  }
+}

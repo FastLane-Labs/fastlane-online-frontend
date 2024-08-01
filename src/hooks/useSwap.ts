@@ -6,7 +6,6 @@ import { toBigInt } from '@/utils/format'
 import useAllowance from '@/hooks/useAllowance'
 import { useFastLaneOnline } from './useFastLaneOnline'
 import useDebounce from '@/hooks/useDebounce' // Adjust the path as necessary
-import { useBaselineQuote } from './useBaselineQuote'
 
 interface SwapState {
   // Token and Amount States
@@ -66,7 +65,7 @@ export const useSwap = (): SwapState => {
   const { address: userAddress } = useAccount()
 
   // fastlane online contract address
-  const spenderAddress = useFastLaneOnline()
+  const { dappAddress: spenderAddress } = useFastLaneOnline()
 
   const debouncedFromAmount = useDebounce(fromAmount, 500) // 500ms delay
   const debouncedToAmount = useDebounce(toAmount, 500) // 500ms delay
