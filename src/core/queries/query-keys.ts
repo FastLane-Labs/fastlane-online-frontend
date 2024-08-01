@@ -23,7 +23,5 @@ export const keys = ({ address }: { address?: string }) => ({
     toToken.address,
     direction,
     amount,
-    // Add a timestamp rounded to the nearest 20 seconds
-    Math.floor(Date.now() / 20000) * 20000,
   ],
 })

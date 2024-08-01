@@ -55,6 +55,7 @@ export class UniswapV3 extends Exchange {
       amountIn: quoteRequest.swapType === SwapType.EXACT_IN ? quoteRequest.amount : BigInt(result[0]),
       amountOut: quoteRequest.swapType === SwapType.EXACT_OUT ? quoteRequest.amount : BigInt(result[0]),
       swapRoute: quoteRequest.swapRoute,
+      validUntil: Date.now() + 20 * 1000, //20 seconds
     }
   }
 

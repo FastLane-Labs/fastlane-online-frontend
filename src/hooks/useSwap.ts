@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react'
-import { SwapDirection, Token } from '@/types'
+import { QuoteResult, SwapDirection, Token } from '@/types'
 import { useCurrentTokenList } from './useTokenList'
 import { useAccount } from 'wagmi'
 import { toBigInt } from '@/utils/format'
@@ -56,7 +56,7 @@ export const useSwap = (): SwapState => {
   const [fromAmount, setFromAmount] = useState<string>('')
   const [toAmount, setToAmount] = useState<string>('')
   const [swapDirection, setSwapDirection] = useState<SwapDirection>('sell')
-  const [quote, setQuote] = useState<any>(null)
+  const [quote, setQuote] = useState<QuoteResult | null>(null)
   const [quoteLoading, setQuoteLoading] = useState<boolean>(false)
   const [allowance, setAllowance] = useState<bigint>(BigInt(0))
   const [sufficientAllowance, setSufficientAllowance] = useState<boolean>(false)

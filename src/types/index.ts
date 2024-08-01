@@ -35,4 +35,5 @@ export interface QuoteResult {
   amountIn: bigint
   amountOut: bigint
   swapRoute: SwapRoute
+  validUntil: number
 }
