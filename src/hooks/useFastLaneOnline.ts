@@ -1,5 +1,5 @@
 import { SUPPORTED_CHAIN_IDS } from '@/constants'
-import { getDappAddress, getDappVerificationAddress } from '@/utils/getContractAddress'
+import { getAtlasAddress, getDappAddress, getAtlasVerificationAddress } from '@/utils/getContractAddress'
 import { useMemo } from 'react'
 import { useAccount } from 'wagmi'
 
@@ -9,15 +9,16 @@ export const useFastLaneOnline = () => {
   const fastlaneOnlineAddresses = useMemo(() => {
     const isSupportedChain = chainId ? SUPPORTED_CHAIN_IDS.includes(chainId) : false
     if (!isSupportedChain || chainId === undefined) {
-      return { dappAddress: '', verificationAddress: '' }
+      return { atlasAddress: '', dappAddress: '', verificationAddress: '' }
     }
     try {
+      const atlasAddress = getAtlasAddress(chainId)
       const dappAddress = getDappAddress(chainId)
-      const verificationAddress = getDappVerificationAddress(chainId)
-      return { dappAddress, verificationAddress }
+      const atlasVerificationAddress = getAtlasVerificationAddress(chainId)
+      return { atlasAddress, dappAddress, atlasVerificationAddress }
     } catch (error) {
       console.error('Error getting dapp addresses:', error)
-      return { dappAddress: '', verificationAddress: '' }
+      return { atlasAddress: '', dappAddress: '', verificationAddress: '' }
     }
   }, [chainId])
 

@@ -64,3 +64,5 @@ export const defaultValues: AppConfigState = {
     },
   },
 }
+
+export const ATLAS_GAS_SURCHARGE = 10n
