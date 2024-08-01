@@ -61,14 +61,12 @@ export async function buildUserOperation(
 ): Promise<UserOperation> {
   const atlas = new ethers.Contract(atlasAddress, atlasAbi, provider)
 
-  const userOp = (await atlas.getUserOperation(
-    swapper,
-    swapIntent,
-    baselineCall,
-    deadline,
-    gas,
-    maxFeePerGas
-  )) as UserOperation
+  const userOp = await atlas
+    .getUserOperation(swapper, swapIntent, baselineCall, deadline, gas, maxFeePerGas)
+    .catch((error) => {
+      console.error('Error getting user operation:', error)
+      throw error
+    })
 
   // Convert the returned userOp to our UserOperation interface
   return {
