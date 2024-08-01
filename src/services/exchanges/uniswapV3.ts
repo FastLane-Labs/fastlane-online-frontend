@@ -2,8 +2,8 @@ import { publicClient } from '../../../wagmi.config'
 import { Exchange } from './base'
 import { Token, SwapStep, SwapRoute, QuoteRequest, QuoteResult } from '@/types'
 import { SwapType, CONTRACT_ADDRRESSES } from '@/constants'
-import { QUOTERV2_ABI } from '@/constants/uniswap/v3/quoterV2'
-import { Hex, ContractFunctionParameters, encodePacked } from 'viem'
+import { QUOTERV2_ABI, SWAPROUTER02_ABI } from '@/constants/uniswap/v3'
+import { Address, Hex, ContractFunctionParameters, encodeFunctionData, encodePacked } from 'viem'
 
 const POOL_FEES = [500, 3000, 10000]
 
@@ -12,6 +12,13 @@ enum QuoteFunctionName {
   quoteExactInput = 'quoteExactInput',
   quoteExactOutputSingle = 'quoteExactOutputSingle',
   quoteExactOutput = 'quoteExactOutput',
+}
+
+enum SwapFunctionName {
+  exactInputSingle = 'exactInputSingle',
+  exactInput = 'exactInput',
+  exactOutputSingle = 'exactOutputSingle',
+  exactOutput = 'exactOutput',
 }
 
 export class UniswapV3 extends Exchange {
@@ -72,6 +79,17 @@ export class UniswapV3 extends Exchange {
   }
 
   /**
+   * inherited and overriden from Exchange
+   */
+  public static getSwapCalldataFromQuoteResult(quoteResult: QuoteResult, recipient: Address, slippage: number): Hex {
+    return encodeFunctionData({
+      abi: SWAPROUTER02_ABI,
+      functionName: this._getSwapFunctionName(quoteResult),
+      args: this._getSwapFunctionParameters(quoteResult, recipient, slippage),
+    })
+  }
+
+  /**
    * Get the contract quote function name based on the swap type and swap steps
    * @param quoteRequest The quote request
    * @returns The quote function name
@@ -87,6 +105,25 @@ export class UniswapV3 extends Exchange {
         return quoteRequest.swapRoute.swapSteps.length === 1
           ? QuoteFunctionName.quoteExactOutputSingle
           : QuoteFunctionName.quoteExactOutput
+    }
+  }
+
+  /**
+   * Get the contract swap function name based on the swap type and swap steps
+   * @param quoteResult The quote result
+   * @returns The swap function name
+   */
+  protected static _getSwapFunctionName(quoteResult: QuoteResult): SwapFunctionName {
+    switch (quoteResult.swapType) {
+      case SwapType.EXACT_IN:
+        return quoteResult.swapRoute.swapSteps.length === 1
+          ? SwapFunctionName.exactInputSingle
+          : SwapFunctionName.exactInput
+
+      case SwapType.EXACT_OUT:
+        return quoteResult.swapRoute.swapSteps.length === 1
+          ? SwapFunctionName.exactOutputSingle
+          : SwapFunctionName.exactOutput
     }
   }
 
@@ -154,7 +191,105 @@ export class UniswapV3 extends Exchange {
   }
 
   /**
-   * Compute the path for the quoteExactInput and quoteExactOutput functions
+   * Get the contract swap function parameters based on the swap type and swap steps
+   * @param quoteResult The quote result
+   * @param slippage The allowed slippage in basis points
+   * @returns The swap function parameters
+   */
+  protected static _getSwapFunctionParameters(quoteResult: QuoteResult, recipient: Address, slippage: number): any[] {
+    switch (this._getSwapFunctionName(quoteResult)) {
+      case SwapFunctionName.exactInputSingle:
+        /*
+          function exactInputSingle(ExactInputSingleParams calldata params) external payable returns (uint256 amountOut)
+          struct ExactInputSingleParams {
+            address tokenIn;
+            address tokenOut;
+            uint24 fee;
+            address recipient;
+            uint256 amountIn;
+            uint256 amountOutMinimum;
+            uint160 sqrtPriceLimitX96;
+          }
+        */
+        return [
+          {
+            tokenIn: quoteResult.swapRoute.swapSteps[0].tokenIn.address,
+            tokenOut: quoteResult.swapRoute.swapSteps[0].tokenOut.address,
+            fee: quoteResult.swapRoute.swapSteps[0].extra.fee,
+            recipient: recipient,
+            amountIn: quoteResult.amountIn,
+            amountOutMinimum: this._amountWithSlippage(quoteResult.amountOut, slippage, false),
+            sqrtPriceLimitX96: 0,
+          },
+        ]
+
+      case SwapFunctionName.exactInput:
+        /*
+          function exactInput(ExactInputParams calldata params) external payable returns (uint256 amountOut)
+          struct ExactInputParams {
+            bytes path;
+            address recipient;
+            uint256 amountIn;
+            uint256 amountOutMinimum;
+          }
+        */
+        return [
+          {
+            path: this._computePath(quoteResult.swapType, quoteResult.swapRoute),
+            recipient: recipient,
+            amountIn: quoteResult.amountIn,
+            amountOutMinimum: this._amountWithSlippage(quoteResult.amountOut, slippage, false),
+          },
+        ]
+
+      case SwapFunctionName.exactOutputSingle:
+        /*
+          function exactOutputSingle(ExactOutputSingleParams calldata params) external payable returns (uint256 amountIn)
+          struct ExactOutputSingleParams {
+            address tokenIn;
+            address tokenOut;
+            uint24 fee;
+            address recipient;
+            uint256 amountOut;
+            uint256 amountInMaximum;
+            uint160 sqrtPriceLimitX96;
+          }
+        */
+        return [
+          {
+            tokenIn: quoteResult.swapRoute.swapSteps[0].tokenIn.address,
+            tokenOut: quoteResult.swapRoute.swapSteps[0].tokenOut.address,
+            fee: quoteResult.swapRoute.swapSteps[0].extra.fee,
+            recipient: recipient,
+            amountOut: quoteResult.amountOut,
+            amountInMaximum: this._amountWithSlippage(quoteResult.amountIn, slippage, true),
+            sqrtPriceLimitX96: 0,
+          },
+        ]
+
+      case SwapFunctionName.exactOutput:
+        /*
+          function exactOutput(ExactOutputParams calldata params) external payable returns (uint256 amountIn)
+          struct ExactOutputParams {
+            bytes path;
+            address recipient;
+            uint256 amountOut;
+            uint256 amountInMaximum;
+          }
+        */
+        return [
+          {
+            path: this._computePath(quoteResult.swapType, quoteResult.swapRoute),
+            recipient: recipient,
+            amountOut: quoteResult.amountOut,
+            amountInMaximum: this._amountWithSlippage(quoteResult.amountIn, slippage, true),
+          },
+        ]
+    }
+  }
+
+  /**
+   * Compute the path for the exactInput and exactOutput functions
    * @param swapType The swap type (EXACT_IN or EXACT_OUT)
    * @param route The swap route
    * @returns The path
@@ -178,5 +313,16 @@ export class UniswapV3 extends Exchange {
     }
 
     return encodePacked(types, values)
+  }
+
+  /**
+   * Compute the slippage amount
+   * @param amount The amount
+   * @param slippage The slippage in basis points
+   * @returns The slippage amount
+   */
+  protected static _amountWithSlippage(amount: bigint, slippage: number, positive: boolean): bigint {
+    const _slippage = (amount * BigInt(slippage)) / BigInt(10000)
+    return positive ? amount + _slippage : amount - _slippage
   }
 }

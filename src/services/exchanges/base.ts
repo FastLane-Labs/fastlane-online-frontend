@@ -1,5 +1,5 @@
 import { Token, SwapStep, QuoteRequest, QuoteResult } from '@/types'
-import { ContractFunctionParameters } from 'viem'
+import { ContractFunctionParameters, Address, Hex } from 'viem'
 
 /**
  * Base class for exchanges. All exchanges should extend this class and implement the required methods.
@@ -42,6 +42,17 @@ export abstract class Exchange {
    * @returns The contract call parameters
    */
   public static getQuoteContractCall(quoteRequest: QuoteRequest): ContractFunctionParameters {
+    throw new Error('Method not implemented.')
+  }
+
+  /**
+   * Get the swap calldata from a quote result
+   * @param quoteResult The quote result
+   * @param recipient The recipient of the swap
+   * @param slippage The allowed slippage in basis points
+   * @returns The swap calldata
+   */
+  public static getSwapCalldataFromQuoteResult(quoteResult: QuoteResult, recipient: Address, slippage: number): Hex {
     throw new Error('Method not implemented.')
   }
 }

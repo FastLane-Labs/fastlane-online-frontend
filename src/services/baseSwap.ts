@@ -4,11 +4,12 @@ import { QuoteRequest, QuoteResult, SwapRoute } from '@/types'
 import { getExchange } from '@/services/exchanges'
 import { multicall } from '@wagmi/core'
 import { tokenCmp } from '@/utils/token'
-import { ContractFunctionParameters } from 'viem'
+import { ContractFunctionParameters, Address, Hex } from 'viem'
 
 interface IBaseSwapService {
   getBestQuoteExactIn(amountIn: bigint, candidates: SwapRoute[]): Promise<QuoteResult | undefined>
   getBestQuoteExactOut(amountOut: bigint, candidates: SwapRoute[]): Promise<QuoteResult | undefined>
+  getSwapCalldataFromQuoteResult(quoteResult: QuoteResult, recipient: Address, allowedSlippage: number): Hex
 }
 
 export class BaseSwapService implements IBaseSwapService {
@@ -30,6 +31,17 @@ export class BaseSwapService implements IBaseSwapService {
    */
   async getBestQuoteExactOut(amountOut: bigint, candidates: SwapRoute[]): Promise<QuoteResult | undefined> {
     return this.getBestQuote(SwapType.EXACT_OUT, amountOut, candidates)
+  }
+
+  /**
+   * Get the swap calldata from a quote result
+   * @param quoteResult The quote result
+   * @param recipient The recipient of the swap
+   * @param slippage The allowed slippage
+   * @returns The swap calldata
+   */
+  getSwapCalldataFromQuoteResult(quoteResult: QuoteResult, recipient: Address, slippage: number): Hex {
+    return getExchange(quoteResult.swapRoute.exchange).getSwapCalldataFromQuoteResult(quoteResult, recipient, slippage)
   }
 
   /**
