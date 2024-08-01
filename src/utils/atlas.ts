@@ -1,12 +1,13 @@
 import { ethers } from 'ethers'
 import { QuoteResult } from '../types'
-import { atlasAbi, atlasVerificationAbi } from '@/abis'
+import { FastlaneOnlineAbi, atlasAbi, atlasVerificationAbi } from '@/abis'
 import { BaseSwapService } from '@/services/baseSwap'
 import { BaselineCall, SwapIntent, UserOperation } from '@/types/atlas'
 import { getExchangeRouter } from '@/services/exchanges'
+import { Address } from 'viem'
 
 const baseSwapService = new BaseSwapService()
-const atlasInterface = new ethers.Interface(atlasAbi)
+const fastlaneOnlineInterface = new ethers.Interface(FastlaneOnlineAbi)
 
 /**
  * Build the swap intent for an Atlas swap
@@ -27,9 +28,9 @@ export function buildSwapIntent(quoteResult: QuoteResult): SwapIntent {
  * @param quoteResult The quote result
  * @returns The baseline call data
  */
-export async function buildBaselineCallData(quoteResult: QuoteResult): Promise<BaselineCall> {
+export async function buildBaselineCallData(quoteResult: QuoteResult, recipient: Address): Promise<BaselineCall> {
   const exchangeRouter = getExchangeRouter(quoteResult.swapRoute.chainId, quoteResult.swapRoute.exchange)
-  const calldata = '0x' //await baseSwapService.getCalldataFromQuote(quoteResult)
+  const calldata = baseSwapService.getSwapCalldataFromQuoteResult(quoteResult, recipient, 100)
 
   return {
     to: exchangeRouter,
@@ -57,12 +58,12 @@ export async function buildUserOperation(
   deadline: number,
   gas: bigint,
   maxFeePerGas: bigint,
-  atlasAddress: string,
+  fastlaneOnlineAddress: string,
   provider: ethers.AbstractProvider
 ): Promise<UserOperation> {
-  const atlas = new ethers.Contract(atlasAddress, atlasAbi, provider)
+  const fastlaneOnline = new ethers.Contract(fastlaneOnlineAddress, FastlaneOnlineAbi, provider)
 
-  const userOp = await atlas
+  const userOp = await fastlaneOnline
     .getUserOperation(swapper, swapIntent, baselineCall, deadline, gas, maxFeePerGas)
     .catch((error) => {
       console.error('Error getting user operation:', error)
@@ -101,4 +102,30 @@ export async function getUserOperationHash(
 ): Promise<string> {
   const atlasVerification = new ethers.Contract(atlasVerificationAddress, atlasVerificationAbi, provider)
   return atlasVerification.getUserOperationHash(userOp)
+}
+
+/**
+ * Get the execution environment for an Atlas swap
+ * @param atlasAddress The Atlas contract address
+ * @param userAddress The user address
+ * @param dAppControlAddress The dApp control address
+ * @param provider The provider
+ * @returns The execution environment address
+ */
+export async function getExecutionEnvironment(
+  atlasAddress: Address,
+  userAddress: Address,
+  dAppControlAddress: Address,
+  provider: ethers.AbstractProvider
+): Promise<Address> {
+  const atlas = new ethers.Contract(atlasAddress, atlasAbi, provider)
+
+  const [executionEnvironment, ,] = await atlas
+    .getExecutionEnvironment(userAddress, dAppControlAddress)
+    .catch((error) => {
+      console.error('Error getting execution environment:', error)
+      throw error
+    })
+
+  return executionEnvironment as Address
 }

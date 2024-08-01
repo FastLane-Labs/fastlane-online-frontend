@@ -2,10 +2,17 @@ import { useState, useCallback } from 'react'
 import { useAccount } from 'wagmi'
 import { useEthersProviderContext } from '@/context/EthersProviderContext'
 import { useSwapContext } from '@/context/SwapContext'
-import { buildSwapIntent, buildBaselineCallData, buildUserOperation, getUserOperationHash } from '@/utils/atlas'
+import {
+  buildSwapIntent,
+  buildBaselineCallData,
+  buildUserOperation,
+  getUserOperationHash,
+  getExecutionEnvironment,
+} from '@/utils/atlas'
 import { useFastLaneOnline } from './useFastLaneOnline'
 import { ethers } from 'ethers'
-import { atlasAbi } from '@/abis'
+import { FastlaneOnlineAbi } from '@/abis'
+import { Address } from 'viem'
 
 export const useHandleSwap = () => {
   const { signer, provider } = useEthersProviderContext()
@@ -25,14 +32,24 @@ export const useHandleSwap = () => {
       // Build swap intent
       const swapIntent = buildSwapIntent(quote)
 
+      // Hardcoded - no good
+      const executionEnvironment = await getExecutionEnvironment(
+        '0x892F8f6779ca6927c1A6Cc74319e03d2abEf18D5',
+        dappAddress as Address,
+        dappAddress as Address,
+        provider
+      )
+
       // Build baseline call data
-      const baselineCall = await buildBaselineCallData(quote)
+      const baselineCall = await buildBaselineCallData(quote, executionEnvironment)
 
       // Prepare other parameters for user operation
       const block = await provider.getBlock('latest')
-      const maxFeePerGas = block?.baseFeePerGas! * 2n // Example: set max fee to 2x current base fee
-      const deadline = Date.now() + 3600000 // Example: set deadline to 1 hour from now
-      const gas = 500000n // Example gas limit, adjust as needed
+      const maxFeePerGas = block?.baseFeePerGas! * 2n * BigInt(1e9) // Example: set max fee to 2x current base fee
+      const deadline = block?.number! + 200 // Example: set deadline 200 blocks away
+      const gas = 2000000n // Example gas limit, adjust as needed
+
+      console.log('maxFeePerGas', maxFeePerGas)
 
       // Build user operation
       const userOperation = await buildUserOperation(
@@ -48,7 +65,7 @@ export const useHandleSwap = () => {
       //Get user operation hash
       const userOpHash = await getUserOperationHash(userOperation, verificationAddress, provider)
 
-      const contract = new ethers.Contract(dappAddress, atlasAbi, signer)
+      const contract = new ethers.Contract(dappAddress, FastlaneOnlineAbi, signer)
       const tx = await contract.fastOnlineSwap(swapIntent, baselineCall, deadline, gas, maxFeePerGas, userOpHash, {
         gasLimit: gas,
       })
