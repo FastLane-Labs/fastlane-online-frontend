@@ -1,6 +1,7 @@
 import { ChainId, CONTRACT_ADDRRESSES, Exchange as ExchangeName } from '@/constants'
 import { Exchange } from './base'
 import { UniswapV3 } from './uniswapV3'
+import { Address } from 'viem'
 
 /**
  * Get an exchange class from the exchange name
@@ -23,7 +24,7 @@ export function getExchange(exchange: ExchangeName): typeof Exchange {
  * @param exchange The exchange name
  * @returns The router address
  */
-export function getExchangeRouter(chainId: ChainId, exchange: ExchangeName): string {
+export function getExchangeRouter(chainId: ChainId, exchange: ExchangeName): Address {
   const chainAddresses = CONTRACT_ADDRRESSES[chainId]
   if (!chainAddresses) {
     throw new Error(`Unsupported chain ID: ${chainId}`)
