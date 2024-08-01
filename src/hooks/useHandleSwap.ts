@@ -12,6 +12,7 @@ import {
 import { useFastLaneOnline } from './useFastLaneOnline'
 import { ethers } from 'ethers'
 import { FastlaneOnlineAbi } from '@/abis'
+import { getFeeData } from '@/utils/gasFee'
 import { Address } from 'viem'
 
 export const useHandleSwap = () => {
@@ -44,12 +45,15 @@ export const useHandleSwap = () => {
       const baselineCall = await buildBaselineCallData(quote, executionEnvironment)
 
       // Prepare other parameters for user operation
-      const block = await provider.getBlock('latest')
-      const maxFeePerGas = block?.baseFeePerGas! * 2n * BigInt(1e9) // Example: set max fee to 2x current base fee
-      const deadline = block?.number! + 200 // Example: set deadline 200 blocks away
-      const gas = 2000000n // Example gas limit, adjust as needed
+      const feeData = await getFeeData(provider)
+      if (!feeData.maxFeePerGas || !feeData.gasPrice) {
+        console.error('Missing required data for swap')
+        return false
+      }
 
-      console.log('maxFeePerGas', maxFeePerGas)
+      const maxFeePerGas = feeData.maxFeePerGas
+      const deadline = Date.now() + 3600000 // Example: set deadline to 1 hour from now
+      const gas = 1500000n
 
       // Build user operation
       const userOperation = await buildUserOperation(
