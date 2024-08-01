@@ -1,3 +1,8 @@
+/**
+ * Get the address of the Atlas contract (FastLane Reservoir)
+ * @param chainId The chain ID
+ * @returns The address of the Atlas contract
+ */
 export const getAtlasAddress = (chainId: number) => {
   switch (chainId) {
     case 137:
@@ -7,6 +12,11 @@ export const getAtlasAddress = (chainId: number) => {
   }
 }
 
+/**
+ * Get the address of the Dapp contract (FastLaneOnline Dapp)
+ * @param chainId The chain ID
+ * @returns The address of the Dapp contract
+ */
 export const getDappAddress = (chainId: number) => {
   switch (chainId) {
     case 137:
@@ -16,6 +26,11 @@ export const getDappAddress = (chainId: number) => {
   }
 }
 
+/**
+ * Get the address of the Atlas verification contract (FastLane Reservoir)
+ * @param chainId The chain ID
+ * @returns The address of the Atlas verification contract
+ */
 export const getAtlasVerificationAddress = (chainId: number) => {
   switch (chainId) {
     case 137:
