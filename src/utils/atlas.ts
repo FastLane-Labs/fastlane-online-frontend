@@ -6,6 +6,7 @@ import { BaselineCall, SwapIntent, UserOperation } from '@/types/atlas'
 import { getExchangeRouter } from '@/services/exchanges'
 
 const baseSwapService = new BaseSwapService()
+const atlasInterface = new ethers.Interface(atlasAbi)
 
 /**
  * Build the swap intent for an Atlas swap

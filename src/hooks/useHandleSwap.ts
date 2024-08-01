@@ -4,6 +4,8 @@ import { useEthersProviderContext } from '@/context/EthersProviderContext'
 import { useSwapContext } from '@/context/SwapContext'
 import { buildSwapIntent, buildBaselineCallData, buildUserOperation, getUserOperationHash } from '@/utils/atlas'
 import { useFastLaneOnline } from './useFastLaneOnline'
+import { ethers } from 'ethers'
+import { atlasAbi } from '@/abis'
 
 export const useHandleSwap = () => {
   const { signer, provider } = useEthersProviderContext()
@@ -43,14 +45,17 @@ export const useHandleSwap = () => {
         dappAddress,
         provider
       )
-      console.log('User operation:', userOperation)
-
-      // 6. Get user operation hash
+      //Get user operation hash
       const userOpHash = await getUserOperationHash(userOperation, verificationAddress, provider)
 
-      console.log('User operation hash:', userOpHash)
+      const contract = new ethers.Contract(dappAddress, atlasAbi, signer)
+      const tx = await contract.fastOnlineSwap(swapIntent, baselineCall, deadline, gas, maxFeePerGas, userOpHash, {
+        gasLimit: gas,
+      })
 
-      // Note: Signing and submitting the transaction are commented out for testing
+      console.log('Swap transaction submitted:', tx.hash)
+      await tx.wait()
+      console.log('Swap transaction confirmed')
 
       return true
     } catch (error) {
