@@ -80,14 +80,7 @@ export const useSwapState = (): SwapState => {
     }
     const requiredAmount = toBigInt(debouncedFromAmount, fromToken.decimals)
     return allowanceManager.isSufficientAllowance(fromToken, userAddress, spenderAddress, requiredAmount)
-  }, [
-    fromToken,
-    userAddress,
-    spenderAddress,
-    debouncedFromAmount,
-    allowanceManager.isSufficientAllowance,
-    allowanceManager.allowances,
-  ])
+  }, [fromToken, userAddress, spenderAddress, debouncedFromAmount, allowanceManager])
 
   const resetSelections = useCallback(() => {
     setFromToken(null)
@@ -127,7 +120,7 @@ export const useSwapState = (): SwapState => {
     if (fromToken && userAddress && spenderAddress && debouncedFromAmount) {
       allowanceManager.checkAllowance(fromToken, userAddress, spenderAddress)
     }
-  }, [fromToken, userAddress, spenderAddress, debouncedFromAmount, allowanceManager.checkAllowance])
+  }, [fromToken, userAddress, spenderAddress, debouncedFromAmount, allowanceManager])
 
   return {
     // Token and Amount States

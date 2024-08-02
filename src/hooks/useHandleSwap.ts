@@ -95,7 +95,19 @@ export const useHandleSwap = () => {
     } finally {
       setIsSwapping(false)
     }
-  }, [address, provider, quote, quoteLoading, dappAddress, atlasVerificationAddress, config.slippage, config.deadline])
+  }, [
+    address,
+    quote,
+    quoteLoading,
+    dappAddress,
+    atlasVerificationAddress,
+    config.slippage,
+    config.deadline,
+    atlasAddress,
+    chainId,
+    signer,
+    provider,
+  ])
 
   return {
     handleSwap,

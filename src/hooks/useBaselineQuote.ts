@@ -49,7 +49,7 @@ export const useBaselineQuote = (
       refetchIntervalInBackground: false,
       keepPreviousData: true,
     }),
-    [address, fromToken?.address, toToken?.address, swapDirection, amount, chainId, enabled]
+    [address, fromToken, toToken, swapDirection, amount, chainId, enabled, swapPathService, baselineSwapService]
   )
 
   return useQuery<QuoteResult | null, Error>(queryOptions)

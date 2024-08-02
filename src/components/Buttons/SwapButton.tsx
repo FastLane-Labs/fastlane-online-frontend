@@ -53,7 +53,7 @@ const SwapButton: React.FC<SwapButtonProps> = ({ handleSwap, isLoading }) => {
       console.error('Approval Error:', error)
       return false
     }
-  }, [fromToken, userAddress, spenderAddress, fromAmount, updateAllowance, checkAllowance, isSufficientAllowance])
+  }, [fromToken, userAddress, spenderAddress, fromAmount, updateAllowance, checkAllowance])
 
   const handleSwapConfirm = useCallback(async () => {
     setLocalLoading(true)
