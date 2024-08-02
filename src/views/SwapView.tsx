@@ -8,21 +8,12 @@ import SellComponent from '@/components/Swap/SellComponent'
 import BackgroundGradient from '@/components/Theme/BackgroundGradient'
 import { useHandleSwap } from '@/hooks/useHandleSwap'
 import { useBaselineQuote } from '@/hooks/useBaselineQuote'
-import { Settings } from '@/types'
 
 const SwapView: React.FC = () => {
   const [isSettingsModalVisible, setIsSettingsModalVisible] = useState<boolean>(false)
-  const [settings, setSettings] = useState<Settings>({
-    slippageTolerance: 0.5,
-    transactionDeadline: 20,
-  })
 
   const { handleSwap, isSwapping } = useHandleSwap()
   const isQuoteLoading = useBaselineQuote()
-
-  const handleSettingsSave = (newSettings: Settings) => {
-    setSettings(newSettings)
-  }
 
   return (
     <div className='relative max-w-md mx-auto'>
@@ -39,7 +30,7 @@ const SwapView: React.FC = () => {
             boxShadow: 'rgba(241, 32, 116, .2) 0px 5px 90px 4px',
           }}>
           <div className='flex justify-end items-center mb-2'>
-            <SettingsButton settings={settings} setIsSettingsModalVisible={setIsSettingsModalVisible} />
+            <SettingsButton setIsSettingsModalVisible={setIsSettingsModalVisible} />
           </div>
 
           <SellComponent />
@@ -48,11 +39,7 @@ const SwapView: React.FC = () => {
 
           <SwapButton handleSwap={handleSwap} isLoading={isSwapping || isQuoteLoading} />
 
-          <SettingsModal
-            isVisible={isSettingsModalVisible}
-            onClose={() => setIsSettingsModalVisible(false)}
-            onSave={handleSettingsSave}
-          />
+          <SettingsModal isVisible={isSettingsModalVisible} onClose={() => setIsSettingsModalVisible(false)} />
         </div>
       </div>
     </div>

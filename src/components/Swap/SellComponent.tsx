@@ -40,7 +40,7 @@ const SellComponent: React.FC = () => {
         setSellToken(defaultToken)
       }
     }
-  }, [chainId, sellToken, tokens])
+  }, [chainId, sellToken, tokens, setSellToken])
 
   useEffect(() => {
     if (sellToken && !balanceLoading && !balanceError) {

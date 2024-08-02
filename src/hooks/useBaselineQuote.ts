@@ -4,7 +4,7 @@ import { useSwapContext } from '@/context/SwapContext'
 import { BaseSwapService } from '@/services/baseSwap'
 import { SwapPathService } from '@/services/swapPath'
 import { useAccount } from 'wagmi'
-import { Exchange, SwapType } from '@/constants'
+import { Exchange } from '@/constants'
 import { formatBalance, toBigInt } from '@/utils/format'
 import useDebounce from '@/hooks/useDebounce'
 import { keys } from '@/core/queries/query-keys'
@@ -120,7 +120,7 @@ export const useBaselineQuote = (): boolean => {
         }
       }
     }
-  }, [quoteResult, error, fromToken, toToken, swapDirection, setToAmount, setFromAmount, setQuoteLoading])
+  }, [quoteResult, error, fromToken, toToken, swapDirection, setToAmount, setFromAmount, setQuoteLoading, setQuote])
 
   return quoteLoading
 }

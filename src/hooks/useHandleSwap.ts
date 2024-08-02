@@ -15,16 +15,28 @@ import { FastlaneOnlineAbi } from '@/abis'
 import { Address } from 'viem'
 import { getFeeData } from '@/utils/gasFee'
 import { getAtlasGasSurcharge } from '@/utils/atlas'
+import { useAppStore } from '@/store/useAppStore'
+import { calculateDeadlineBlockNumber } from '@/utils/settings'
 
 export const useHandleSwap = () => {
   const { signer, provider } = useEthersProviderContext()
-  const { address } = useAccount()
+  const { address, chainId } = useAccount()
   const { quote, quoteLoading } = useSwapContext()
+  const { config } = useAppStore()
   const [isSwapping, setIsSwapping] = useState(false)
   const { atlasAddress, dappAddress, atlasVerificationAddress } = useFastLaneOnline()
 
   const handleSwap = useCallback(async () => {
-    if (!address || !provider || !quote || quoteLoading || !atlasAddress || !dappAddress || !atlasVerificationAddress) {
+    if (
+      !address ||
+      !provider ||
+      !quote ||
+      quoteLoading ||
+      !atlasAddress ||
+      !dappAddress ||
+      !atlasVerificationAddress ||
+      !chainId
+    ) {
       console.error('Missing required data for swap')
       return false
     }
@@ -42,7 +54,7 @@ export const useHandleSwap = () => {
       )
 
       // Build baseline call data
-      const baselineCall = await buildBaselineCallData(quote, executionEnvironment)
+      const baselineCall = await buildBaselineCallData(quote, executionEnvironment, config.slippage)
 
       const block = await provider.getBlock('latest')
       const feeData = await getFeeData(provider)
@@ -52,7 +64,7 @@ export const useHandleSwap = () => {
       }
 
       const maxFeePerGas = feeData.maxFeePerGas * 2n
-      const deadline = block?.number! + 200 // Example: set deadline 200 blocks away
+      const deadline = calculateDeadlineBlockNumber(config.deadline, block?.number!, chainId)
       const gas = 2000000n // Example gas limit, adjust as needed
 
       // Build user operation
@@ -87,7 +99,7 @@ export const useHandleSwap = () => {
     } finally {
       setIsSwapping(false)
     }
-  }, [address, provider, quote, quoteLoading, dappAddress, atlasVerificationAddress])
+  }, [address, provider, quote, quoteLoading, dappAddress, atlasVerificationAddress, config.slippage, config.deadline])
 
   return {
     handleSwap,

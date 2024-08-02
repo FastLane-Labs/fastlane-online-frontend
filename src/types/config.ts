@@ -1,12 +1,9 @@
 import { Routes } from '@/core/routes'
 import { Token } from './token'
-
-export type SlippageOption = 0.1 | 0.5 | 1
 export interface AppConfig {
-  slippage?: SlippageOption
-  deadline?: number
-  hideAnimations?: boolean
-  priceImpactWarnings?: {
+  slippage: number
+  deadline: number
+  priceImpactWarnings: {
     warning: number
     critical: number
   }

@@ -87,13 +87,23 @@ export const useSwap = (): SwapState => {
     setAllowanceRefreshTrigger((prev) => prev + 1)
   }, [])
 
+  const resetSelections = useCallback(() => {
+    setFromToken(null)
+    setToToken(null)
+    setFromAmount('')
+    setToAmount('')
+    setQuote(null)
+    setAllowance(BigInt(0))
+    setSufficientAllowance(false)
+  }, [])
+
   useEffect(() => {
     if (chainId && tokens.length > 0) {
       resetSelections()
       setDefaultToken(tokens.find((token) => token.tags?.includes('default')) as Token)
       setFromToken(defaultToken)
     }
-  }, [chainId, tokens])
+  }, [chainId, tokens, defaultToken, resetSelections])
 
   useEffect(() => {
     setAllowance(fetchedAllowance ?? BigInt(0))
@@ -107,16 +117,6 @@ export const useSwap = (): SwapState => {
     setFromAmount(toAmount)
     setToAmount(fromAmount)
   }, [fromToken, toToken, fromAmount, toAmount])
-
-  const resetSelections = useCallback(() => {
-    setFromToken(null)
-    setToToken(null)
-    setFromAmount('')
-    setToAmount('')
-    setQuote(null)
-    setAllowance(BigInt(0))
-    setSufficientAllowance(false)
-  }, [])
 
   useEffect(() => {
     resetSelections()

@@ -20,7 +20,11 @@ export const useAppStore = create<AppConfigState & { updateConfig: (newConfig: P
       ...defaultValues,
       updateConfig: (newConfig) =>
         set((state) => ({
-          config: { ...state.config, ...newConfig },
+          ...state,
+          config: {
+            ...state.config,
+            ...newConfig,
+          },
         })),
     }),
     {

@@ -29,9 +29,13 @@ export function buildSwapIntent(quoteResult: QuoteResult): SwapIntent {
  * @param quoteResult The quote result
  * @returns The baseline call data
  */
-export async function buildBaselineCallData(quoteResult: QuoteResult, recipient: Address): Promise<BaselineCall> {
+export async function buildBaselineCallData(
+  quoteResult: QuoteResult,
+  recipient: Address,
+  slippage: number
+): Promise<BaselineCall> {
   const exchangeRouter = getExchangeRouter(quoteResult.swapRoute.chainId, quoteResult.swapRoute.exchange)
-  const calldata = baseSwapService.getSwapCalldataFromQuoteResult(quoteResult, recipient, 100)
+  const calldata = baseSwapService.getSwapCalldataFromQuoteResult(quoteResult, recipient, slippage)
 
   return {
     to: exchangeRouter,

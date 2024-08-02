@@ -55,8 +55,7 @@ export const nativeEvmTokenAddress = '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE
 export const defaultValues: AppConfigState = {
   config: {
     slippage: 0.5,
-    deadline: 20,
-    hideAnimations: false,
+    deadline: 10,
     titles: {
       swap: 'Swap',
     },

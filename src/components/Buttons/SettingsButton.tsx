@@ -1,21 +1,25 @@
-import React from 'react'
-
-interface Settings {
-  slippageTolerance: number
-}
+import { useAppStore } from '@/store/useAppStore'
+import { basisPointsToPercent } from '@/utils/settings'
+import React, { useState, useEffect } from 'react'
 
 interface SettingsButtonProps {
-  settings: Settings
   setIsSettingsModalVisible: (visible: boolean) => void
 }
 
-const SettingsButton: React.FC<SettingsButtonProps> = ({ settings, setIsSettingsModalVisible }) => {
+const SettingsButton: React.FC<SettingsButtonProps> = ({ setIsSettingsModalVisible }) => {
+  const { config } = useAppStore()
+  const [slippagePercent, setSlippagePercent] = useState<number | null>(null)
+
+  useEffect(() => {
+    setSlippagePercent(basisPointsToPercent(config.slippage))
+  }, [config.slippage])
+
   return (
     <button
       className='btn-outline text-neutral-content hover:text-neutral-content'
       onClick={() => setIsSettingsModalVisible(true)}>
-      {settings.slippageTolerance !== 0.5 && (
-        <span className='text-gray-600 font-normal text-xs'>{settings.slippageTolerance}% slippage</span>
+      {slippagePercent !== null && slippagePercent !== 0.5 && (
+        <span className='text-gray-6000 font-normal text-xs'>{slippagePercent}% slippage</span>
       )}
       <svg
         xmlns='http://www.w3.org/2000/svg'
