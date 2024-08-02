@@ -41,7 +41,10 @@ const createBalanceQueryOptions = ({
     queryKey,
     queryFn,
     enabled: !!userAddress && enabled,
-    refetchInterval: 15000,
+    refetchInterval: 20000,
+    refetchOnMount: true,
+    refetchOnWindowFocus: true,
+    refetchIntervalInBackground: false,
     retry: 2,
   }
 }

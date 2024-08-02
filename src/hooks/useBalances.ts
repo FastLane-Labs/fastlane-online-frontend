@@ -56,7 +56,10 @@ export const useBalances = ({
     queryKey,
     queryFn: () => fetchBalances(tokens, userAddress, multicallProvider),
     enabled: !!userAddress && enabled,
-    refetchInterval: 15000,
+    refetchInterval: 20000,
+    refetchOnWindowFocus: true,
+    refetchOnMount: true,
+    refetchIntervalInBackground: false,
     retry: 2,
   })
 }
