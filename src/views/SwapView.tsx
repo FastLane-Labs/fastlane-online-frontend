@@ -8,12 +8,13 @@ import SellComponent from '@/components/Swap/SellComponent'
 import BackgroundGradient from '@/components/Theme/BackgroundGradient'
 import { useHandleSwap } from '@/hooks/useHandleSwap'
 import { useBaselineQuote } from '@/hooks/useBaselineQuote'
+import { useSwapStateContext } from '@/context/SwapStateContext'
+import { useSwapProcessManager } from '@/hooks/useSwapProcessManager'
 
 const SwapView: React.FC = () => {
   const [isSettingsModalVisible, setIsSettingsModalVisible] = useState<boolean>(false)
-
-  const { handleSwap, isSwapping } = useHandleSwap()
-  const isQuoteLoading = useBaselineQuote()
+  const { handleSwap } = useHandleSwap()
+  const { quoteLoading } = useSwapProcessManager()
 
   return (
     <div className='relative max-w-md mx-auto'>
@@ -39,7 +40,7 @@ const SwapView: React.FC = () => {
           <FlipButton />
           <BuyComponent />
 
-          <SwapButton handleSwap={handleSwap} isLoading={isSwapping || isQuoteLoading} />
+          <SwapButton handleSwap={handleSwap} isLoading={quoteLoading} />
 
           <SettingsModal isVisible={isSettingsModalVisible} onClose={() => setIsSettingsModalVisible(false)} />
         </div>

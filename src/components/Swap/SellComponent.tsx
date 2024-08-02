@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import { TokenBalance } from '@/components/TokenBalance/TokenBalance'
 import SellAmount from './SellAmount'
-import { useSwapContext } from '@/context/SwapContext'
+import { useSwapStateContext } from '@/context/SwapStateContext'
 import { useAccount } from 'wagmi'
 import { useBalance } from '@/hooks/useBalance'
 import { Token } from '@/types'
@@ -16,7 +16,7 @@ const SellComponent: React.FC = () => {
     fromAmount: sellAmount,
     setFromAmount: setSellAmount,
     setSwapDirection,
-  } = useSwapContext()
+  } = useSwapStateContext()
 
   const { address, chainId } = useAccount()
   const [balance, setBalance] = useState<string>('0')

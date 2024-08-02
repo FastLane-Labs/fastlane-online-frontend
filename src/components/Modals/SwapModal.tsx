@@ -1,6 +1,6 @@
 import ModalWrapper from '@/components/Wrappers/ModalWrapper'
 import { useState } from 'react'
-import { useSwapContext } from '@/context/SwapContext'
+import { useSwapStateContext } from '@/context/SwapStateContext'
 import UnknownToken from '@/assets/svg/unknownToken.svg'
 import { Token } from '@/types'
 import { ArrowRightIcon } from '@heroicons/react/24/outline'
@@ -13,7 +13,7 @@ interface SwapModalProps {
 }
 
 const SwapModal: React.FC<SwapModalProps> = ({ isVisible, onClose, onSwap, onApprove }) => {
-  const { fromToken, toToken, fromAmount, toAmount, sufficientAllowance } = useSwapContext()
+  const { fromToken, toToken, fromAmount, toAmount, sufficientAllowance } = useSwapStateContext()
   const [isApproving, setIsApproving] = useState(false)
   const [isSwapping, setIsSwapping] = useState(false)
   const [swapSuccess, setSwapSuccess] = useState(false)

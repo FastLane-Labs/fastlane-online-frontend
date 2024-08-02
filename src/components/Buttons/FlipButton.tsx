@@ -1,5 +1,5 @@
 import React from 'react'
-import { useSwapContext } from '@/context/SwapContext'
+import { useSwapStateContext } from '@/context/SwapStateContext'
 
 const FlipButton: React.FC = () => {
   const {
@@ -11,7 +11,7 @@ const FlipButton: React.FC = () => {
     setToToken: setBuyToken,
     toAmount: buyAmount,
     setToAmount: setBuyAmount,
-  } = useSwapContext()
+  } = useSwapStateContext()
 
   const handleSwapArrow = () => {
     setSellToken(buyToken)

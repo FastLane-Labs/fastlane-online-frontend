@@ -4,7 +4,7 @@ import { useCurrentTokenList } from '@/hooks/useTokenList'
 import { useAccount } from 'wagmi'
 import { Token } from '@/types'
 import { useBalances } from '@/hooks/useBalances'
-import { useSwapContext } from '@/context/SwapContext'
+import { useSwapStateContext } from '@/context/SwapStateContext'
 import TokenItem from '@/components/TokenItem/TokenItem'
 import TokenGrid from '@/components/TokenGrid/TokenGrid'
 import { MagnifyingGlassIcon } from '@heroicons/react/24/outline'
@@ -29,7 +29,7 @@ const TokenSelectModal: React.FC<TokenSelectModalProps> = ({
   const { tokens, loading, error } = useCurrentTokenList()
   const [searchTerm, setSearchTerm] = useState('')
   const { address } = useAccount()
-  const { fromToken, toToken } = useSwapContext()
+  const { fromToken, toToken } = useSwapStateContext()
 
   const balancesQuery = useBalances({
     tokens: tokens,

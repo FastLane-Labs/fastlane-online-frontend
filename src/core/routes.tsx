@@ -1,7 +1,7 @@
 import React from 'react'
 import SwapView from '@/views/SwapView'
 import { useAppRouter } from '@/hooks/useAppRouter'
-import { SwapProvider } from '@/context/SwapContext'
+import { SwapStateProvider } from '@/context/SwapStateContext'
 
 // Define the route types
 export type Routes = 'swap'
@@ -33,9 +33,9 @@ export const AppRoutes: React.FC = () => {
       id: 'swap',
       path: routes.swap.path,
       element: (
-        <SwapProvider>
+        <SwapStateProvider>
           <SwapView />
-        </SwapProvider>
+        </SwapStateProvider>
       ),
     },
   ]
