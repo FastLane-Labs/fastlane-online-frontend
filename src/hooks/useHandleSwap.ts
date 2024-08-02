@@ -1,7 +1,7 @@
 import { useState, useCallback } from 'react'
 import { useAccount } from 'wagmi'
 import { useEthersProviderContext } from '@/context/EthersProviderContext'
-import { useSwapContext } from '@/context/SwapContext'
+import { useSwapStateContext } from '@/context/SwapStateContext'
 import {
   buildSwapIntent,
   buildBaselineCallData,
@@ -9,7 +9,7 @@ import {
   getUserOperationHash,
   getExecutionEnvironment,
 } from '@/utils/atlas'
-import { useFastLaneOnline } from './useFastLaneOnline'
+import { useFastLaneAddresses } from './useFastLaneAddresses'
 import { ethers } from 'ethers'
 import { FastlaneOnlineAbi } from '@/abis'
 import { Address } from 'viem'
@@ -21,22 +21,18 @@ import { calculateDeadlineBlockNumber } from '@/utils/settings'
 export const useHandleSwap = () => {
   const { signer, provider } = useEthersProviderContext()
   const { address, chainId } = useAccount()
-  const { quote, quoteLoading } = useSwapContext()
+  const { quote, quoteLoading } = useSwapStateContext()
   const { config } = useAppStore()
   const [isSwapping, setIsSwapping] = useState(false)
-  const { atlasAddress, dappAddress, atlasVerificationAddress } = useFastLaneOnline()
+  const { atlasAddress, dappAddress, atlasVerificationAddress } = useFastLaneAddresses()
 
   const handleSwap = useCallback(async () => {
-    if (
-      !address ||
-      !provider ||
-      !quote ||
-      quoteLoading ||
-      !atlasAddress ||
-      !dappAddress ||
-      !atlasVerificationAddress ||
-      !chainId
-    ) {
+    // Check if all required data is available
+    const hashMissingContractAddress = !atlasVerificationAddress || !dappAddress || !atlasAddress
+    const missingWeb3Provider = !address || !provider || !signer || !chainId
+    const missingQuote = !quote || quoteLoading
+
+    if (hashMissingContractAddress || missingWeb3Provider || missingQuote) {
       console.error('Missing required data for swap')
       return false
     }

@@ -13,7 +13,7 @@ interface SwapModalProps {
 }
 
 const SwapModal: React.FC<SwapModalProps> = ({ isVisible, onClose, onSwap, onApprove }) => {
-  const { fromToken, toToken, fromAmount, toAmount, sufficientAllowance } = useSwapStateContext()
+  const { fromToken, toToken, fromAmount, toAmount, hasSufficientAllowance } = useSwapStateContext()
   const [isApproving, setIsApproving] = useState(false)
   const [isSwapping, setIsSwapping] = useState(false)
   const [swapSuccess, setSwapSuccess] = useState(false)
@@ -47,7 +47,7 @@ const SwapModal: React.FC<SwapModalProps> = ({ isVisible, onClose, onSwap, onApp
   }
 
   const renderButton = () => {
-    if (!sufficientAllowance) {
+    if (!hasSufficientAllowance) {
       return (
         <button onClick={handleApprove} disabled={isApproving} className='btn'>
           {isApproving ? (
@@ -240,7 +240,7 @@ const SwapModal: React.FC<SwapModalProps> = ({ isVisible, onClose, onSwap, onApp
           </button>
         </>
       )
-    } else if (!sufficientAllowance && !isApproving) {
+    } else if (!hasSufficientAllowance && !isApproving) {
       return (
         <>
           <h2 className='text-lg font-semibold mb-4 text-center'>Approve Token</h2>

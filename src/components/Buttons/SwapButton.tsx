@@ -5,10 +5,10 @@ import { useBalance } from '@/hooks/useBalance'
 import { useSwapStateContext } from '@/context/SwapStateContext'
 import { toBigInt } from '@/utils/format'
 import SwapModal from '@/components/Modals/SwapModal'
-import { approveErc20Token } from '@/utils/approveErc20Token'
 import { useEthersProviderContext } from '@/context/EthersProviderContext'
 import { useFastLaneAddresses } from '@/hooks/useFastLaneAddresses'
 import { SUPPORTED_CHAIN_IDS } from '@/constants'
+import { useAllowanceManager } from '@/hooks/useAllowanceManager'
 
 interface SwapButtonProps {
   handleSwap: () => Promise<boolean>
@@ -18,15 +18,15 @@ interface SwapButtonProps {
 const SwapButton: React.FC<SwapButtonProps> = ({ handleSwap, isLoading }) => {
   const { openConnectModal } = useConnectModal()
   const { openChainModal } = useChainModal()
-  const { fromToken, toToken, fromAmount, updateAllowance, setSufficientAllowance } = useSwapStateContext()
+  const { fromToken, toToken, fromAmount } = useSwapStateContext()
   const { address: userAddress, status, isConnected, chainId } = useAccount()
   const [isSupportedChain, setIsSupportedChain] = useState(false)
   const [localLoading, setLocalLoading] = useState(false)
   const [isSwapModalOpen, setIsSwapModalOpen] = useState(false)
   const [initialized, setInitialized] = useState(false)
   const { data: balance, isLoading: balanceLoading } = useBalance({ token: fromToken!, userAddress: userAddress! })
-  const { signer } = useEthersProviderContext()
   const { dappAddress: spenderAddress } = useFastLaneAddresses()
+  const { updateAllowance, checkAllowance, isSufficientAllowance } = useAllowanceManager()
 
   useEffect(() => {
     if (chainId) {
@@ -41,18 +41,19 @@ const SwapButton: React.FC<SwapButtonProps> = ({ handleSwap, isLoading }) => {
   }, [status])
 
   const handleApprove = useCallback(async () => {
-    if (!fromToken) return false
+    if (!fromToken || !userAddress || !spenderAddress) return false
     try {
-      if (!signer || !spenderAddress) return false
-      await approveErc20Token(signer, fromToken.address, spenderAddress, toBigInt(fromAmount, fromToken.decimals), true)
-      updateAllowance()
-      setSufficientAllowance(true)
-      return true
+      const amount = toBigInt(fromAmount, fromToken.decimals)
+      const success = await updateAllowance(fromToken, spenderAddress, amount)
+      if (success) {
+        await checkAllowance(fromToken, userAddress, spenderAddress)
+      }
+      return success
     } catch (error) {
       console.error('Approval Error:', error)
       return false
     }
-  }, [fromToken, signer, spenderAddress, fromAmount, updateAllowance, setSufficientAllowance])
+  }, [fromToken, userAddress, spenderAddress, fromAmount, updateAllowance, checkAllowance, isSufficientAllowance])
 
   const handleSwapConfirm = useCallback(async () => {
     setLocalLoading(true)
