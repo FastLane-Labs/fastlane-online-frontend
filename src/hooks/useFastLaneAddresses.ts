@@ -3,22 +3,24 @@ import { getAtlasAddress, getDappAddress, getAtlasVerificationAddress } from '@/
 import { useMemo } from 'react'
 import { useAccount } from 'wagmi'
 
-export const useFastLaneOnline = () => {
+export const useFastLaneAddresses = () => {
   const { chainId } = useAccount()
 
   const fastlaneOnlineAddresses = useMemo(() => {
     const isSupportedChain = chainId ? SUPPORTED_CHAIN_IDS.includes(chainId) : false
+    const fastlaneAddresses = { atlasAddress: '', dappAddress: '', atlasVerificationAddress: '' }
+
     if (!isSupportedChain || chainId === undefined) {
-      return { atlasAddress: '', dappAddress: '', verificationAddress: '' }
+      return fastlaneAddresses
     }
     try {
-      const atlasAddress = getAtlasAddress(chainId)
-      const dappAddress = getDappAddress(chainId)
-      const atlasVerificationAddress = getAtlasVerificationAddress(chainId)
-      return { atlasAddress, dappAddress, atlasVerificationAddress }
+      fastlaneAddresses.atlasAddress = getAtlasAddress(chainId)
+      fastlaneAddresses.dappAddress = getDappAddress(chainId)
+      fastlaneAddresses.atlasVerificationAddress = getAtlasVerificationAddress(chainId)
+      return fastlaneAddresses
     } catch (error) {
-      console.error('Error getting dapp addresses:', error)
-      return { atlasAddress: '', dappAddress: '', verificationAddress: '' }
+      console.error('Error getting dapp addresses for chainId:', chainId, error)
+      return fastlaneAddresses
     }
   }, [chainId])
 
