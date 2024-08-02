@@ -1,7 +1,7 @@
 [
     {
         "chainId": 137,
-        "address": "0xEeeeeEeeeEeEeeEeEeEeEeeEEEeeeeEeeeeeeeEEeE",
+        "address": "0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE",
         "decimals": 18,
         "name": "Matic",
         "symbol": "MATIC",

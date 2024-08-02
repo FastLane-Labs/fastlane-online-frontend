@@ -1,6 +1,5 @@
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
-
 import type { AppRoute } from '@/core/routes'
 import type { SwapRoute } from '@/types/swap'
 import type { TransactionHistoryStore, TransactionParams } from '@/types'
@@ -8,7 +7,6 @@ import { defaultValues } from '@/constants'
 import { AppConfig } from '@/types/config'
 
 export interface AppConfigState {
-  atlas?: any // Replace with AtlasSdk
   fromPrice?: string
   toPrice?: number
   currentTransaction?: TransactionParams
@@ -16,10 +14,22 @@ export interface AppConfigState {
   config: AppConfig
 }
 
-export const useAppStore = create<AppConfigState>((_) => ({
-  config: defaultValues,
-}))
+export const useAppStore = create<AppConfigState & { updateConfig: (newConfig: Partial<AppConfig>) => void }>()(
+  persist(
+    (set) => ({
+      ...defaultValues,
+      updateConfig: (newConfig) =>
+        set((state) => ({
+          config: { ...state.config, ...newConfig },
+        })),
+    }),
+    {
+      name: 'app-config-storage',
+    }
+  )
+)
 
+// The rest of your store definitions remain unchanged
 export interface AppRouter {
   history: {
     route: AppRoute
@@ -40,10 +50,6 @@ export const useAppRouterStore = create<AppRouter>((_) => ({
   ],
 }))
 
-/**
- * Persist the store in local storage
- * So the user can refresh the page and still see their old transactions
- */
 export const usePersistStore = create(
   persist<{
     transactionsHistory?: TransactionHistoryStore[]
@@ -54,7 +60,7 @@ export const usePersistStore = create(
       }
     },
     {
-      name: 'atlas.history.store', //TODO update with app name
+      name: 'atlas.history.store',
     }
   )
 )
