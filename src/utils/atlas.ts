@@ -17,7 +17,7 @@ const fastlaneOnlineInterface = new ethers.Interface(FastlaneOnlineAbi)
  */
 export function buildSwapIntent(quoteResult: QuoteResult): SwapIntent {
   return {
-    tokenUserBuys: quoteResult.swapRoute.swapSteps[0].tokenOut.address,
+    tokenUserBuys: quoteResult.swapRoute.swapSteps[quoteResult.swapRoute.swapSteps.length - 1].tokenOut.address,
     minAmountUserBuys: quoteResult.amountOut,
     tokenUserSells: quoteResult.swapRoute.swapSteps[0].tokenIn.address,
     amountUserSells: quoteResult.amountIn,
