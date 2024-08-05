@@ -1,5 +1,5 @@
 // hooks/useAllowanceManager.ts
-import { useState, useCallback } from 'react'
+import { useState, useCallback, useMemo } from 'react'
 import { useEthersProviderContext } from '@/context/EthersProviderContext'
 import { fetchErc20Allowance } from '@/utils/fetchErc20Allowance'
 import { approveErc20Token } from '@/utils/approveErc20Token'
@@ -73,12 +73,15 @@ export const useAllowanceManager = () => {
     [allowances]
   )
 
-  return {
-    checkAllowance,
-    updateAllowance,
-    isSufficientAllowance,
-    allowances,
-    loading,
-    error,
-  }
+  return useMemo(
+    () => ({
+      checkAllowance,
+      updateAllowance,
+      isSufficientAllowance,
+      allowances,
+      loading,
+      error,
+    }),
+    [checkAllowance, updateAllowance, isSufficientAllowance, allowances, loading, error]
+  )
 }

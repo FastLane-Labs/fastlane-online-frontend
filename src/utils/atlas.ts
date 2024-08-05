@@ -4,11 +4,10 @@ import { FastlaneOnlineAbi, atlasAbi, atlasVerificationAbi } from '@/abis'
 import { BaseSwapService } from '@/services/baseSwap'
 import { BaselineCall, SwapIntent, UserOperation } from '@/types/atlas'
 import { getExchangeRouter } from '@/services/exchanges'
-import { ATLAS_GAS_SURCHARGE } from '@/constants'
+import { ATLAS_GAS_SURCHARGE_PERCENTAGE } from '@/constants'
 import { Address } from 'viem'
 
 const baseSwapService = new BaseSwapService()
-const fastlaneOnlineInterface = new ethers.Interface(FastlaneOnlineAbi)
 
 /**
  * Build the swap intent for an Atlas swap
@@ -141,5 +140,5 @@ export async function getExecutionEnvironment(
  * @returns The Atlas gas surcharge
  */
 export function getAtlasGasSurcharge(gasCost: bigint): bigint {
-  return (gasCost * ATLAS_GAS_SURCHARGE) / 100n
+  return (gasCost * ATLAS_GAS_SURCHARGE_PERCENTAGE) / 100n
 }

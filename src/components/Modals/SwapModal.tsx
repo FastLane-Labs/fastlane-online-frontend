@@ -4,6 +4,8 @@ import { useSwapStateContext } from '@/context/SwapStateContext'
 import UnknownToken from '@/assets/svg/unknownToken.svg'
 import { Token } from '@/types'
 import { ArrowRightIcon } from '@heroicons/react/24/outline'
+import { useEstimatedSwapFees } from '@/hooks/useEstimatedSwapFees'
+import { formatEther } from 'ethers'
 
 interface SwapModalProps {
   isVisible: boolean
@@ -14,6 +16,7 @@ interface SwapModalProps {
 
 const SwapModal: React.FC<SwapModalProps> = ({ isVisible, onClose, onSwap, onApprove }) => {
   const { fromToken, toToken, fromAmount, toAmount, hasSufficientAllowance } = useSwapStateContext()
+  const { data: estimatedFees } = useEstimatedSwapFees()
   const [isApproving, setIsApproving] = useState(false)
   const [isSwapping, setIsSwapping] = useState(false)
   const [swapSuccess, setSwapSuccess] = useState(false)
@@ -182,7 +185,9 @@ const SwapModal: React.FC<SwapModalProps> = ({ isVisible, onClose, onSwap, onApp
               fillRule='evenodd'
             />
           </svg>
-          <span className='text-end text-neutral-400'>{`<.01%`}</span>
+          <span className='text-end text-neutral-400'>
+            {estimatedFees ? formatEther(estimatedFees.totalFeesInWei) : '0'}
+          </span>
         </div>
       </div>
 

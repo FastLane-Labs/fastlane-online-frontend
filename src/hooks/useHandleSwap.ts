@@ -17,6 +17,8 @@ import { getFeeData } from '@/utils/gasFee'
 import { getAtlasGasSurcharge } from '@/utils/atlas'
 import { useAppStore } from '@/store/useAppStore'
 import { calculateDeadlineBlockNumber } from '@/utils/settings'
+import { useEstimatedSwapFees } from '@/hooks/useEstimatedSwapFees'
+import { SOLVER_GAS_ESTIMATE, SWAP_GAS_ESTIMATE } from '@/constants'
 
 export const useHandleSwap = () => {
   const { signer, provider } = useEthersProviderContext()
@@ -25,6 +27,7 @@ export const useHandleSwap = () => {
   const { config } = useAppStore()
   const [isSwapping, setIsSwapping] = useState(false)
   const { atlasAddress, dappAddress, atlasVerificationAddress } = useFastLaneAddresses()
+  const { data: estimatedFees } = useEstimatedSwapFees()
 
   const handleSwap = useCallback(async () => {
     // Check if all required data is available
@@ -59,9 +62,9 @@ export const useHandleSwap = () => {
         return false
       }
 
-      const maxFeePerGas = feeData.maxFeePerGas * 2n
+      const maxFeePerGas = feeData.maxFeePerGas * 2n // Multiply by 2 convert to wei
       const deadline = calculateDeadlineBlockNumber(config.deadline, block?.number!, chainId)
-      const gas = 2000000n // Example gas limit, adjust as needed
+      const gas = SWAP_GAS_ESTIMATE + SOLVER_GAS_ESTIMATE
 
       // Build user operation
       const userOperation = await buildUserOperation(

@@ -66,4 +66,7 @@ export const defaultValues: AppConfigState = {
   },
 }
 
-export const ATLAS_GAS_SURCHARGE = 10n
+export const ATLAS_GAS_SURCHARGE_PERCENTAGE = 10n
+// Constants for gas estimates for swap and solver
+export const SWAP_GAS_ESTIMATE = 350_000n
+export const SOLVER_GAS_ESTIMATE = 1_500_000n
