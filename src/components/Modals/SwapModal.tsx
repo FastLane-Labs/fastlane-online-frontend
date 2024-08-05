@@ -15,7 +15,7 @@ interface SwapModalProps {
 }
 
 const SwapModal: React.FC<SwapModalProps> = ({ isVisible, onClose, onSwap, onApprove }) => {
-  const { fromToken, toToken, fromAmount, toAmount, hasSufficientAllowance } = useSwapStateContext()
+  const { fromToken, toToken, fromAmount, toAmount, hasSufficientAllowance, nativeToken } = useSwapStateContext()
   const { data: estimatedFees } = useEstimatedSwapFees()
   const [isApproving, setIsApproving] = useState(false)
   const [isSwapping, setIsSwapping] = useState(false)
@@ -186,7 +186,8 @@ const SwapModal: React.FC<SwapModalProps> = ({ isVisible, onClose, onSwap, onApp
             />
           </svg>
           <span className='text-end text-neutral-400'>
-            {estimatedFees ? formatEther(estimatedFees.totalFeesInWei) : '0'}
+            {estimatedFees ? formatEther(estimatedFees.totalFeesInWei) : '0'}{' '}
+            {nativeToken?.symbol ? nativeToken.symbol : ''}
           </span>
         </div>
       </div>

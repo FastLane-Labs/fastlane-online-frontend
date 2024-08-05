@@ -6,6 +6,7 @@ import { toBigInt } from '@/utils/format'
 import { useFastLaneAddresses } from './useFastLaneAddresses'
 import useDebounce from '@/hooks/useDebounce'
 import { useAllowanceManager } from './useAllowanceManager'
+import { nativeEvmTokenAddress } from '@/constants'
 
 export interface SwapState {
   // Token and Amount States
@@ -13,6 +14,7 @@ export interface SwapState {
   toToken: Token | null
   fromAmount: string
   toAmount: string
+  nativeToken: Token | null
 
   // Quote States
   quote: QuoteResult | null
@@ -58,6 +60,10 @@ export const useSwapState = (): SwapState => {
   const allowanceManager = useAllowanceManager()
 
   const defaultToken = useMemo(() => tokens.find((token) => token.tags?.includes('default')) as Token | null, [tokens])
+  const nativeToken = useMemo(
+    () => tokens.find((token) => token.address === nativeEvmTokenAddress) as Token | null,
+    [tokens]
+  )
 
   const [fromToken, setFromToken] = useState<Token | null>(() => defaultToken)
   const [toToken, setToToken] = useState<Token | null>(null)
@@ -122,7 +128,7 @@ export const useSwapState = (): SwapState => {
     toToken,
     fromAmount,
     toAmount,
-
+    nativeToken,
     // Quote States
     quote,
     quoteLoading,

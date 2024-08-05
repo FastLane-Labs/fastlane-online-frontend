@@ -23,11 +23,7 @@ const estimateFees = async (provider: ethers.AbstractProvider | null): Promise<E
   if (!feeData.maxFeePerGas) {
     throw new Error('Missing maxFeePerGas')
   }
-
-  const network = await provider.getNetwork()
-  console.log('network', network.chainId)
-
-  const maxFeePerGas = feeData.maxFeePerGas * 2n // Multiply by 2 convert to wei
+  const maxFeePerGas = feeData.maxFeePerGas // Multiply by 2 convert to wei
 
   // Calculate fees in wei (TODO: simulate transaction to get actual gasLimit)
   const swapFee = SWAP_GAS_ESTIMATE * maxFeePerGas

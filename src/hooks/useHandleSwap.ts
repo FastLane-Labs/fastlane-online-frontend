@@ -27,7 +27,6 @@ export const useHandleSwap = () => {
   const { config } = useAppStore()
   const [isSwapping, setIsSwapping] = useState(false)
   const { atlasAddress, dappAddress, atlasVerificationAddress } = useFastLaneAddresses()
-  const { data: estimatedFees } = useEstimatedSwapFees()
 
   const handleSwap = useCallback(async () => {
     // Check if all required data is available
@@ -62,7 +61,7 @@ export const useHandleSwap = () => {
         return false
       }
 
-      const maxFeePerGas = feeData.maxFeePerGas * 2n // Multiply by 2 convert to wei
+      const maxFeePerGas = feeData.maxFeePerGas
       const deadline = calculateDeadlineBlockNumber(config.deadline, block?.number!, chainId)
       const gas = SWAP_GAS_ESTIMATE + SOLVER_GAS_ESTIMATE
 
