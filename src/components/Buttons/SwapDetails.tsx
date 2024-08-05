@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { useSwapStateContext } from '@/context/SwapStateContext'
-import { ChevronDownIcon, ChevronUpIcon } from '@heroicons/react/20/solid'
+import { ChevronDownIcon } from '@heroicons/react/20/solid'
 
 const SwapDetails = () => {
   const { fromToken, toToken, fromAmount, toAmount, hasSufficientAllowance } = useSwapStateContext()
