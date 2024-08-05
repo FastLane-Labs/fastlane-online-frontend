@@ -4,7 +4,7 @@ import React from 'react'
 import { NetworkStatus } from './NetworkStatus'
 import { QuestionMarkCircleIcon } from '@heroicons/react/24/outline'
 import { useAppState } from '@/context/AppStateContext'
-import IUXModal from '@/components/iUX/IUX'
+import IUXModal from '@/components/Modals/IUX'
 
 export function Footer() {
   const { isIUXModalVisible, setIsIUXModalVisible } = useAppState()
