@@ -47,7 +47,7 @@ export default function RootLayout(props: PropsWithChildren) {
   let country: string = 'US'
 
   return (
-    <html lang='en'>
+    <html lang='en' className='bg-base-300'>
       <head>
         <link
           rel='icon'

@@ -46,7 +46,7 @@ export const AppRoutes: React.FC = () => {
 // Main App component
 export const FastlaneApp: React.FC = () => {
   return (
-    <div id='fastlane-widget' style={{ width: '100%', minHeight: '600px' }}>
+    <div id='fastlane-widget' style={{ width: '100%', minHeight: '400px' }}>
       <div className='fastlane-container'>
         <AppRoutes />
       </div>
