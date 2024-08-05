@@ -20,9 +20,7 @@ const IUXModal: React.FC<IUXModalProps> = ({ isVisible, onClose }) => {
         <div className='gray-text'>
           Sit amet posuere lectus egestas non. Mauris tempor justo vitae risus venenatis, at aliquam diam Atlas by
           FastLane Labs.
-          <a
-            className='text-primary ml-1'
-            href='https://www.jito.network/blog/reward-bearing-vs-rebasing-solana-liquid-staking-tokens/'>
+          <a className='text-primary ml-1' href='/'>
             Learn more
             <svg
               className='cursor-pointer inline-block w-3 h-3 ml-1 lg:h-4  lg:w-4'
