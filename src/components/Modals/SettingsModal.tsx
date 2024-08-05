@@ -119,7 +119,7 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ isVisible, onClose }) => 
           <input
             type='number'
             value={localDeadline || ''}
-            placeholder='20'
+            placeholder='10'
             onChange={(e) => handleDeadlineChange(e.target.value)}
             className='input bg-neutral !outline-none px-3 py-1 rounded-md w-20'
           />
