@@ -11,7 +11,7 @@ const IUXModal: React.FC<IUXModalProps> = ({ isVisible, onClose }) => {
   }
   return (
     <ModalWrapper isVisible={isVisible} onClose={closeModal} style={{ paddingBottom: '28px' }}>
-      <div className='flex text-neutral-content flex-col grid-cols-1 justify-start pt-4 gap-4 xl:pl-0 xl:pr-0'>
+      <div className='flex overflow-scroll text-neutral-content flex-col grid-cols-1 justify-start pt-4 gap-4 xl:pl-0 xl:pr-0'>
         <h2 className='text-5xl'>MEV Powered Swap Quotes</h2>
         <div className='gray-text text-xl'>
           Boost your swap quotes lorem ipsum dolor sit amet, consectetur adipiscing elit
@@ -38,7 +38,7 @@ const IUXModal: React.FC<IUXModalProps> = ({ isVisible, onClose }) => {
             </svg>
           </a>
         </div>
-        <div className='relative w-full rounded-2xl overflow-hidden'>
+        <div className='relative w-full rounded-2xl md:overflow-hidden'>
           <Image
             src='/rb-gif.gif'
             alt='RocketSwap branding graphic'
