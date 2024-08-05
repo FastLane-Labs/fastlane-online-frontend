@@ -5,7 +5,7 @@ import { Footer } from './Footer/Footer'
 export function Layout(props: PropsWithChildren) {
   return (
     <div
-      className='flex flex-col min-h-screen h-screen bg-base-300 bg-[url("https://storage.googleapis.com/brutalist-landing/bg-grain.png")] '
+      className='flex flex-col min-h-screen h-full bg-base-300 bg-[url("https://storage.googleapis.com/brutalist-landing/bg-grain.png")] '
       style={{
         backgroundAttachment: 'fixed',
         backgroundSize: '200px 100px',

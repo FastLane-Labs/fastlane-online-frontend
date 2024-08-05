@@ -9,6 +9,7 @@ import { useEthersProviderContext } from '@/context/EthersProviderContext'
 import { useFastLaneAddresses } from '@/hooks/useFastLaneAddresses'
 import { SUPPORTED_CHAIN_IDS } from '@/constants'
 import { useAllowanceManager } from '@/hooks/useAllowanceManager'
+import SwapDetails from '@/components/Buttons/SwapDetails'
 
 interface SwapButtonProps {
   handleSwap: () => Promise<boolean>
@@ -112,6 +113,7 @@ const SwapButton: React.FC<SwapButtonProps> = ({ handleSwap, isLoading }) => {
       <button className='btn' onClick={handleButtonClick} disabled={isDisabled}>
         {getButtonText()}
       </button>
+      {!isDisabled && <SwapDetails />}
       <SwapModal
         isVisible={isSwapModalOpen}
         onClose={() => setIsSwapModalOpen(false)}
