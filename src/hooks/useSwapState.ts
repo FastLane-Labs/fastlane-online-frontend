@@ -57,11 +57,9 @@ export const useSwapState = (): SwapState => {
   const { dappAddress: spenderAddress } = useFastLaneAddresses()
   const allowanceManager = useAllowanceManager()
 
-  const [defaultToken, setDefaultToken] = useState<Token | null>(
-    tokens.find((token) => token.tags?.includes('default')) as Token
-  )
+  const defaultToken = useMemo(() => tokens.find((token) => token.tags?.includes('default')) as Token | null, [tokens])
 
-  const [fromToken, setFromToken] = useState<Token | null>(defaultToken)
+  const [fromToken, setFromToken] = useState<Token | null>(() => defaultToken)
   const [toToken, setToToken] = useState<Token | null>(null)
   const [fromAmount, setFromAmount] = useState<string>('')
   const [toAmount, setToAmount] = useState<string>('')
@@ -73,31 +71,38 @@ export const useSwapState = (): SwapState => {
   const debouncedFromAmount = useDebounce(fromAmount, 500) // 500ms delay
   const debouncedToAmount = useDebounce(toAmount, 500) // 500ms delay
 
-  // Check if the user has sufficient allowance for the swap
   const hasSufficientAllowance = useMemo(() => {
     if (!fromToken || !userAddress || !spenderAddress || !debouncedFromAmount) {
       return false
     }
     const requiredAmount = toBigInt(debouncedFromAmount, fromToken.decimals)
     return allowanceManager.isSufficientAllowance(fromToken, userAddress, spenderAddress, requiredAmount)
-  }, [fromToken, userAddress, spenderAddress, debouncedFromAmount, allowanceManager])
+  }, [fromToken, userAddress, spenderAddress, debouncedFromAmount, allowanceManager.isSufficientAllowance])
 
   const resetSelections = useCallback(() => {
-    setFromToken(null)
+    setFromToken(defaultToken)
     setToToken(null)
     setFromAmount('')
     setToAmount('')
     setQuote(null)
     setSwapData(null)
-  }, [])
+  }, [defaultToken])
 
   useEffect(() => {
     if (chainId && tokens.length > 0) {
       resetSelections()
-      setDefaultToken(tokens.find((token) => token.tags?.includes('default')) as Token)
-      setFromToken(defaultToken)
     }
-  }, [chainId, tokens, defaultToken, resetSelections])
+  }, [chainId, tokens, resetSelections])
+
+  const checkAllowance = useCallback(() => {
+    if (fromToken && userAddress && spenderAddress && debouncedFromAmount) {
+      allowanceManager.checkAllowance(fromToken, userAddress, spenderAddress)
+    }
+  }, [fromToken, userAddress, spenderAddress, debouncedFromAmount, allowanceManager.checkAllowance])
+
+  useEffect(() => {
+    checkAllowance()
+  }, [checkAllowance])
 
   const handleSwapTokens = useCallback(() => {
     setFromToken(toToken)
@@ -108,19 +113,8 @@ export const useSwapState = (): SwapState => {
   }, [fromToken, toToken, fromAmount, toAmount])
 
   useEffect(() => {
-    resetSelections()
-  }, [chainId, resetSelections])
-
-  useEffect(() => {
     setSwapData(null)
   }, [fromToken, toToken, fromAmount, toAmount, swapDirection])
-
-  // Automatically check allowance when fromToken or fromAmount changes
-  useEffect(() => {
-    if (fromToken && userAddress && spenderAddress && debouncedFromAmount) {
-      allowanceManager.checkAllowance(fromToken, userAddress, spenderAddress)
-    }
-  }, [fromToken, userAddress, spenderAddress, debouncedFromAmount, allowanceManager])
 
   return {
     // Token and Amount States

@@ -1,6 +1,6 @@
 'use client'
 import { useAccount } from 'wagmi'
-import { useEffect } from 'react'
+import { useEffect, useCallback } from 'react'
 import { Token } from '@/types'
 import { useBalance } from '@/hooks/useBalance'
 import { formatBalance } from '@/utils/format'
@@ -20,14 +20,21 @@ export const TokenBalance: React.FC<TokenBalanceProps> = ({ token, toFixed, onBa
     enabled: !!token && !!address,
   })
 
+  const getFormattedBalance = useCallback(
+    (balance: bigint) => {
+      return token ? formatBalance(balance, token.decimals) : '0'
+    },
+    [token]
+  )
+
   useEffect(() => {
     if (balanceQuery.data && onBalanceChange && token) {
       onBalanceChange({
         balance: balanceQuery.data,
-        formattedBalance: formatBalance(balanceQuery.data, token.decimals),
+        formattedBalance: getFormattedBalance(balanceQuery.data),
       })
     }
-  }, [balanceQuery.data, onBalanceChange, token, toFixed])
+  }, [balanceQuery.data, onBalanceChange, token, getFormattedBalance])
 
   if (balanceQuery.isLoading) {
     return <span className={`${className}`}></span>
@@ -41,5 +48,5 @@ export const TokenBalance: React.FC<TokenBalanceProps> = ({ token, toFixed, onBa
     return <span className={`${className}`}>0</span>
   }
 
-  return <span className={`${className}`}>{formatBalance(balanceQuery.data, token.decimals)}</span>
+  return <span className={`${className}`}>{getFormattedBalance(balanceQuery.data || 0n)}</span>
 }
