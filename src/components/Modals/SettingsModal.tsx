@@ -75,11 +75,11 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ isVisible, onClose }) => 
 
   return (
     <ModalWrapper isVisible={isVisible} onClose={closeModal} style={{ paddingBottom: '28px' }}>
-      <h3 className='label text-lg my-4'>Transaction Settings</h3>
+      <h3 className='text-lg mt-4 font-semibold text-center'>Transaction Settings</h3>
 
       {/* Slippage Tolerance */}
-      <div className='mb-4'>
-        <label className='label block mb-2 text-sm'>Slippage tolerance</label>
+      <div>
+        <h1 className='mb-2 text-sm'>Slippage tolerance</h1>
         <div className='flex space-x-2'>
           {[0.1, 0.5, 1].map((percent) => (
             <button
@@ -113,8 +113,8 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ isVisible, onClose }) => 
       </div>
 
       {/* Transaction Deadline */}
-      <div className='mb-4'>
-        <label className='label block mb-2 text-sm'>Transaction deadline</label>
+      <div>
+        <h1 className='mb-2 text-sm'>Transaction deadline</h1>
         <div className='flex items-center'>
           <input
             type='number'
