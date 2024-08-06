@@ -1,18 +1,12 @@
 import { useMemo } from 'react'
 import { useQuery, UseQueryOptions } from '@tanstack/react-query'
 import { keys } from '@/core/queries/query-keys'
-import { QuoteResult, Token } from '@/types'
+import { QuoteResult, SwapCallData, Token } from '@/types'
 import { Address } from 'viem'
-import {
-  buildSwapIntent,
-  buildBaselineCallData,
-  buildUserOperation,
-  getUserOperationHash,
-  getExecutionEnvironment,
-} from '@/utils/atlas'
+import { buildSwapIntent, buildBaselineCallData, buildUserOperation, getExecutionEnvironment } from '@/core/atlas'
 import { calculateDeadlineBlockNumber } from '@/utils/settings'
-import { getFeeData } from '@/utils/gasFee'
-import { getAtlasGasSurcharge } from '@/utils/atlas'
+import { getAtlasGasSurcharge, getFeeData } from '@/utils/gasFee'
+import { SOLVER_GAS_ESTIMATE, SWAP_GAS_ESTIMATE } from '@/constants'
 
 export const useSwapCallData = (
   address: string | undefined,
@@ -29,7 +23,7 @@ export const useSwapCallData = (
   config: any,
   chainId: number | undefined
 ) => {
-  const swapDataOptions: UseQueryOptions<any, Error> = useMemo(
+  const swapDataOptions: UseQueryOptions<SwapCallData, Error> = useMemo(
     () => ({
       queryKey: [
         ...keys({ address }).all,
@@ -46,6 +40,7 @@ export const useSwapCallData = (
           !provider ||
           !atlasAddress ||
           !dappAddress ||
+          !address ||
           !atlasVerificationAddress
         ) {
           return null
@@ -56,7 +51,7 @@ export const useSwapCallData = (
 
         const executionEnvironment = await getExecutionEnvironment(
           atlasAddress as Address,
-          dappAddress as Address,
+          address as Address,
           dappAddress as Address,
           provider
         )
@@ -71,10 +66,10 @@ export const useSwapCallData = (
 
         const maxFeePerGas = feeData.maxFeePerGas * 2n
         const deadline = calculateDeadlineBlockNumber(config.deadline, block?.number ?? 0, chainId!)
-        const gas = 2000000n // Example gas limit, adjust as needed
+        const gas = SWAP_GAS_ESTIMATE + SOLVER_GAS_ESTIMATE
 
         const userOperation = await buildUserOperation(
-          address!,
+          address,
           swapIntent,
           baselineCall,
           deadline,
@@ -84,15 +79,10 @@ export const useSwapCallData = (
           provider
         )
 
-        const userOpHash = await getUserOperationHash(userOperation, atlasVerificationAddress, provider)
-
         return {
-          swapIntent,
           baselineCall,
-          deadline,
-          gas,
-          maxFeePerGas,
-          userOpHash,
+          gasLimit: gas,
+          userOperation,
           gasSurcharge: getAtlasGasSurcharge(gas * maxFeePerGas),
         }
       },

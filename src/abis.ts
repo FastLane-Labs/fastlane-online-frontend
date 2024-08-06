@@ -298,37 +298,103 @@ export const FastlaneOnlineAbi = [
     type: 'function',
   },
   {
+    type: 'function',
+    name: 'fastOnlineSwap',
     inputs: [
       {
-        components: [
-          { internalType: 'address', name: 'tokenUserBuys', type: 'address' },
-          { internalType: 'uint256', name: 'minAmountUserBuys', type: 'uint256' },
-          { internalType: 'address', name: 'tokenUserSells', type: 'address' },
-          { internalType: 'uint256', name: 'amountUserSells', type: 'uint256' },
-        ],
-        internalType: 'struct SwapIntent',
-        name: 'swapIntent',
+        name: 'userOp',
         type: 'tuple',
-      },
-      {
+        internalType: 'struct UserOperation',
         components: [
-          { internalType: 'address', name: 'to', type: 'address' },
-          { internalType: 'bytes', name: 'data', type: 'bytes' },
-          { internalType: 'bool', name: 'success', type: 'bool' },
+          {
+            name: 'from',
+            type: 'address',
+            internalType: 'address',
+          },
+          {
+            name: 'to',
+            type: 'address',
+            internalType: 'address',
+          },
+          {
+            name: 'value',
+            type: 'uint256',
+            internalType: 'uint256',
+          },
+          {
+            name: 'gas',
+            type: 'uint256',
+            internalType: 'uint256',
+          },
+          {
+            name: 'maxFeePerGas',
+            type: 'uint256',
+            internalType: 'uint256',
+          },
+          {
+            name: 'nonce',
+            type: 'uint256',
+            internalType: 'uint256',
+          },
+          {
+            name: 'deadline',
+            type: 'uint256',
+            internalType: 'uint256',
+          },
+          {
+            name: 'dapp',
+            type: 'address',
+            internalType: 'address',
+          },
+          {
+            name: 'control',
+            type: 'address',
+            internalType: 'address',
+          },
+          {
+            name: 'callConfig',
+            type: 'uint32',
+            internalType: 'uint32',
+          },
+          {
+            name: 'sessionKey',
+            type: 'address',
+            internalType: 'address',
+          },
+          {
+            name: 'data',
+            type: 'bytes',
+            internalType: 'bytes',
+          },
+          {
+            name: 'signature',
+            type: 'bytes',
+            internalType: 'bytes',
+          },
         ],
-        internalType: 'struct BaselineCall',
-        name: 'baselineCall',
-        type: 'tuple',
       },
-      { internalType: 'uint256', name: 'deadline', type: 'uint256' },
-      { internalType: 'uint256', name: 'gas', type: 'uint256' },
-      { internalType: 'uint256', name: 'maxFeePerGas', type: 'uint256' },
-      { internalType: 'bytes32', name: 'userOpHash', type: 'bytes32' },
     ],
-    name: 'fastOnlineSwap',
     outputs: [],
-    stateMutability: 'nonpayable',
+    stateMutability: 'payable',
+  },
+  {
     type: 'function',
+    name: 'getBidAmount',
+    inputs: [
+      {
+        name: 'solverOpHash',
+        type: 'bytes32',
+        internalType: 'bytes32',
+      },
+    ],
+    outputs: [
+      {
+        name: 'bidAmount',
+        type: 'uint256',
+        internalType: 'uint256',
+      },
+    ],
+    stateMutability: 'view',
   },
   {
     inputs: [

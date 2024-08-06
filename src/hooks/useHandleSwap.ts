@@ -1,38 +1,28 @@
-import { useState, useCallback } from 'react'
+import { useCallback } from 'react'
 import { useAccount } from 'wagmi'
 import { useEthersProviderContext } from '@/context/EthersProviderContext'
 import { useSwapStateContext } from '@/context/SwapStateContext'
-import {
-  buildSwapIntent,
-  buildBaselineCallData,
-  buildUserOperation,
-  getUserOperationHash,
-  getExecutionEnvironment,
-} from '@/utils/atlas'
 import { useFastLaneAddresses } from './useFastLaneAddresses'
 import { ethers } from 'ethers'
 import { FastlaneOnlineAbi } from '@/abis'
-import { Address } from 'viem'
-import { getFeeData } from '@/utils/gasFee'
-import { getAtlasGasSurcharge } from '@/utils/atlas'
+import { getAtlasGasSurcharge, getFeeData } from '@/utils/gasFee'
 import { useAppStore } from '@/store/useAppStore'
-import { calculateDeadlineBlockNumber } from '@/utils/settings'
-import { useEstimatedSwapFees } from '@/hooks/useEstimatedSwapFees'
 import { SOLVER_GAS_ESTIMATE, SWAP_GAS_ESTIMATE } from '@/constants'
+import { signUserOperation } from '@/core/atlas'
+import { getEip712Domain } from '@/utils/getContractAddress'
 
 export const useHandleSwap = () => {
   const { signer, provider } = useEthersProviderContext()
   const { address, chainId } = useAccount()
-  const { quote, quoteLoading } = useSwapStateContext()
+  const { quote, quoteLoading, swapData, isSwapping, setIsSwapping } = useSwapStateContext()
   const { config } = useAppStore()
-  const [isSwapping, setIsSwapping] = useState(false)
   const { atlasAddress, dappAddress, atlasVerificationAddress } = useFastLaneAddresses()
 
   const handleSwap = useCallback(async () => {
     // Check if all required data is available
     const hashMissingContractAddress = !atlasVerificationAddress || !dappAddress || !atlasAddress
     const missingWeb3Provider = !address || !provider || !signer || !chainId
-    const missingQuote = !quote || quoteLoading
+    const missingQuote = !quote || quoteLoading || !swapData.userOperation
 
     if (hashMissingContractAddress || missingWeb3Provider || missingQuote) {
       console.error('Missing required data for swap')
@@ -41,20 +31,6 @@ export const useHandleSwap = () => {
 
     setIsSwapping(true)
     try {
-      // Build swap intent
-      const swapIntent = buildSwapIntent(quote)
-
-      const executionEnvironment = await getExecutionEnvironment(
-        atlasAddress as Address,
-        dappAddress as Address,
-        dappAddress as Address, // user is also the dapp address
-        provider
-      )
-
-      // Build baseline call data
-      const baselineCall = await buildBaselineCallData(quote, executionEnvironment, config.slippage)
-
-      const block = await provider.getBlock('latest')
       const feeData = await getFeeData(provider)
       if (!feeData.maxFeePerGas || !feeData.gasPrice) {
         console.error('Missing required data for swap')
@@ -62,25 +38,13 @@ export const useHandleSwap = () => {
       }
 
       const maxFeePerGas = feeData.maxFeePerGas
-      const deadline = calculateDeadlineBlockNumber(config.deadline, block?.number!, chainId)
       const gas = SWAP_GAS_ESTIMATE + SOLVER_GAS_ESTIMATE
 
-      // Build user operation
-      const userOperation = await buildUserOperation(
-        address,
-        swapIntent,
-        baselineCall,
-        deadline,
-        gas,
-        maxFeePerGas,
-        dappAddress,
-        provider
-      )
-      //Get user operation hash
-      const userOpHash = await getUserOperationHash(userOperation, atlasVerificationAddress, provider)
+      // Sign the user operation
+      await signUserOperation(swapData.userOperation, signer, getEip712Domain(chainId))
 
       const contract = new ethers.Contract(dappAddress, FastlaneOnlineAbi, signer)
-      const tx = await contract.fastOnlineSwap(swapIntent, baselineCall, deadline, gas, maxFeePerGas, userOpHash, {
+      const tx = await contract.fastOnlineSwap(swapData.userOperation, {
         gasLimit: gas,
         maxFeePerGas: maxFeePerGas,
         value: getAtlasGasSurcharge(gas * maxFeePerGas),
@@ -103,12 +67,14 @@ export const useHandleSwap = () => {
     quoteLoading,
     dappAddress,
     atlasVerificationAddress,
+    swapData?.userOperation,
     config.slippage,
     config.deadline,
     atlasAddress,
     chainId,
     signer,
     provider,
+    setIsSwapping,
   ])
 
   return {

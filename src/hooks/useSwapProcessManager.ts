@@ -44,7 +44,7 @@ export const useSwapProcessManager = () => {
   } = useBaselineQuote(address, fromToken, toToken, swapDirection, debouncedAmount, chainId, isQuoteReady)
 
   const {
-    data: swapDataResult,
+    data: swapCallData,
     isLoading: swapDataLoading,
     error: swapDataError,
   } = useSwapCallData(
@@ -99,13 +99,13 @@ export const useSwapProcessManager = () => {
   ])
 
   const updateSwapData = useCallback(() => {
-    if (swapDataResult) {
-      setSwapData(swapDataResult)
+    if (swapCallData) {
+      setSwapData(swapCallData)
     } else if (swapDataError) {
       console.error('Error generating swap data:', swapDataError)
       setSwapData(null)
     }
-  }, [swapDataResult, swapDataError, setSwapData])
+  }, [swapCallData, swapDataError, setSwapData])
 
   useEffect(() => {
     updateQuoteLoading()
