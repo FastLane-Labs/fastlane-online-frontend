@@ -23,7 +23,7 @@ jobs:
         id: file_changes
         run: |
           #git diff --stat HEAD~1 HEAD src/constants/sanctioned_addresses_ofac.json > changes.txt
-          git diff --stat HEAD~1 HEAD test.txt > changes.txt
+          git diff HEAD~1 HEAD test.txt > changes.txt
           echo "CHANGES<<EOF" >> $GITHUB_OUTPUT
           cat changes.txt >> $GITHUB_OUTPUT
           echo "EOF" >> $GITHUB_OUTPUT
