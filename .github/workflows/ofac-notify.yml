@@ -2,6 +2,10 @@ name: Notify on OFAC changes
 
 on:
   workflow_dispatch:
+  push:
+    branches:
+      - ofac-notify
+
 
 jobs:
   send_slack_message:
