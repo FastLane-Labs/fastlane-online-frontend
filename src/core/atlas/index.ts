@@ -1,11 +1,13 @@
-import { ethers } from 'ethers'
-import { QuoteResult } from '../types'
-import { FastlaneOnlineAbi, atlasAbi, atlasVerificationAbi } from '@/abis'
+import { AbstractSigner, ethers, TypedDataDomain } from 'ethers'
+import { QuoteResult } from '@/types'
+import { FastlaneOnlineAbi, atlasAbi } from '@/abis'
 import { BaseSwapService } from '@/services/baseSwap'
-import { BaselineCall, SwapIntent, UserOperation } from '@/types/atlas'
+import { BaselineCall, SwapIntent } from '@/types/atlas'
 import { getExchangeRouter } from '@/services/exchanges'
 import { ATLAS_GAS_SURCHARGE_PERCENTAGE } from '@/constants'
 import { Address } from 'viem'
+import { newUserOperation } from '@/core/operations/utils'
+import { UserOperation } from '@/core/operations'
 
 const baseSwapService = new BaseSwapService()
 
@@ -75,37 +77,7 @@ export async function buildUserOperation(
     })
 
   // Convert the returned userOp to our UserOperation interface
-  return {
-    from: userOp.from,
-    to: userOp.to,
-    value: BigInt(userOp.value.toString()),
-    gas: BigInt(userOp.gas.toString()),
-    maxFeePerGas: BigInt(userOp.maxFeePerGas.toString()),
-    nonce: BigInt(userOp.nonce.toString()),
-    deadline: BigInt(userOp.deadline.toString()),
-    dapp: userOp.dapp,
-    control: userOp.control,
-    callConfig: userOp.callConfig,
-    sessionKey: userOp.sessionKey,
-    data: userOp.data,
-    signature: userOp.signature,
-  } as UserOperation
-}
-
-/**
- * Get the user operation hash for an Atlas swap
- * @param userOp The user operation
- * @param atlasVerificationAddress The Atlas Verification contract address
- * @param provider The provider
- * @returns The user operation hash
- */
-export async function getUserOperationHash(
-  userOp: UserOperation,
-  atlasVerificationAddress: string,
-  provider: ethers.AbstractProvider
-): Promise<string> {
-  const atlasVerification = new ethers.Contract(atlasVerificationAddress, atlasVerificationAbi, provider)
-  return atlasVerification.getUserOperationHash(userOp)
+  return newUserOperation(userOp)
 }
 
 /**
@@ -135,10 +107,20 @@ export async function getExecutionEnvironment(
 }
 
 /**
- * Get the Atlas gas surcharge
- * @param gasCost The gas cost
- * @returns The Atlas gas surcharge
+ * Prompt the user to sign their operation.
+ * @param userOp a user operation
+ * @param signer a signer
+ * @returns the user operation with a valid signature field
  */
-export function getAtlasGasSurcharge(gasCost: bigint): bigint {
-  return (gasCost * ATLAS_GAS_SURCHARGE_PERCENTAGE) / 100n
+export async function signUserOperation(
+  userOp: UserOperation,
+  signer: AbstractSigner,
+  eip712Domain: TypedDataDomain
+): Promise<UserOperation> {
+  userOp.setField(
+    'signature',
+    await signer.signTypedData(eip712Domain, userOp.toTypedDataTypes(), userOp.toTypedDataValues())
+  )
+  userOp.validateSignature(eip712Domain)
+  return userOp
 }

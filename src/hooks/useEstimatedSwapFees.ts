@@ -1,11 +1,10 @@
 import { useQuery, UseQueryResult } from '@tanstack/react-query'
 import { useEthersProviderContext } from '@/context/EthersProviderContext'
-import { getFeeData } from '@/utils/gasFee'
+import { getAtlasGasSurcharge, getFeeData } from '@/utils/gasFee'
 import { ethers } from 'ethers'
 import { keys } from '@/core/queries/query-keys'
 import { useAccount } from 'wagmi'
 import { SOLVER_GAS_ESTIMATE, SWAP_GAS_ESTIMATE } from '@/constants'
-import { getAtlasGasSurcharge } from '@/utils/atlas'
 
 type EstimatedFees = {
   swapFeeInWei: bigint

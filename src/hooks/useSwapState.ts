@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback, useMemo } from 'react'
-import { QuoteResult, SwapDirection, Token } from '@/types'
+import { QuoteResult, SwapCallData, SwapDirection, Token } from '@/types'
 import { useCurrentTokenList } from './useTokenList'
 import { useAccount } from 'wagmi'
 import { toBigInt } from '@/utils/format'
@@ -50,6 +50,10 @@ export interface SwapState {
   allowances: Record<string, bigint>
   allowanceLoading: Record<string, boolean>
   allowanceError: Record<string, Error | null>
+
+  // Swap Progress State
+  isSwapping: boolean
+  setIsSwapping: (isSwapping: boolean) => void
 }
 
 export const useSwapState = (): SwapState => {
@@ -72,7 +76,8 @@ export const useSwapState = (): SwapState => {
   const [swapDirection, setSwapDirection] = useState<SwapDirection>('sell')
   const [quote, setQuote] = useState<QuoteResult | null>(null)
   const [quoteLoading, setQuoteLoading] = useState<boolean>(false)
-  const [swapData, setSwapData] = useState<any | null>(null)
+  const [swapData, setSwapData] = useState<SwapCallData | null>(null)
+  const [isSwapping, setIsSwapping] = useState<boolean>(false)
 
   const debouncedFromAmount = useDebounce(fromAmount, 500) // 500ms delay
   const debouncedToAmount = useDebounce(toAmount, 500) // 500ms delay
@@ -163,5 +168,9 @@ export const useSwapState = (): SwapState => {
     allowances: allowanceManager.allowances,
     allowanceLoading: allowanceManager.loading,
     allowanceError: allowanceManager.error,
+
+    // Swap Progress State
+    isSwapping,
+    setIsSwapping,
   }
 }
