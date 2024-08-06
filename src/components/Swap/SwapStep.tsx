@@ -162,10 +162,11 @@ const SwapStep: React.FC<SwapStepProps> = ({ step, onAction, isLoading, error, s
     } else if (step === 'sign') {
       buttonText = 'Sign to swap'
       action = 'sign'
+      isDisabled = isLoading
     } else if (step === 'swap') {
       buttonText = 'Proceed in your wallet'
       action = 'swap'
-      isDisabled = true
+      isDisabled = isLoading
     } else if (step === 'success') {
       buttonText = 'View on Explorer'
       isDisabled = false

@@ -60,15 +60,15 @@ export const useHandleSwap = () => {
       const maxFeePerGas = feeData.maxFeePerGas
       const gas = SWAP_GAS_ESTIMATE + SOLVER_GAS_ESTIMATE
 
-      const contract = new ethers.Contract(dappAddress, FastlaneOnlineAbi, signer)
-      const tx = await contract.fastOnlineSwap(swapData.userOperation, {
-        gasLimit: gas,
-        maxFeePerGas: maxFeePerGas,
-        value: getAtlasGasSurcharge(gas * maxFeePerGas),
-      })
+      // const contract = new ethers.Contract(dappAddress, FastlaneOnlineAbi, signer)
+      // const tx = await contract.fastOnlineSwap(swapData.userOperation, {
+      //   gasLimit: gas,
+      //   maxFeePerGas: maxFeePerGas,
+      //   value: getAtlasGasSurcharge(gas * maxFeePerGas),
+      // })
 
-      console.log('Swap transaction submitted:', tx.hash)
-      await tx.wait()
+      // console.log('Swap transaction submitted:', tx.hash)
+      // await tx.wait()
       console.log('Swap transaction confirmed')
 
       return true
