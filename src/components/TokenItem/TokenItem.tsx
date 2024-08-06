@@ -33,7 +33,9 @@ const TokenItem: React.FC<TokenItemProps> = ({ token, selectedToken, handleSelec
       {isLoading ? (
         <span className='loading loading-spinner'></span>
       ) : (token as TokenWithBalance).balance ? (
-        formatBalanceToFixedDecimal((token as TokenWithBalance).balance)
+        <span className='tooltip tooltip-left	' data-tip={(token as TokenWithBalance).balance}>
+          {formatBalanceToFixedDecimal((token as TokenWithBalance).balance)}
+        </span>
       ) : (
         '0'
       )}
