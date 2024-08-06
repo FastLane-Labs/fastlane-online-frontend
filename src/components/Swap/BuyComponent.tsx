@@ -3,8 +3,7 @@ import BuyAmount from './BuyAmount'
 import { useSwapStateContext } from '@/context/SwapStateContext'
 
 const BuyComponent: React.FC = () => {
-  const { toToken, setToToken, toAmount, setToAmount, quoteLoading, setQuoteLoading, swapDirection, setSwapDirection } =
-    useSwapStateContext()
+  const { toToken, setToToken, toAmount, setToAmount, isQuoteing, setSwapDirection } = useSwapStateContext()
 
   return (
     <div className='input-card mb-4'>
@@ -16,7 +15,7 @@ const BuyComponent: React.FC = () => {
         setBuyToken={setToToken}
         buyAmount={toAmount}
         setBuyAmount={setToAmount}
-        quoteLoading={quoteLoading}
+        quoteLoading={isQuoteing}
         setSwapDirection={setSwapDirection}
       />
     </div>

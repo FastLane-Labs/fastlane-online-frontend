@@ -17,7 +17,7 @@ export const useSwapProcessManager = () => {
     toAmount,
     setToAmount,
     setFromAmount,
-    setQuoteLoading,
+    setIsQuoteing,
     swapDirection,
     setQuote,
     setSwapData,
@@ -67,8 +67,8 @@ export const useSwapProcessManager = () => {
   )
 
   const updateQuoteLoading = useCallback(() => {
-    setQuoteLoading(isQuoteReady && quoteLoading)
-  }, [isQuoteReady, quoteLoading, setQuoteLoading])
+    setIsQuoteing(isQuoteReady && quoteLoading)
+  }, [isQuoteReady, quoteLoading, setIsQuoteing])
 
   const updateQuoteResult = useCallback(() => {
     if (quoteResult && fromToken && toToken) {
@@ -80,7 +80,7 @@ export const useSwapProcessManager = () => {
       }
     } else if (quoteError) {
       console.error('Error fetching quote:', quoteError)
-      setQuoteLoading(false)
+      setIsQuoteing(false)
       if (fromToken && toToken) {
         if (swapDirection === 'sell') {
           setToAmount(formatBalance(0n, toToken.decimals))
@@ -89,17 +89,7 @@ export const useSwapProcessManager = () => {
         }
       }
     }
-  }, [
-    quoteResult,
-    quoteError,
-    fromToken,
-    toToken,
-    swapDirection,
-    setToAmount,
-    setFromAmount,
-    setQuoteLoading,
-    setQuote,
-  ])
+  }, [quoteResult, quoteError, fromToken, toToken, swapDirection, setToAmount, setFromAmount, setIsQuoteing, setQuote])
 
   const updateSwapData = useCallback(() => {
     if (swapCallData) {

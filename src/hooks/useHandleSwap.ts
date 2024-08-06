@@ -14,7 +14,7 @@ import { getEip712Domain } from '@/utils/getContractAddress'
 export const useHandleSwap = () => {
   const { signer, provider } = useEthersProviderContext()
   const { address, chainId } = useAccount()
-  const { quote, quoteLoading, swapData, isSwapping, setIsSwapping, isSigning, setIsSigning, setSwapDataSigned } =
+  const { quote, isQuoteing, swapData, isSwapping, setIsSwapping, isSigning, setIsSigning, setSwapDataSigned } =
     useSwapStateContext()
   const { config } = useAppStore()
   const { atlasAddress, dappAddress, atlasVerificationAddress } = useFastLaneAddresses()
@@ -42,7 +42,7 @@ export const useHandleSwap = () => {
     // Check if all required data is available
     const hashMissingContractAddress = !atlasVerificationAddress || !dappAddress || !atlasAddress
     const missingWeb3Provider = !address || !provider || !signer || !chainId
-    const missingQuote = !quote || quoteLoading || !swapData?.userOperation
+    const missingQuote = !quote || isQuoteing || !swapData?.userOperation
 
     if (hashMissingContractAddress || missingWeb3Provider || missingQuote) {
       console.error('Missing required data for swap')
@@ -81,7 +81,7 @@ export const useHandleSwap = () => {
   }, [
     address,
     quote,
-    quoteLoading,
+    isQuoteing,
     dappAddress,
     atlasVerificationAddress,
     swapData?.userOperation,

@@ -18,13 +18,19 @@ export interface SwapState {
 
   // Quote States
   quote: QuoteResult | null
-  quoteLoading: boolean
+  isQuoteing: boolean
+
+  // Approve State
+  isApproving: boolean
 
   // Swap Direction
   swapDirection: SwapDirection
 
   // Swap Data
   swapData: SwapCallData | null
+  isSwapping: boolean
+  // Swap Progress State
+  isSigning: boolean
 
   // Allowance State
   hasSufficientAllowance: boolean
@@ -36,9 +42,12 @@ export interface SwapState {
   setFromAmount: (amount: string) => void
   setToAmount: (amount: string) => void
   setQuote: (quote: QuoteResult | null) => void
-  setQuoteLoading: (loading: boolean) => void
+  setIsQuoteing: (isQuoteing: boolean) => void
   setSwapData: (data: SwapCallData | null) => void
   setSwapDataSigned: (isSigned: boolean) => void
+  setIsSwapping: (isSwapping: boolean) => void
+  setIsSigning: (isSigning: boolean) => void
+  setIsApproving: (isApproving: boolean) => void
 
   // Actions
   swapTokens: () => void
@@ -51,12 +60,6 @@ export interface SwapState {
   allowances: Record<string, bigint>
   allowanceLoading: Record<string, boolean>
   allowanceError: Record<string, Error | null>
-
-  // Swap Progress State
-  isSigning: boolean
-  setIsSigning: (isSigning: boolean) => void
-  isSwapping: boolean
-  setIsSwapping: (isSwapping: boolean) => void
 }
 
 export const useSwapState = (): SwapState => {
@@ -78,10 +81,11 @@ export const useSwapState = (): SwapState => {
   const [toAmount, setToAmount] = useState<string>('')
   const [swapDirection, setSwapDirection] = useState<SwapDirection>('sell')
   const [quote, setQuote] = useState<QuoteResult | null>(null)
-  const [quoteLoading, setQuoteLoading] = useState<boolean>(false)
+  const [isQuoteing, setIsQuoteing] = useState<boolean>(false)
   const [swapData, setSwapData] = useState<SwapCallData | null>(null)
   const [isSwapping, setIsSwapping] = useState<boolean>(false)
   const [isSigning, setIsSigning] = useState<boolean>(false)
+  const [isApproving, setIsApproving] = useState<boolean>(false)
 
   const debouncedFromAmount = useDebounce(fromAmount, 500) // 500ms delay
   const debouncedToAmount = useDebounce(toAmount, 500) // 500ms delay
@@ -144,7 +148,10 @@ export const useSwapState = (): SwapState => {
     nativeToken,
     // Quote States
     quote,
-    quoteLoading,
+    isQuoteing,
+
+    // Approve State
+    isApproving,
 
     // Swap Direction
     swapDirection,
@@ -162,11 +169,12 @@ export const useSwapState = (): SwapState => {
     setFromAmount,
     setToAmount,
     setQuote,
-    setQuoteLoading,
+    setIsQuoteing,
     setSwapData,
     setSwapDataSigned,
     setIsSigning,
     setIsSwapping,
+    setIsApproving,
 
     // Actions
     swapTokens: handleSwapTokens,

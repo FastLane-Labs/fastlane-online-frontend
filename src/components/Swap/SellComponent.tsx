@@ -7,7 +7,6 @@ import { useBalance } from '@/hooks/useBalance'
 import { Token } from '@/types'
 import { ethers } from 'ethers'
 import { useCurrentTokenList } from '@/hooks/useTokenList'
-import { SUPPORTED_CHAIN_IDS } from '@/constants'
 
 const SellComponent: React.FC = () => {
   const {
