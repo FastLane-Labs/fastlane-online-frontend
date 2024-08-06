@@ -1,15 +1,16 @@
+import { CHAIN_CONFIG } from '@/config/chains'
+
 /**
  * Get the address of the Atlas contract (FastLane Reservoir)
  * @param chainId The chain ID
  * @returns The address of the Atlas contract
  */
 export const getAtlasAddress = (chainId: number) => {
-  switch (chainId) {
-    case 137:
-      return '0x892F8f6779ca6927c1A6Cc74319e03d2abEf18D5'
-    default:
-      throw new Error('Unsupported chain ID')
+  const config = CHAIN_CONFIG[chainId]
+  if (config && config.contracts.atlas) {
+    return config.contracts.atlas.address
   }
+  throw new Error('Unsupported chain ID')
 }
 
 /**
@@ -18,12 +19,11 @@ export const getAtlasAddress = (chainId: number) => {
  * @returns The address of the Dapp contract
  */
 export const getDappAddress = (chainId: number) => {
-  switch (chainId) {
-    case 137:
-      return '0x0E3009d01e85ac49D164E453Ec81283EAAf46fB5'
-    default:
-      throw new Error('Unsupported chain ID')
+  const config = CHAIN_CONFIG[chainId]
+  if (config && config.contracts.appAddress) {
+    return config.contracts.appAddress.address
   }
+  throw new Error('Unsupported chain ID')
 }
 
 /**
@@ -32,10 +32,30 @@ export const getDappAddress = (chainId: number) => {
  * @returns The address of the Atlas verification contract
  */
 export const getAtlasVerificationAddress = (chainId: number) => {
-  switch (chainId) {
-    case 137:
-      return '0xc05DDBe9745ce9DB45C32F5e4C1DA7a3c4FDa220'
-    default:
-      throw new Error('Unsupported chain ID')
+  const config = CHAIN_CONFIG[chainId]
+  if (config && config.contracts.atlasVerification) {
+    return config.contracts.atlasVerification.address
   }
+  throw new Error('Unsupported chain ID')
+}
+
+/**
+ * Get the address of the Multicall3 contract
+ * @param chainId The chain ID
+ * @returns The address of the Multicall3 contract
+ */
+export const getMulticall3Address = (chainId: number) => {
+  const config = CHAIN_CONFIG[chainId]
+  if (config && config.contracts.multicall3) {
+    return config.contracts.multicall3.address
+  }
+  throw new Error('Unsupported chain ID')
+}
+
+export const getEip712Domain = (chainId: number) => {
+  const config = CHAIN_CONFIG[chainId]
+  if (config && config.eip712Domain) {
+    return config.eip712Domain
+  }
+  throw new Error('Unsupported chain ID')
 }
