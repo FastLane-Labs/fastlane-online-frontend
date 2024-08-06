@@ -15,7 +15,8 @@ interface SwapStepProps {
 }
 
 const SwapStep: React.FC<SwapStepProps> = ({ step, onAction, isLoading, error, setStep }) => {
-  const { fromToken, toToken, fromAmount, toAmount, nativeToken, hasSufficientAllowance } = useSwapStateContext()
+  const { fromToken, toToken, fromAmount, toAmount, nativeToken, hasSufficientAllowance, isSwapping } =
+    useSwapStateContext()
   const { data: estimatedFees } = useEstimatedSwapFees()
   const [isExpanded, setIsExpanded] = useState(false)
 
@@ -153,20 +154,19 @@ const SwapStep: React.FC<SwapStepProps> = ({ step, onAction, isLoading, error, s
   const renderButton = () => {
     let buttonText = ''
     let action: 'approve' | 'sign' | 'swap' = 'approve'
-    let isDisabled = isLoading
+    let isDisabled = isLoading || isSwapping
 
-    if (step === 'approve' && !hasSufficientAllowance) {
+    if (isSwapping) {
+      buttonText = 'Proceed in your wallet'
+    } else if (step === 'approve' && !hasSufficientAllowance) {
       buttonText = isLoading ? 'Approving...' : `Approve ${fromToken?.symbol} for spending`
       action = 'approve'
-      isDisabled = isLoading
     } else if (step === 'sign') {
       buttonText = 'Sign to swap'
       action = 'sign'
-      isDisabled = isLoading
     } else if (step === 'swap') {
-      buttonText = 'Proceed in your wallet'
+      buttonText = 'Confirm Swap'
       action = 'swap'
-      isDisabled = isLoading
     } else if (step === 'success') {
       buttonText = 'View on Explorer'
       isDisabled = false
@@ -180,7 +180,19 @@ const SwapStep: React.FC<SwapStepProps> = ({ step, onAction, isLoading, error, s
   }
 
   const renderStepContent = () => {
-    if (step === 'approve' && !hasSufficientAllowance) {
+    if (isSwapping) {
+      return (
+        <>
+          <div className='flex flex-grow flex-col w-full h-full justify-center items-center'>
+            <div className='text-center mb-2'>
+              <div className='w-16 h-16 rounded-full border-4 border-gray-300 border-t-pink-500 animate-spin mx-auto mb-4'></div>
+              <h2 className='text-lg font-semibold'>Confirm swap</h2>
+            </div>
+            {renderSwapDetailsCompact()}
+          </div>
+        </>
+      )
+    } else if (step === 'approve' && !hasSufficientAllowance) {
       return (
         <>
           <h2 className='text-lg font-semibold mb-4 text-center'>Approve Token</h2>
