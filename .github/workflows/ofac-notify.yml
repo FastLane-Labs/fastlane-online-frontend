@@ -13,7 +13,7 @@ jobs:
     steps:
       - name: Send message to Slack
         env:
-          SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
+          SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK_NOTIFICATION_CHANNEL }}
         run: |
           curl -X POST -H 'Content-type: application/json' --data '{
             "text":"GitHub Actions workflow was manually triggered TEST!"
