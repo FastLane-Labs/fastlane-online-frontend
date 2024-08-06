@@ -78,7 +78,11 @@ export const useSwapCallData = (
           dappAddress,
           provider
         )
+        // fix incorrect from address in userOperation helper contract
+        // TODO: discuss with Atlas team
+        userOperation.setField('from', address)
 
+        console.log('userOperation', userOperation)
         return {
           baselineCall,
           gasLimit: gas,

@@ -14,7 +14,7 @@ import { getEip712Domain } from '@/utils/getContractAddress'
 export const useHandleSwap = () => {
   const { signer, provider } = useEthersProviderContext()
   const { address, chainId } = useAccount()
-  const { quote, quoteLoading, swapData, isSwapping, setIsSwapping } = useSwapStateContext()
+  const { quote, quoteLoading, swapData, isSwapping, setIsSwapping, isSigning, setIsSigning } = useSwapStateContext()
   const { config } = useAppStore()
   const { atlasAddress, dappAddress, atlasVerificationAddress } = useFastLaneAddresses()
 
@@ -22,7 +22,7 @@ export const useHandleSwap = () => {
     // Check if all required data is available
     const hashMissingContractAddress = !atlasVerificationAddress || !dappAddress || !atlasAddress
     const missingWeb3Provider = !address || !provider || !signer || !chainId
-    const missingQuote = !quote || quoteLoading || !swapData.userOperation
+    const missingQuote = !quote || quoteLoading || !swapData?.userOperation
 
     if (hashMissingContractAddress || missingWeb3Provider || missingQuote) {
       console.error('Missing required data for swap')
@@ -41,17 +41,19 @@ export const useHandleSwap = () => {
       const gas = SWAP_GAS_ESTIMATE + SOLVER_GAS_ESTIMATE
 
       // Sign the user operation
+      setIsSigning(true)
       await signUserOperation(swapData.userOperation, signer, getEip712Domain(chainId))
+      setIsSigning(false)
 
-      const contract = new ethers.Contract(dappAddress, FastlaneOnlineAbi, signer)
-      const tx = await contract.fastOnlineSwap(swapData.userOperation, {
-        gasLimit: gas,
-        maxFeePerGas: maxFeePerGas,
-        value: getAtlasGasSurcharge(gas * maxFeePerGas),
-      })
+      // const contract = new ethers.Contract(dappAddress, FastlaneOnlineAbi, signer)
+      // const tx = await contract.fastOnlineSwap(swapData.userOperation, {
+      //   gasLimit: gas,
+      //   maxFeePerGas: maxFeePerGas,
+      //   value: getAtlasGasSurcharge(gas * maxFeePerGas),
+      // })
 
-      console.log('Swap transaction submitted:', tx.hash)
-      await tx.wait()
+      // console.log('Swap transaction submitted:', tx.hash)
+      // await tx.wait()
       console.log('Swap transaction confirmed')
 
       return true

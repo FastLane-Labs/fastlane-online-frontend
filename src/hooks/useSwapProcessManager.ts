@@ -21,6 +21,8 @@ export const useSwapProcessManager = () => {
     swapDirection,
     setQuote,
     setSwapData,
+    isSwapping,
+    isSigning,
   } = useSwapStateContext()
   const { address, chainId } = useAccount()
   const { provider } = useEthersProviderContext()
@@ -29,9 +31,10 @@ export const useSwapProcessManager = () => {
 
   const debouncedAmount = useDebounce(swapDirection === 'sell' ? fromAmount : toAmount, 500)
 
+  // only fetch quote when the user is not isSwapping
   const isQuoteReady = useMemo(() => {
-    return Boolean(fromToken && toToken && chainId && debouncedAmount)
-  }, [fromToken, toToken, chainId, debouncedAmount])
+    return Boolean(fromToken && toToken && chainId && debouncedAmount && !isSwapping && !isSigning)
+  }, [fromToken, toToken, chainId, debouncedAmount, isSwapping, isSigning])
 
   const isSwapDataReady = useMemo(() => {
     return Boolean(isQuoteReady && provider && atlasAddress && dappAddress && atlasVerificationAddress)
@@ -100,6 +103,7 @@ export const useSwapProcessManager = () => {
 
   const updateSwapData = useCallback(() => {
     if (swapCallData) {
+      console.log('swapCallData', swapCallData)
       setSwapData(swapCallData)
     } else if (swapDataError) {
       console.error('Error generating swap data:', swapDataError)

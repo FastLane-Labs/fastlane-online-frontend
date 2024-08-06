@@ -7,8 +7,6 @@ import BuyComponent from '@/components/Swap/BuyComponent'
 import SellComponent from '@/components/Swap/SellComponent'
 import BackgroundGradient from '@/components/Theme/BackgroundGradient'
 import { useHandleSwap } from '@/hooks/useHandleSwap'
-import { useBaselineQuote } from '@/hooks/useBaselineQuote'
-import { useSwapStateContext } from '@/context/SwapStateContext'
 import { useSwapProcessManager } from '@/hooks/useSwapProcessManager'
 
 const SwapView: React.FC = () => {

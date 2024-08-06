@@ -51,7 +51,9 @@ export interface SwapState {
   allowanceLoading: Record<string, boolean>
   allowanceError: Record<string, Error | null>
 
-  // Swap Progress State
+  // Swap Progress State'
+  isSigning: boolean
+  setIsSigning: (isSigning: boolean) => void
   isSwapping: boolean
   setIsSwapping: (isSwapping: boolean) => void
 }
@@ -78,6 +80,7 @@ export const useSwapState = (): SwapState => {
   const [quoteLoading, setQuoteLoading] = useState<boolean>(false)
   const [swapData, setSwapData] = useState<SwapCallData | null>(null)
   const [isSwapping, setIsSwapping] = useState<boolean>(false)
+  const [isSigning, setIsSigning] = useState<boolean>(false)
 
   const debouncedFromAmount = useDebounce(fromAmount, 500) // 500ms delay
   const debouncedToAmount = useDebounce(toAmount, 500) // 500ms delay
@@ -156,7 +159,7 @@ export const useSwapState = (): SwapState => {
     setQuote,
     setQuoteLoading,
     setSwapData,
-
+    setIsSigning,
     // Actions
     swapTokens: handleSwapTokens,
     resetSelections,

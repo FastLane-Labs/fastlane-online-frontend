@@ -117,10 +117,13 @@ export async function signUserOperation(
   signer: AbstractSigner,
   eip712Domain: TypedDataDomain
 ): Promise<UserOperation> {
+  console.log('eip712Domain', eip712Domain)
   userOp.setField(
     'signature',
     await signer.signTypedData(eip712Domain, userOp.toTypedDataTypes(), userOp.toTypedDataValues())
   )
+  console.log('userOp', userOp)
+
   userOp.validateSignature(eip712Domain)
   return userOp
 }
