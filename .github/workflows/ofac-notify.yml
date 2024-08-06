@@ -14,10 +14,78 @@ jobs:
   send_slack_message:
     runs-on: pfl-main-ubuntu
     steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 2
+
+      - name: Get file changes
+        id: file_changes
+        run: |
+          git diff --stat HEAD~1 HEAD src/constants/sanctioned_addresses_ofac.json > changes.txt
+          echo "CHANGES<<EOF" >> $GITHUB_OUTPUT
+          cat changes.txt >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+
       - name: Send message to Slack
         env:
           SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK_NOTIFICATION_CHANNEL }}
+          GITHUB_ACTOR: ${{ github.actor }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+          GITHUB_SHA: ${{ github.sha }}
+          FILE_CHANGES: ${{ steps.file_changes.outputs.CHANGES }}
         run: |
           curl -X POST -H 'Content-type: application/json' --data '{
-            "text":"GitHub Actions !"
+            "blocks": [
+              {
+                "type": "header",
+                "text": {
+                  "type": "plain_text",
+                  "text": "🚨 OFAC Sanctioned Addresses List Updated 🚨",
+                  "emoji": true
+                }
+              },
+              {
+                "type": "section",
+                "fields": [
+                  {
+                    "type": "mrkdwn",
+                    "text": "*Repository:*\n'"$GITHUB_REPOSITORY"'"
+                  },
+                  {
+                    "type": "mrkdwn",
+                    "text": "*Updated by:*\n'"$GITHUB_ACTOR"'"
+                  },
+                  {
+                    "type": "mrkdwn",
+                    "text": "*Branch:*\ntest"
+                  },
+                  {
+                    "type": "mrkdwn",
+                    "text": "*Commit:*\n'"${GITHUB_SHA:0:7}"'"
+                  }
+                ]
+              },
+              {
+                "type": "section",
+                "text": {
+                  "type": "mrkdwn",
+                  "text": "*File:* src/constants/sanctioned_addresses_ofac.json\n*Changes:*\n```'"$FILE_CHANGES"'```"
+                }
+              },
+              {
+                "type": "actions",
+                "elements": [
+                  {
+                    "type": "button",
+                    "text": {
+                      "type": "plain_text",
+                      "text": "View Commit",
+                      "emoji": true
+                    },
+                    "url": "https://github.com/'"$GITHUB_REPOSITORY"'/commit/'"$GITHUB_SHA"'"
+                  }
+                ]
+              }
+            ]
           }' $SLACK_WEBHOOK
