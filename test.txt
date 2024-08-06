@@ -1,3 +1,9 @@
 # delete me, I was used for Actions tests
 new line
 new line
+
+1
+2
+3
+4
+5
