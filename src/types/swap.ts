@@ -45,4 +45,5 @@ export interface SwapCallData {
   baselineCallData: BaselineCall
   gasSurcharge: bigint
   gasLimit: bigint
+  isSigned: boolean
 }

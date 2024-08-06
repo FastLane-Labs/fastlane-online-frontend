@@ -24,7 +24,7 @@ export interface SwapState {
   swapDirection: SwapDirection
 
   // Swap Data
-  swapData: any | null
+  swapData: SwapCallData | null
 
   // Allowance State
   hasSufficientAllowance: boolean
@@ -37,7 +37,8 @@ export interface SwapState {
   setToAmount: (amount: string) => void
   setQuote: (quote: QuoteResult | null) => void
   setQuoteLoading: (loading: boolean) => void
-  setSwapData: (data: any | null) => void
+  setSwapData: (data: SwapCallData | null) => void
+  setSwapDataSigned: (isSigned: boolean) => void
 
   // Actions
   swapTokens: () => void
@@ -51,7 +52,7 @@ export interface SwapState {
   allowanceLoading: Record<string, boolean>
   allowanceError: Record<string, Error | null>
 
-  // Swap Progress State'
+  // Swap Progress State
   isSigning: boolean
   setIsSigning: (isSigning: boolean) => void
   isSwapping: boolean
@@ -130,6 +131,10 @@ export const useSwapState = (): SwapState => {
     setSwapData(null)
   }, [fromToken, toToken, fromAmount, toAmount, swapDirection])
 
+  const setSwapDataSigned = useCallback((isSigned: boolean) => {
+    setSwapData((prevData) => (prevData ? { ...prevData, isSigned } : null))
+  }, [])
+
   return {
     // Token and Amount States
     fromToken,
@@ -159,7 +164,10 @@ export const useSwapState = (): SwapState => {
     setQuote,
     setQuoteLoading,
     setSwapData,
+    setSwapDataSigned,
     setIsSigning,
+    setIsSwapping,
+
     // Actions
     swapTokens: handleSwapTokens,
     resetSelections,
@@ -174,6 +182,6 @@ export const useSwapState = (): SwapState => {
 
     // Swap Progress State
     isSwapping,
-    setIsSwapping,
+    isSigning,
   }
 }

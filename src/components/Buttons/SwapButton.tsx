@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react'
+import React, { useState, useEffect, useCallback, useMemo } from 'react'
 import { useChainModal, useConnectModal } from '@rainbow-me/rainbowkit'
 import { useAccount } from 'wagmi'
 import { useBalance } from '@/hooks/useBalance'
@@ -9,16 +9,19 @@ import { useFastLaneAddresses } from '@/hooks/useFastLaneAddresses'
 import { SUPPORTED_CHAIN_IDS } from '@/constants'
 import { useAllowanceManager } from '@/hooks/useAllowanceManager'
 import SwapDetails from '@/components/Buttons/SwapDetails'
+import { useHandleSwap } from '@/hooks/useHandleSwap'
 
 interface SwapButtonProps {
   handleSwap: () => Promise<boolean>
   isLoading: boolean
 }
 
+const LOADING_SPINNER = <span className='loading loading-spinner'></span>
+
 const SwapButton: React.FC<SwapButtonProps> = ({ handleSwap, isLoading }) => {
   const { openConnectModal } = useConnectModal()
   const { openChainModal } = useChainModal()
-  const { fromToken, toToken, fromAmount } = useSwapStateContext()
+  const { fromToken, toToken, fromAmount, setSwapDataSigned } = useSwapStateContext()
   const { address: userAddress, status, isConnected, chainId } = useAccount()
   const [isSupportedChain, setIsSupportedChain] = useState(false)
   const [localLoading, setLocalLoading] = useState(false)
@@ -27,6 +30,7 @@ const SwapButton: React.FC<SwapButtonProps> = ({ handleSwap, isLoading }) => {
   const { data: balance, isLoading: balanceLoading } = useBalance({ token: fromToken!, userAddress: userAddress! })
   const { dappAddress: spenderAddress } = useFastLaneAddresses()
   const { updateAllowance, checkAllowance, isSufficientAllowance } = useAllowanceManager()
+  const { handleSignature } = useHandleSwap()
 
   useEffect(() => {
     if (chainId) {
@@ -55,6 +59,19 @@ const SwapButton: React.FC<SwapButtonProps> = ({ handleSwap, isLoading }) => {
     }
   }, [fromToken, userAddress, spenderAddress, fromAmount, updateAllowance, checkAllowance])
 
+  const handleSign = useCallback(async () => {
+    try {
+      const success = await handleSignature()
+      if (success) {
+        setSwapDataSigned(true)
+      }
+      return success
+    } catch (error) {
+      console.error('Signing Error:', error)
+      return false
+    }
+  }, [handleSignature, setSwapDataSigned])
+
   const handleSwapConfirm = useCallback(async () => {
     setLocalLoading(true)
     const success = await handleSwap()
@@ -62,13 +79,19 @@ const SwapButton: React.FC<SwapButtonProps> = ({ handleSwap, isLoading }) => {
     return success
   }, [handleSwap])
 
-  const hasSufficientBalance =
-    balance && fromToken && toBigInt(fromAmount, fromToken.decimals) <= BigInt(balance.toString())
+  const hasSufficientBalance = useMemo(() => {
+    return balance && fromToken && toBigInt(fromAmount, fromToken.decimals) <= BigInt(balance.toString())
+  }, [balance, fromToken, fromAmount])
 
-  const isMissingUserInput = !fromToken || !toToken || !fromAmount || !hasSufficientBalance
+  const isMissingUserInput = useMemo(() => {
+    return !fromToken || !toToken || !fromAmount || !hasSufficientBalance
+  }, [fromToken, toToken, fromAmount, hasSufficientBalance])
 
-  const isDisabled =
-    status === 'reconnecting' || !initialized || (isSupportedChain && (isMissingUserInput || !hasSufficientBalance))
+  const isDisabled = useMemo(() => {
+    return (
+      status === 'reconnecting' || !initialized || (isSupportedChain && (isMissingUserInput || !hasSufficientBalance))
+    )
+  }, [status, initialized, isSupportedChain, isMissingUserInput, hasSufficientBalance])
 
   const getButtonText = useCallback(() => {
     if (!isConnected) return 'Connect wallet'
@@ -78,12 +101,7 @@ const SwapButton: React.FC<SwapButtonProps> = ({ handleSwap, isLoading }) => {
     if (!fromToken || !toToken) return 'Select Tokens'
     if (!fromAmount) return 'Enter an amount'
     if (!hasSufficientBalance) return `Insufficient ${fromToken.symbol} balance`
-    if (localLoading)
-      return (
-        <>
-          <span className='loading loading-spinner'></span> Initiating swap
-        </>
-      )
+    if (localLoading) return <>{LOADING_SPINNER} Initiating swap</>
     return 'Swap'
   }, [
     isConnected,
@@ -117,6 +135,7 @@ const SwapButton: React.FC<SwapButtonProps> = ({ handleSwap, isLoading }) => {
         isVisible={isSwapModalOpen}
         onClose={() => setIsSwapModalOpen(false)}
         onSwap={handleSwapConfirm}
+        onSign={handleSign}
         onApprove={handleApprove}
       />
     </>

@@ -14,9 +14,29 @@ import { getEip712Domain } from '@/utils/getContractAddress'
 export const useHandleSwap = () => {
   const { signer, provider } = useEthersProviderContext()
   const { address, chainId } = useAccount()
-  const { quote, quoteLoading, swapData, isSwapping, setIsSwapping, isSigning, setIsSigning } = useSwapStateContext()
+  const { quote, quoteLoading, swapData, isSwapping, setIsSwapping, isSigning, setIsSigning, setSwapDataSigned } =
+    useSwapStateContext()
   const { config } = useAppStore()
   const { atlasAddress, dappAddress, atlasVerificationAddress } = useFastLaneAddresses()
+
+  const handleSignature = useCallback(async () => {
+    if (!swapData?.userOperation || !signer || !chainId) {
+      console.error('Missing required data for signature')
+      return false
+    }
+
+    setIsSigning(true)
+    try {
+      await signUserOperation(swapData.userOperation, signer, getEip712Domain(chainId))
+      setSwapDataSigned(true)
+      return true
+    } catch (error) {
+      console.error('Signature generation failed', error)
+      return false
+    } finally {
+      setIsSigning(false)
+    }
+  }, [swapData?.userOperation, signer, chainId, setIsSigning, setSwapDataSigned])
 
   const handleSwap = useCallback(async () => {
     // Check if all required data is available
@@ -40,20 +60,15 @@ export const useHandleSwap = () => {
       const maxFeePerGas = feeData.maxFeePerGas
       const gas = SWAP_GAS_ESTIMATE + SOLVER_GAS_ESTIMATE
 
-      // Sign the user operation
-      setIsSigning(true)
-      await signUserOperation(swapData.userOperation, signer, getEip712Domain(chainId))
-      setIsSigning(false)
+      const contract = new ethers.Contract(dappAddress, FastlaneOnlineAbi, signer)
+      const tx = await contract.fastOnlineSwap(swapData.userOperation, {
+        gasLimit: gas,
+        maxFeePerGas: maxFeePerGas,
+        value: getAtlasGasSurcharge(gas * maxFeePerGas),
+      })
 
-      // const contract = new ethers.Contract(dappAddress, FastlaneOnlineAbi, signer)
-      // const tx = await contract.fastOnlineSwap(swapData.userOperation, {
-      //   gasLimit: gas,
-      //   maxFeePerGas: maxFeePerGas,
-      //   value: getAtlasGasSurcharge(gas * maxFeePerGas),
-      // })
-
-      // console.log('Swap transaction submitted:', tx.hash)
-      // await tx.wait()
+      console.log('Swap transaction submitted:', tx.hash)
+      await tx.wait()
       console.log('Swap transaction confirmed')
 
       return true
@@ -80,7 +95,9 @@ export const useHandleSwap = () => {
   ])
 
   return {
+    handleSignature,
     handleSwap,
     isSwapping,
+    isSigning,
   }
 }

@@ -87,6 +87,7 @@ export const useSwapCallData = (
           baselineCall,
           gasLimit: gas,
           userOperation,
+          isSigned: false,
           gasSurcharge: getAtlasGasSurcharge(gas * maxFeePerGas),
         }
       },
