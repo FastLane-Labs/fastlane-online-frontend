@@ -20,7 +20,7 @@ export const CHAIN_CONFIG: { [chainId: number]: ChainConfig } = {
       name: 'AtlasVerification',
       version: '1.0',
       chainId: 137,
-      verifyingContract: '0x892F8f6779ca6927c1A6Cc74319e03d2abEf18D5',
+      verifyingContract: '0xc05DDBe9745ce9DB45C32F5e4C1DA7a3c4FDa220',
     },
   },
 }
