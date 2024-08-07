@@ -51,10 +51,6 @@ const TokenSelectModal: React.FC<TokenSelectModalProps> = ({
       balancesQuery.data && balancesQuery.data.length > 0 ? getFormattedBalance(balancesQuery.data[index], token) : '0',
   }))
 
-  useEffect(() => {
-    console.log('Tokens with Balances:', tokensWithBalances)
-  }, [tokensWithBalances])
-
   const filteredTokensWithBalances = tokensWithBalances.filter((token) => {
     if (direction === 'sell' && toToken && token.address.toLowerCase() === toToken.address.toLowerCase()) {
       return false
@@ -73,11 +69,6 @@ const TokenSelectModal: React.FC<TokenSelectModalProps> = ({
   const popularTokens = tokensWithBalances.filter((token) => token.tags?.includes('popular'))
   const tokensWithUserBalances = sortedTokensWithBalances.filter((token) => token.balance > 0n)
   const remainingTokens = sortedTokensWithBalances.filter((token) => token.balance === 0n)
-
-  useEffect(() => {
-    console.log('Tokens with User Balances:', tokensWithUserBalances)
-    console.log('Remaining Tokens:', remainingTokens)
-  }, [tokensWithUserBalances, remainingTokens])
 
   useEffect(() => {
     if ((balancesQuery.error || balancesQuery.data === undefined) && !hasAttemptedRefetch) {
