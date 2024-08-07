@@ -37,6 +37,7 @@ const SellAmount: React.FC<SellAmountProps> = ({
 
   const handleSetMax = () => {
     setSellAmount(currentBalance)
+    setSwapDirection('sell')
   }
 
   return (

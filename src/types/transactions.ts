@@ -2,7 +2,7 @@ export type TransactionHistoryStore = TransactionParams[]
 
 export interface TransactionParams {
   routeType: string
-  chainId: string
+  chainId: number
   nonce?: number
   txHash: string
   timestamp?: number

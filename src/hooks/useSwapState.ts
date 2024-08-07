@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback, useMemo } from 'react'
-import { QuoteResult, SwapCallData, SwapDirection, Token } from '@/types'
+import { QuoteResult, SwapCallData, SwapDirection, SwapResult, Token } from '@/types'
 import { useCurrentTokenList } from './useTokenList'
 import { useAccount } from 'wagmi'
 import { toBigInt } from '@/utils/format'
@@ -32,6 +32,7 @@ export interface SwapState {
   // Swap Progress State
   isSigning: boolean
 
+  swapResult: SwapResult | null
   // Allowance State
   hasSufficientAllowance: boolean
 
@@ -48,6 +49,7 @@ export interface SwapState {
   setIsSwapping: (isSwapping: boolean) => void
   setIsSigning: (isSigning: boolean) => void
   setIsApproving: (isApproving: boolean) => void
+  setSwapResult: (result: SwapResult | null) => void
 
   // Actions
   swapTokens: () => void
@@ -86,6 +88,7 @@ export const useSwapState = (): SwapState => {
   const [isSwapping, setIsSwapping] = useState<boolean>(false)
   const [isSigning, setIsSigning] = useState<boolean>(false)
   const [isApproving, setIsApproving] = useState<boolean>(false)
+  const [swapResult, setSwapResult] = useState<SwapResult | null>(null)
 
   const debouncedFromAmount = useDebounce(fromAmount, 500) // 500ms delay
   const debouncedToAmount = useDebounce(toAmount, 500) // 500ms delay
@@ -158,6 +161,7 @@ export const useSwapState = (): SwapState => {
 
     // Swap Data
     swapData,
+    swapResult,
 
     // Allowance State
     hasSufficientAllowance,
@@ -171,6 +175,7 @@ export const useSwapState = (): SwapState => {
     setQuote,
     setIsQuoteing,
     setSwapData,
+    setSwapResult,
     setSwapDataSigned,
     setIsSigning,
     setIsSwapping,

@@ -52,6 +52,11 @@ export const getMulticall3Address = (chainId: number) => {
   throw new Error('Unsupported chain ID')
 }
 
+/**
+ * Get the EIP712 domain for the given chain ID
+ * @param chainId The chain ID
+ * @returns The EIP712 domain
+ */
 export const getEip712Domain = (chainId: number) => {
   const config = CHAIN_CONFIG[chainId]
   if (config && config.eip712Domain) {

@@ -16,4 +16,5 @@ export interface ChainConfig {
     }
   }
   eip712Domain: TypedDataDomain
+  blockExplorerUrl: string
 }
