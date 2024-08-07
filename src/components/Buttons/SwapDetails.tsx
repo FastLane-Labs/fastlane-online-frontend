@@ -1,10 +1,19 @@
-import { useState } from 'react'
+import { useState, useMemo } from 'react'
 import { useSwapStateContext } from '@/context/SwapStateContext'
 import { ChevronDownIcon } from '@heroicons/react/20/solid'
+import { calculateExchangeRate } from '@/utils/exchangeRate'
+import { formatUnits } from 'ethers'
 
 const SwapDetails = () => {
-  const { fromToken, toToken, fromAmount, toAmount, hasSufficientAllowance } = useSwapStateContext()
+  const { fromToken, toToken, fromAmount, toAmount } = useSwapStateContext()
   const [isExpanded, setIsExpanded] = useState(false)
+
+  const exchangeRate = useMemo(() => {
+    if (fromToken && toToken && fromAmount && toAmount) {
+      return calculateExchangeRate(fromToken, toToken, fromAmount, toAmount)
+    }
+    return '0'
+  }, [fromToken, toToken, fromAmount, toAmount])
 
   const toggleExpand = () => {
     setIsExpanded(!isExpanded)
@@ -14,7 +23,7 @@ const SwapDetails = () => {
     <div className='flex flex-col w-full px-3 justify-start text-sm pt-3 gap-2'>
       <button className='flex justify-between items-center' onClick={toggleExpand}>
         <span className='text-end text-neutral-content'>
-          1 {fromToken?.symbol} = 2.02827 {toToken?.symbol}
+          1 {fromToken?.symbol} = {exchangeRate} {toToken?.symbol}
         </span>
         <div className='flex items-center justify-end gap-2'>
           {!isExpanded && (

@@ -32,3 +32,26 @@ export const toBigInt = (amount: string, decimals: number): bigint => {
   const fractionPadded = fraction.padEnd(decimals, '0')
   return BigInt(integer + fractionPadded)
 }
+
+/**
+ * Adjusts the amount of tokens to swap based on the decimal difference between the from and to tokens
+ * @param amount
+ * @param fromDecimals
+ * @param toDecimals
+ * @returns
+ */
+export const adjustAmount = (amount: string, fromDecimals: number, toDecimals: number): string => {
+  if (fromDecimals === toDecimals) {
+    return amount // No adjustment needed if decimals match
+  }
+
+  // Split the amount into integer and fractional parts
+  const [integerPart, fractionalPart] = amount.split('.')
+
+  if (!fractionalPart) {
+    return integerPart // Return as is if there's no fractional part
+  }
+
+  // Truncate the fractional part
+  return integerPart
+}

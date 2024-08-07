@@ -9,6 +9,8 @@ import TokenItem from '@/components/TokenItem/TokenItem'
 import TokenGrid from '@/components/TokenGrid/TokenGrid'
 import { MagnifyingGlassIcon } from '@heroicons/react/24/outline'
 import UnknownToken from '@/assets/svg/unknownToken.svg'
+import { formatUnits, parseUnits, BigNumber } from 'ethers'
+import { adjustAmount } from '@/utils/format'
 
 interface TokenSelectModalProps {
   selectedToken: Token | null
@@ -29,7 +31,7 @@ const TokenSelectModal: React.FC<TokenSelectModalProps> = ({
   const { tokens, loading, error } = useCurrentTokenList()
   const [searchTerm, setSearchTerm] = useState('')
   const { address } = useAccount()
-  const { fromToken, toToken } = useSwapStateContext()
+  const { fromToken, toToken, fromAmount, toAmount, setFromAmount, setToAmount } = useSwapStateContext()
 
   const balancesQuery = useBalances({
     tokens: tokens,
@@ -78,6 +80,17 @@ const TokenSelectModal: React.FC<TokenSelectModalProps> = ({
   }, [isOpen])
 
   const handleSelect = (token: Token) => {
+    if (direction === 'sell') {
+      if (fromToken && fromAmount && fromAmount !== '') {
+        const adjustedAmount = adjustAmount(fromAmount, fromToken.decimals, token.decimals)
+        setFromAmount(adjustedAmount)
+      }
+    } else if (direction === 'buy') {
+      if (toToken && toAmount && toAmount !== '') {
+        const adjustedAmount = adjustAmount(toAmount, toToken.decimals, token.decimals)
+        setToAmount(adjustedAmount)
+      }
+    }
     onSelectToken(token)
     setIsOpen(false)
   }
