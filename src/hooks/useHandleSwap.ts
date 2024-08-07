@@ -3,13 +3,11 @@ import { useAccount } from 'wagmi'
 import { useEthersProviderContext } from '@/context/EthersProviderContext'
 import { useSwapStateContext } from '@/context/SwapStateContext'
 import { useFastLaneAddresses } from './useFastLaneAddresses'
-import { ethers } from 'ethers'
-import { FastlaneOnlineAbi } from '@/abis'
-import { getAtlasGasSurcharge, getFeeData } from '@/utils/gasFee'
 import { useAppStore } from '@/store/useAppStore'
 import { SOLVER_GAS_ESTIMATE, SWAP_GAS_ESTIMATE } from '@/constants'
 import { signUserOperation } from '@/core/atlas'
 import { getEip712Domain } from '@/utils/getContractAddress'
+import { getFeeData } from '@/utils/gasFee'
 
 export const useHandleSwap = () => {
   const { signer, provider } = useEthersProviderContext()

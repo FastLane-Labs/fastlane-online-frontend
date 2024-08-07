@@ -15,8 +15,7 @@ const SwapModal: React.FC<SwapModalProps> = ({ isVisible, onClose, onSwap, onApp
   const [step, setStep] = useState<'approve' | 'sign' | 'swap' | 'success'>('approve')
   const [error, setError] = useState<Error | null>(null)
 
-  const { hasSufficientAllowance, isSwapping, isSigning, isApproving, setIsSigning, setIsSwapping, setIsApproving } =
-    useSwapStateContext()
+  const { isSwapping, isSigning, isApproving, setIsSigning, setIsSwapping, setIsApproving } = useSwapStateContext()
 
   const handleAction = useCallback(
     async (action: 'approve' | 'sign' | 'swap') => {

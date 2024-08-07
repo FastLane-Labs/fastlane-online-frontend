@@ -5,7 +5,7 @@ import { SwapPathService } from '@/services/swapPath'
 import { Exchange } from '@/constants'
 import { toBigInt } from '@/utils/format'
 import { keys } from '@/core/queries/query-keys'
-import { QuoteResult, SwapRoute, Token } from '@/types'
+import { QuoteResult, Token } from '@/types'
 
 const getTokenIdentifier = (token: Token | null) => (token ? token : ({} as Token))
 export const useBaselineQuote = (
