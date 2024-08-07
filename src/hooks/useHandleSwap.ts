@@ -8,12 +8,22 @@ import { SOLVER_GAS_ESTIMATE, SWAP_GAS_ESTIMATE } from '@/constants'
 import { signUserOperation } from '@/core/atlas'
 import { getEip712Domain } from '@/utils/getContractAddress'
 import { getFeeData } from '@/utils/gasFee'
+import { TransactionParams, TransactionStatus } from '@/types'
 
 export const useHandleSwap = () => {
   const { signer, provider } = useEthersProviderContext()
   const { address, chainId } = useAccount()
-  const { quote, isQuoteing, swapData, isSwapping, setIsSwapping, isSigning, setIsSigning, setSwapDataSigned } =
-    useSwapStateContext()
+  const {
+    quote,
+    isQuoteing,
+    swapData,
+    isSwapping,
+    setIsSwapping,
+    isSigning,
+    setIsSigning,
+    setSwapDataSigned,
+    setSwapResult,
+  } = useSwapStateContext()
   const { config } = useAppStore()
   const { atlasAddress, dappAddress, atlasVerificationAddress } = useFastLaneAddresses()
 
@@ -67,7 +77,30 @@ export const useHandleSwap = () => {
 
       // console.log('Swap transaction submitted:', tx.hash)
       // await tx.wait()
+      // Simulated transaction hash
+      const txHash = '0x' + Array(64).fill('0').join('')
+      const transactionParams: TransactionParams = {
+        routeType: 'swap', // Assuming this is a swap transaction
+        chainId: chainId,
+        txHash,
+        timestamp: Date.now(),
+        status: 'pending' as TransactionStatus,
+        fromAddress: address,
+      }
+
+      setSwapResult({ transaction: transactionParams })
+
+      console.log('Swap transaction submitted:', txHash)
+      // await tx.wait()
+
       console.log('Swap transaction confirmed')
+
+      // Update transaction status to 'success'
+      const updatedTransactionParams: TransactionParams = {
+        ...transactionParams,
+        status: 'success' as TransactionStatus,
+      }
+      setSwapResult({ transaction: updatedTransactionParams })
 
       return true
     } catch (error) {
@@ -90,6 +123,7 @@ export const useHandleSwap = () => {
     signer,
     provider,
     setIsSwapping,
+    setSwapResult,
   ])
 
   return {

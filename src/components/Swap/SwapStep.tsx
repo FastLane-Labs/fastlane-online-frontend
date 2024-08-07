@@ -12,11 +12,13 @@ interface SwapStepProps {
   isLoading: boolean
   error: Error | null
   setStep: React.Dispatch<React.SetStateAction<'approve' | 'sign' | 'swap' | 'success'>>
+  txBlockExplorerUrl?: string
 }
 
-const SwapStep: React.FC<SwapStepProps> = ({ step, onAction, isLoading, error, setStep }) => {
+const SwapStep: React.FC<SwapStepProps> = ({ step, onAction, isLoading, error, setStep, txBlockExplorerUrl }) => {
   const { fromToken, toToken, fromAmount, toAmount, nativeToken, hasSufficientAllowance, isSwapping } =
     useSwapStateContext()
+
   const { data: estimatedFees } = useEstimatedSwapFees()
   const [isExpanded, setIsExpanded] = useState(false)
 
@@ -170,6 +172,14 @@ const SwapStep: React.FC<SwapStepProps> = ({ step, onAction, isLoading, error, s
     } else if (step === 'success') {
       buttonText = 'View on Explorer'
       isDisabled = false
+    }
+
+    if (step === 'success' && txBlockExplorerUrl) {
+      return (
+        <a href={txBlockExplorerUrl} target='_blank' rel='noopener noreferrer' className='btn w-full'>
+          {buttonText}
+        </a>
+      )
     }
 
     return (

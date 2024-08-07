@@ -22,5 +22,6 @@ export const CHAIN_CONFIG: { [chainId: number]: ChainConfig } = {
       chainId: 137,
       verifyingContract: '0xc05DDBe9745ce9DB45C32F5e4C1DA7a3c4FDa220',
     },
+    blockExplorerUrl: 'https://polygonscan.com/',
   },
 }

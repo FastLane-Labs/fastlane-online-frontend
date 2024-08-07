@@ -1,7 +1,8 @@
-import React, { useState, useCallback } from 'react'
+import React, { useState, useCallback, useEffect } from 'react'
 import ModalWrapper from '@/components/Wrappers/ModalWrapper'
 import SwapStep from '@/components/Swap/SwapStep'
 import { useSwapStateContext } from '@/context/SwapStateContext'
+import { getBlockExplorerUrl } from '@/utils/getBlockExploer'
 
 interface SwapModalProps {
   isVisible: boolean
@@ -14,8 +15,18 @@ interface SwapModalProps {
 const SwapModal: React.FC<SwapModalProps> = ({ isVisible, onClose, onSwap, onApprove, onSign }) => {
   const [step, setStep] = useState<'approve' | 'sign' | 'swap' | 'success'>('approve')
   const [error, setError] = useState<Error | null>(null)
+  const [txBlockExplorerUrl, setTxBlockExplorerUrl] = useState<string | undefined>(undefined)
 
-  const { isSwapping, isSigning, isApproving, setIsSigning, setIsSwapping, setIsApproving } = useSwapStateContext()
+  const { isSwapping, isSigning, isApproving, setIsSigning, setIsSwapping, setIsApproving, swapResult } =
+    useSwapStateContext()
+
+  useEffect(() => {
+    if (swapResult?.transaction?.txHash) {
+      const baseUrl = getBlockExplorerUrl(swapResult.transaction.chainId)
+      const txHash = swapResult.transaction.txHash
+      setTxBlockExplorerUrl(`${baseUrl}/tx/${txHash}`)
+    }
+  }, [swapResult])
 
   const handleAction = useCallback(
     async (action: 'approve' | 'sign' | 'swap') => {
@@ -36,7 +47,9 @@ const SwapModal: React.FC<SwapModalProps> = ({ isVisible, onClose, onSwap, onApp
           case 'swap':
             setIsSwapping(true)
             success = await onSwap()
-            if (success) setStep('success')
+            if (success) {
+              setStep('success')
+            }
             break
         }
         if (!success) throw new Error(`${action} failed`)
@@ -52,13 +65,21 @@ const SwapModal: React.FC<SwapModalProps> = ({ isVisible, onClose, onSwap, onApp
     [onApprove, onSign, onSwap, setIsApproving, setIsSigning, setIsSwapping]
   )
 
+  const handleClose = useCallback(() => {
+    if (step === 'success') {
+      setStep('approve')
+    }
+    onClose()
+  }, [step, onClose])
+
   return (
-    <ModalWrapper isVisible={isVisible} onClose={onClose}>
+    <ModalWrapper isVisible={isVisible} onClose={handleClose}>
       <SwapStep
         step={step}
         setStep={setStep}
         onAction={handleAction}
         isLoading={isApproving || isSigning || isSwapping}
+        txBlockExplorerUrl={txBlockExplorerUrl}
         error={error}
       />
     </ModalWrapper>

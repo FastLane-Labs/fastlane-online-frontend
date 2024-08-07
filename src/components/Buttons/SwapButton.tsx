@@ -27,7 +27,7 @@ const SwapButton: React.FC<SwapButtonProps> = ({ handleSwap, isLoading }) => {
   const [localLoading, setLocalLoading] = useState(false)
   const [isSwapModalOpen, setIsSwapModalOpen] = useState(false)
   const [initialized, setInitialized] = useState(false)
-  const { data: balance, isLoading: balanceLoading } = useBalance({ token: fromToken!, userAddress: userAddress! })
+  const { data: balance } = useBalance({ token: fromToken!, userAddress: userAddress! })
   const { dappAddress: spenderAddress } = useFastLaneAddresses()
   const { updateAllowance, checkAllowance, isSufficientAllowance } = useAllowanceManager()
   const { handleSignature } = useHandleSwap()
