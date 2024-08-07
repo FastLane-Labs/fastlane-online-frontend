@@ -88,8 +88,8 @@ const SwapButton: React.FC<SwapButtonProps> = ({ handleSwap, isLoading }) => {
   }, [fromToken, toToken, fromAmount, hasSufficientBalance])
 
   const isMissingSwapData = useMemo(() => {
-    return !swapData
-  }, [swapData, setSwapData])
+    return swapData === null || swapData === undefined
+  }, [swapData])
 
   const isDisabled = useMemo(() => {
     return (
