@@ -8,7 +8,7 @@ export interface SwapIntent {
 export interface BaselineCall {
   to: string
   data: string
-  success: boolean
+  value: bigint
 }
 
 export interface UserOperationParams {

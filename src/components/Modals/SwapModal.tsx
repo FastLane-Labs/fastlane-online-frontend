@@ -72,7 +72,7 @@ const SwapModal: React.FC<SwapModalProps> = ({ isVisible, onClose, onSwap, onApp
       setSwapData(null)
     }
     onClose()
-  }, [step, onClose])
+  }, [step, onClose, setSwapData])
 
   return (
     <ModalWrapper isVisible={isVisible} onClose={handleClose} style={{ paddingBottom: '28px' }}>

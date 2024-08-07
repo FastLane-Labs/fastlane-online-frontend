@@ -41,7 +41,7 @@ export async function buildBaselineCallData(
   return {
     to: exchangeRouter,
     data: calldata,
-    success: true,
+    value: 0n,
   }
 }
 
@@ -53,7 +53,7 @@ export async function buildBaselineCallData(
  * @param deadline The deadline
  * @param gas The gas
  * @param maxFeePerGas The max fee per gas
- * @param atlasAddress The Atlas contract address
+ * @param fastlaneOnlineAddress The FastlaneOnline contract address
  * @param provider The provider
  * @returns The user operation
  */
@@ -75,7 +75,7 @@ export async function buildUserOperation(
       console.error('Error getting user operation:', error)
       throw error
     })
-
+  console.log('userOp', userOp)
   // Convert the returned userOp to our UserOperation interface
   return newUserOperation(userOp)
 }

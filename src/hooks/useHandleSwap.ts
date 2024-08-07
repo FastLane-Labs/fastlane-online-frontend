@@ -7,7 +7,9 @@ import { useAppStore } from '@/store/useAppStore'
 import { SOLVER_GAS_ESTIMATE, SWAP_GAS_ESTIMATE } from '@/constants'
 import { signUserOperation } from '@/core/atlas'
 import { getEip712Domain } from '@/utils/getContractAddress'
-import { getFeeData } from '@/utils/gasFee'
+import { getAtlasGasSurcharge, getFeeData } from '@/utils/gasFee'
+import { ethers } from 'ethers'
+import { FastlaneOnlineAbi } from '@/abis'
 import { TransactionParams, TransactionStatus } from '@/types'
 
 export const useHandleSwap = () => {
@@ -68,21 +70,17 @@ export const useHandleSwap = () => {
       const maxFeePerGas = feeData.maxFeePerGas
       const gas = SWAP_GAS_ESTIMATE + SOLVER_GAS_ESTIMATE
 
-      // const contract = new ethers.Contract(dappAddress, FastlaneOnlineAbi, signer)
-      // const tx = await contract.fastOnlineSwap(swapData.userOperation, {
-      //   gasLimit: gas,
-      //   maxFeePerGas: maxFeePerGas,
-      //   value: getAtlasGasSurcharge(gas * maxFeePerGas),
-      // })
+      const contract = new ethers.Contract(dappAddress, FastlaneOnlineAbi, signer)
+      const tx = await contract.fastOnlineSwap(swapData.userOperation.toStruct(), {
+        gasLimit: gas,
+        maxFeePerGas: maxFeePerGas,
+        value: getAtlasGasSurcharge(gas * maxFeePerGas),
+      })
 
-      // console.log('Swap transaction submitted:', tx.hash)
-      // await tx.wait()
-      // Simulated transaction hash
-      const txHash = '0x' + Array(64).fill('0').join('')
       const transactionParams: TransactionParams = {
         routeType: 'swap', // Assuming this is a swap transaction
         chainId: chainId,
-        txHash,
+        txHash: tx.hash,
         timestamp: Date.now(),
         status: 'pending' as TransactionStatus,
         fromAddress: address,
@@ -90,9 +88,8 @@ export const useHandleSwap = () => {
 
       setSwapResult({ transaction: transactionParams })
 
-      console.log('Swap transaction submitted:', txHash)
-      // await tx.wait()
-
+      console.log('Swap transaction submitted:', tx.hash)
+      await tx.wait()
       console.log('Swap transaction confirmed')
 
       // Update transaction status to 'success'

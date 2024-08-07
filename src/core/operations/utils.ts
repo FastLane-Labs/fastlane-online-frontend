@@ -35,6 +35,7 @@ export function newUserOperation(prop: {
   deadline: bigint
   dapp: string
   control: string
+  callConfig: bigint
   sessionKey?: string
   data: string
   signature?: string
@@ -50,6 +51,7 @@ export function newUserOperation(prop: {
     deadline: prop.deadline,
     dapp: prop.dapp,
     control: prop.control,
+    callConfig: prop.callConfig, // New field
     sessionKey: prop.sessionKey || ZeroAddress,
     data: prop.data,
     signature: prop.signature || ZeroBytes,
