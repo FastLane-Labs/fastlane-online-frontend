@@ -33,7 +33,7 @@ const SwapStep: React.FC<SwapStepProps> = ({ step, onAction, isLoading, error, s
   const renderTokenInfo = (token: Token | null | undefined, amount: string, label: string) => (
     <div className='items-end justify-between flex w-full gap-3'>
       <div className='flex-col justify-start flex gap-1'>
-        <h3 className='text-neutral-400 text-sm'>{label}</h3>
+        <h3 className='gray-text text-sm'>{label}</h3>
         <p className='text-4xl'>
           {amount.slice(0, 7)} {token?.symbol}
         </p>
@@ -95,7 +95,7 @@ const SwapStep: React.FC<SwapStepProps> = ({ step, onAction, isLoading, error, s
         onClick={toggleExpand}>
         <div className='bg-neutral-content/[0.1] w-full h-px' />
         <div className='items-center px-4 flex min-w-fit -mr-1.5'>
-          <div className='text-neutral-400'>{isExpanded ? 'Show less' : 'Show more'}</div>
+          <div className='gray-text'>{isExpanded ? 'Show less' : 'Show more'}</div>
           <svg className='w-4 h-4' fill='none' height='16' viewBox='0 0 17 16' xmlns='http://www.w3.org/2000/svg'>
             <path
               d='M11.6376 8.86202C11.8982 9.12269 11.8982 9.54407 11.6376 9.80473L8.97089 12.4714C8.84089 12.6014 8.6702 12.6667 8.49954 12.6667C8.32887 12.6667 8.15818 12.6014 8.02818 12.4714L5.36152 9.80473C5.10085 9.54407 5.10085 9.12269 5.36152 8.86202C5.62218 8.60136 6.04356 8.60136 6.30422 8.86202L8.49954 11.0573L10.6948 8.86202C10.9555 8.60136 11.3769 8.60136 11.6376 8.86202ZM6.30422 7.13807L8.49954 4.94275L10.6948 7.13807C10.8248 7.26807 10.9955 7.33338 11.1662 7.33338C11.3369 7.33338 11.5076 7.26807 11.6376 7.13807C11.8982 6.8774 11.8982 6.45602 11.6376 6.19536L8.97089 3.52869C8.71022 3.26802 8.28885 3.26802 8.02818 3.52869L5.36152 6.19536C5.10085 6.45602 5.10085 6.8774 5.36152 7.13807C5.62218 7.39873 6.04356 7.39873 6.30422 7.13807Z'
@@ -107,20 +107,20 @@ const SwapStep: React.FC<SwapStepProps> = ({ step, onAction, isLoading, error, s
       </button>
 
       <div className='flex w-full items-center justify-between'>
-        <h3 className='text-neutral-400'>Rate</h3>
+        <h3 className='gray-text'>Rate</h3>
         <span className='text-end text-neutral-content'>
           1 {fromToken?.symbol} = 2.02827 {toToken?.symbol}
         </span>
       </div>
 
       <div className='flex w-full items-center justify-between'>
-        <h3 className='text-neutral-400'>Slippage</h3>
+        <h3 className='gray-text'>Slippage</h3>
         <span className='text-end text-neutral-content'>{`0.5%`}</span>
       </div>
 
       <div className='flex w-full items-center justify-between'>
-        <h3 className='text-neutral-400'>Network cost</h3>
-        <div className='flex items-center justify-start gap-1 text-neutral-400'>
+        <h3 className='gray-text'>Network cost</h3>
+        <div className='flex items-center justify-start gap-1 gray-text'>
           <svg className='w-4 h-4' fill='none' height='24' viewBox='0 0 24 24' xmlns='http://www.w3.org/2000/svg'>
             <path
               clipRule='evenodd'
@@ -129,7 +129,7 @@ const SwapStep: React.FC<SwapStepProps> = ({ step, onAction, isLoading, error, s
               fillRule='evenodd'
             />
           </svg>
-          <span className='text-end text-neutral-400'>
+          <span className='text-end gray-text'>
             {estimatedFees ? formatEther(estimatedFees.totalFeesInWei) : '0'}{' '}
             {nativeToken?.symbol ? nativeToken.symbol : ''}
           </span>
@@ -139,12 +139,12 @@ const SwapStep: React.FC<SwapStepProps> = ({ step, onAction, isLoading, error, s
       <div
         className={`expandable-content flex flex-col w-full gap-2 ${isExpanded ? 'expanding expanded' : 'collapsing'}`}>
         <div className='flex w-full items-center justify-between'>
-          <h3 className='text-neutral-400'>Price impact</h3>
+          <h3 className='gray-text'>Price impact</h3>
           <span className='text-end text-neutral-content'>{`<$0.01`}</span>
         </div>
 
         <div className='flex w-full items-center justify-between'>
-          <h3 className='text-neutral-400'>Receive at least</h3>
+          <h3 className='gray-text'>Receive at least</h3>
           <span className='text-end text-neutral-content'>{`0.00021 MATIC`}</span>
         </div>
       </div>
@@ -234,7 +234,7 @@ const SwapStep: React.FC<SwapStepProps> = ({ step, onAction, isLoading, error, s
       </div>
       <div className='w-full mt-4'>
         {renderButton()}
-        <div className='mt-4 text-sm text-neutral-400'></div>
+        <div className='mt-4 text-sm gray-text'></div>
       </div>
     </div>
   )

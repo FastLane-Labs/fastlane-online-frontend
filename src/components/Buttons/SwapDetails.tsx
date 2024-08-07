@@ -18,7 +18,7 @@ const SwapDetails = () => {
         </span>
         <div className='flex items-center justify-end gap-2'>
           {!isExpanded && (
-            <div className='flex items-center justify-start gap-1 text-neutral-400'>
+            <div className='flex items-center justify-start gap-1 gray-text'>
               <svg className='w-4 h-4' fill='none' height='24' viewBox='0 0 24 24' xmlns='http://www.w3.org/2000/svg'>
                 <path
                   clipRule='evenodd'
@@ -27,7 +27,7 @@ const SwapDetails = () => {
                   fillRule='evenodd'
                 />
               </svg>
-              <span className='text-end text-neutral-400'>{`<.01%`}</span>
+              <span className='text-end gray-text'>{`<.01%`}</span>
             </div>
           )}
           <div className={`transform transition-transform duration-300 ${isExpanded ? 'rotate-180' : 'rotate-0'}`}>
@@ -40,8 +40,8 @@ const SwapDetails = () => {
       <div
         className={`expandable-content flex flex-col w-full gap-2 ${isExpanded ? 'expanding expanded' : 'collapsing'}`}>
         <div className='flex w-full items-center justify-between'>
-          <h3 className='text-neutral-400'>Network cost</h3>
-          <div className='flex items-center justify-start gap-1 text-neutral-400'>
+          <h3 className='gray-text'>Network cost</h3>
+          <div className='flex items-center justify-start gap-1 gray-text'>
             <svg className='w-4 h-4' fill='none' height='24' viewBox='0 0 24 24' xmlns='http://www.w3.org/2000/svg'>
               <path
                 clipRule='evenodd'
@@ -50,22 +50,22 @@ const SwapDetails = () => {
                 fillRule='evenodd'
               />
             </svg>
-            <span className='text-end text-neutral-400'>{`<.01%`}</span>
+            <span className='text-end gray-text'>{`<.01%`}</span>
           </div>
         </div>
 
         <div className='flex w-full items-center justify-between'>
-          <h3 className='text-neutral-400'>Price impact</h3>
+          <h3 className='gray-text'>Price impact</h3>
           <span className='text-end text-neutral-content'>{`<$0.01`}</span>
         </div>
 
         <div className='flex w-full items-center justify-between'>
-          <h3 className='text-neutral-400'>Receive at least</h3>
+          <h3 className='gray-text'>Receive at least</h3>
           <span className='text-end text-neutral-content'>{`0.00021 MATIC`}</span>
         </div>
 
         <div className='flex w-full items-center justify-between'>
-          <h3 className='text-neutral-400'>Slippage</h3>
+          <h3 className='gray-text'>Slippage</h3>
           <span className='text-end text-neutral-content'>{`0.5%`}</span>
         </div>
       </div>
