@@ -21,15 +21,15 @@ const LOADING_SPINNER = <span className='loading loading-spinner'></span>
 const SwapButton: React.FC<SwapButtonProps> = ({ handleSwap, isLoading }) => {
   const { openConnectModal } = useConnectModal()
   const { openChainModal } = useChainModal()
-  const { fromToken, toToken, fromAmount, setSwapDataSigned } = useSwapStateContext()
+  const { fromToken, toToken, fromAmount, setSwapDataSigned, swapData, setSwapData } = useSwapStateContext()
   const { address: userAddress, status, isConnected, chainId } = useAccount()
   const [isSupportedChain, setIsSupportedChain] = useState(false)
   const [localLoading, setLocalLoading] = useState(false)
   const [isSwapModalOpen, setIsSwapModalOpen] = useState(false)
   const [initialized, setInitialized] = useState(false)
-  const { data: balance } = useBalance({ token: fromToken!, userAddress: userAddress! })
+  const { data: balance, isLoading: balanceLoading } = useBalance({ token: fromToken!, userAddress: userAddress! })
   const { dappAddress: spenderAddress } = useFastLaneAddresses()
-  const { updateAllowance, checkAllowance, isSufficientAllowance } = useAllowanceManager()
+  const { updateAllowance, checkAllowance } = useAllowanceManager()
   const { handleSignature } = useHandleSwap()
 
   useEffect(() => {
@@ -87,11 +87,17 @@ const SwapButton: React.FC<SwapButtonProps> = ({ handleSwap, isLoading }) => {
     return !fromToken || !toToken || !fromAmount || !hasSufficientBalance
   }, [fromToken, toToken, fromAmount, hasSufficientBalance])
 
+  const isMissingSwapData = useMemo(() => {
+    return !swapData
+  }, [swapData, setSwapData])
+
   const isDisabled = useMemo(() => {
     return (
-      status === 'reconnecting' || !initialized || (isSupportedChain && (isMissingUserInput || !hasSufficientBalance))
+      status === 'reconnecting' ||
+      !initialized ||
+      (isSupportedChain && (isMissingUserInput || !hasSufficientBalance || isMissingSwapData))
     )
-  }, [status, initialized, isSupportedChain, isMissingUserInput, hasSufficientBalance])
+  }, [status, initialized, isSupportedChain, isMissingUserInput, hasSufficientBalance, isMissingSwapData])
 
   const getButtonText = useCallback(() => {
     if (!isConnected) return 'Connect wallet'
@@ -125,6 +131,11 @@ const SwapButton: React.FC<SwapButtonProps> = ({ handleSwap, isLoading }) => {
     }
   }, [isConnected, isSupportedChain, isDisabled, openConnectModal, openChainModal])
 
+  const handleSwapModalClose = useCallback(() => {
+    setIsSwapModalOpen(false)
+    setSwapData(null) // Reset swapData when modal is closed
+  }, [setSwapData])
+
   return (
     <>
       <button className='btn' onClick={handleButtonClick} disabled={isDisabled}>
@@ -133,7 +144,7 @@ const SwapButton: React.FC<SwapButtonProps> = ({ handleSwap, isLoading }) => {
       {!isDisabled && <SwapDetails />}
       <SwapModal
         isVisible={isSwapModalOpen}
-        onClose={() => setIsSwapModalOpen(false)}
+        onClose={handleSwapModalClose}
         onSwap={handleSwapConfirm}
         onSign={handleSign}
         onApprove={handleApprove}

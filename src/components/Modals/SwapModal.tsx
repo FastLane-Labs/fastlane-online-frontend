@@ -3,6 +3,7 @@ import ModalWrapper from '@/components/Wrappers/ModalWrapper'
 import SwapStep from '@/components/Swap/SwapStep'
 import { useSwapStateContext } from '@/context/SwapStateContext'
 import { getBlockExplorerUrl } from '@/utils/getBlockExploer'
+import { N } from 'ethers'
 
 interface SwapModalProps {
   isVisible: boolean
@@ -17,7 +18,7 @@ const SwapModal: React.FC<SwapModalProps> = ({ isVisible, onClose, onSwap, onApp
   const [error, setError] = useState<Error | null>(null)
   const [txBlockExplorerUrl, setTxBlockExplorerUrl] = useState<string | undefined>(undefined)
 
-  const { isSwapping, isSigning, isApproving, setIsSigning, setIsSwapping, setIsApproving, swapResult } =
+  const { isSwapping, isSigning, isApproving, setIsSigning, setIsSwapping, setIsApproving, swapResult, setSwapData } =
     useSwapStateContext()
 
   useEffect(() => {
@@ -68,6 +69,7 @@ const SwapModal: React.FC<SwapModalProps> = ({ isVisible, onClose, onSwap, onApp
   const handleClose = useCallback(() => {
     if (step === 'success') {
       setStep('approve')
+      setSwapData(null)
     }
     onClose()
   }, [step, onClose])
