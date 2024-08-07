@@ -20,8 +20,8 @@ export const getAtlasAddress = (chainId: number) => {
  */
 export const getDappAddress = (chainId: number) => {
   const config = CHAIN_CONFIG[chainId]
-  if (config && config.contracts.appAddress) {
-    return config.contracts.appAddress.address
+  if (config && config.contracts.dappAddress) {
+    return config.contracts.dappAddress.address
   }
   throw new Error('Unsupported chain ID')
 }

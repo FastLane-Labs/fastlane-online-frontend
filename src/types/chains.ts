@@ -8,7 +8,7 @@ export interface ChainConfig {
     atlasVerification: {
       address: string
     }
-    appAddress: {
+    dappAddress: {
       address: string
     }
     multicall3: {

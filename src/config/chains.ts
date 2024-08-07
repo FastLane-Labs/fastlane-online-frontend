@@ -4,13 +4,13 @@ export const CHAIN_CONFIG: { [chainId: number]: ChainConfig } = {
   137: {
     contracts: {
       atlas: {
-        address: '0x892F8f6779ca6927c1A6Cc74319e03d2abEf18D5',
+        address: '0x57FA2aBf1dc109C5F7ea2FB6A72358D2c624971d',
       },
       atlasVerification: {
-        address: '0xc05DDBe9745ce9DB45C32F5e4C1DA7a3c4FDa220',
+        address: '0xA462C35C43355928F114144AD20AddD6Bb09b52f',
       },
-      appAddress: {
-        address: '0x0E3009d01e85ac49D164E453Ec81283EAAf46fB5',
+      dappAddress: {
+        address: '0x8e098Dfd60aEC9bCf07fd3cA5933e9F22b1b4A0d',
       },
       multicall3: {
         address: '0xcA11bde05977b3631167028862bE2a173976CA11',
@@ -20,7 +20,7 @@ export const CHAIN_CONFIG: { [chainId: number]: ChainConfig } = {
       name: 'AtlasVerification',
       version: '1.0',
       chainId: 137,
-      verifyingContract: '0xc05DDBe9745ce9DB45C32F5e4C1DA7a3c4FDa220',
+      verifyingContract: '0xA462C35C43355928F114144AD20AddD6Bb09b52f',
     },
     blockExplorerUrl: 'https://polygonscan.com/',
   },
