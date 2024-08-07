@@ -19,7 +19,7 @@ const BuyComponent: React.FC = () => {
         <span className='text-base-content'>To</span>
         <h1 className='text-base-content'>
           <span>Balance: </span>
-          <TokenBalance token={buyToken || undefined} toFixed={4} />
+          <TokenBalance token={buyToken || undefined} toFixed={3} />
         </h1>
       </div>
       <BuyAmount

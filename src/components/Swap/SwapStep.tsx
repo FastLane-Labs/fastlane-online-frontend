@@ -37,7 +37,7 @@ const SwapStep: React.FC<SwapStepProps> = ({ step, onAction, isLoading, error, s
       <div className='flex-col justify-start flex gap-1'>
         <h3 className='gray-text text-sm'>{label}</h3>
         <p className='text-4xl'>
-          {amount.slice(0, 7)} {token?.symbol}
+          {amount.slice(0, 10)} {token?.symbol}
         </p>
       </div>
       <div className='relative flex'>
@@ -69,7 +69,7 @@ const SwapStep: React.FC<SwapStepProps> = ({ step, onAction, isLoading, error, s
       </div>
       <div className='flex-col justify-start flex gap-1'>
         <p className='sm'>
-          {amount.slice(0, 7)} {token?.symbol}
+          {amount.slice(0, 10)} {token?.symbol}
         </p>
       </div>
     </div>

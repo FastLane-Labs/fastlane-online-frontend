@@ -27,7 +27,7 @@ export const formatBalanceToFixedDecimal = (balance: string, fixed: number = 5):
   return parseFloat(balance).toFixed(fixed)
 }
 
-export const formatTokenBalance = (balance: bigint, decimals: number, fractionDigits: number = 2): string => {
+export const shortFormat = (balance: bigint, decimals: number, fractionDigits: number = 2): string => {
   // ^ set toFixed to 2 by default
   if (balance === 0n) {
     return '0'

@@ -3,7 +3,7 @@ import { useAccount } from 'wagmi'
 import { useEffect, useCallback } from 'react'
 import { Token } from '@/types'
 import { useBalance } from '@/hooks/useBalance'
-import { formatTokenBalance } from '@/utils/format'
+import { shortFormat } from '@/utils/format'
 
 interface TokenBalanceProps {
   readonly token?: Token
@@ -26,7 +26,7 @@ export const TokenBalance: React.FC<TokenBalanceProps> = ({ token, toFixed = 2, 
   // Function to format the balance
   const getFormattedBalance = useCallback(
     (balance: bigint) => {
-      return token ? formatTokenBalance(balance, token.decimals, toFixed) : '0'
+      return token ? shortFormat(balance, token.decimals, toFixed) : '0'
     },
     [token, toFixed]
   )

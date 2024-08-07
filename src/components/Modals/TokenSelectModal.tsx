@@ -9,7 +9,7 @@ import TokenItem from '@/components/TokenItem/TokenItem'
 import TokenGrid from '@/components/TokenGrid/TokenGrid'
 import { MagnifyingGlassIcon } from '@heroicons/react/24/outline'
 import UnknownToken from '@/assets/svg/unknownToken.svg'
-import { formatTokenBalance, adjustAmount } from '@/utils/format'
+import { shortFormat, adjustAmount } from '@/utils/format'
 
 interface TokenSelectModalProps {
   selectedToken: Token | null
@@ -40,7 +40,7 @@ const TokenSelectModal: React.FC<TokenSelectModalProps> = ({
   const [hasAttemptedRefetch, setHasAttemptedRefetch] = useState(false)
 
   const getFormattedBalance = useCallback(
-    (balance: bigint, token: Token) => formatTokenBalance(balance, token.decimals, 4),
+    (balance: bigint, token: Token) => shortFormat(balance, token.decimals, 4),
     []
   )
 
