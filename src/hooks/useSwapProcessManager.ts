@@ -93,7 +93,6 @@ export const useSwapProcessManager = () => {
 
   const updateSwapData = useCallback(() => {
     if (swapCallData) {
-      console.log('swapCallData', swapCallData)
       setSwapData(swapCallData)
     } else if (swapDataError) {
       console.error('Error generating swap data:', swapDataError)

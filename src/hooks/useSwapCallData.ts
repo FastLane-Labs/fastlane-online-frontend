@@ -46,7 +46,6 @@ export const useSwapCallData = (
           return null
         }
 
-        console.log('generating swap data')
         const swapIntent = buildSwapIntent(quoteResult)
 
         const executionEnvironment = await getExecutionEnvironment(
@@ -82,7 +81,6 @@ export const useSwapCallData = (
         // TODO: discuss with Atlas team
         userOperation.setField('from', address)
 
-        console.log('userOperation', userOperation)
         return {
           baselineCall,
           gasLimit: gas,

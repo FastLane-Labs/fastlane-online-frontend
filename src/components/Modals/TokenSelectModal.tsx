@@ -9,7 +9,6 @@ import TokenItem from '@/components/TokenItem/TokenItem'
 import TokenGrid from '@/components/TokenGrid/TokenGrid'
 import { MagnifyingGlassIcon } from '@heroicons/react/24/outline'
 import UnknownToken from '@/assets/svg/unknownToken.svg'
-import { formatUnits, parseUnits, BigNumber } from 'ethers'
 import { adjustAmount } from '@/utils/format'
 
 interface TokenSelectModalProps {
