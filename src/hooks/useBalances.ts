@@ -16,26 +16,26 @@ const fetchBalances = async (
   tokens: Token[],
   userAddress: string,
   multicallProvider: ethers.AbstractProvider | null
-): Promise<string[]> => {
+): Promise<bigint[]> => {
   if (!multicallProvider) {
-    return tokens.map(() => '0')
+    return tokens.map(() => 0n)
   }
 
   const calls = tokens.map((token) => {
     if (token.address.toLowerCase() === nativeEvmTokenAddress.toLowerCase()) {
       return multicallProvider
         .getBalance(userAddress)
-        .then((balance) => ethers.formatUnits(balance, token.decimals))
+        .then((balance) => BigInt(balance.toString())) // return balance as BigInt
         .catch(() => {
-          return '0'
+          return 0n
         })
     } else {
       const contract = new ethers.Contract(token.address, ierc20Abi, multicallProvider)
       return contract
         .balanceOf(userAddress)
-        .then((balance: BigNumberish) => ethers.formatUnits(balance, token.decimals))
+        .then((balance: BigNumberish) => BigInt(balance.toString())) // return balance as BigInt
         .catch(() => {
-          return '0'
+          return 0n
         })
     }
   })
@@ -47,12 +47,12 @@ export const useBalances = ({
   tokens,
   userAddress,
   enabled = true,
-}: UseBalancesParams): UseQueryResult<string[], Error> => {
+}: UseBalancesParams): UseQueryResult<bigint[], Error> => {
   const multicallProvider = useMulticallProvider()
 
   const queryKey = keys({ address: userAddress }).balances()
 
-  return useQuery<string[], Error>({
+  return useQuery<bigint[], Error>({
     queryKey,
     queryFn: () => fetchBalances(tokens, userAddress, multicallProvider),
     enabled: !!userAddress && enabled,

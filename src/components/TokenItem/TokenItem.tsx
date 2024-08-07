@@ -1,7 +1,7 @@
 import React from 'react'
 import { Token, TokenWithBalance } from '@/types'
 import UnknownToken from 'src/assets/svg/unknownToken.svg'
-import { formatBalanceToFixedDecimal } from '@/utils/format'
+import { ethers } from 'ethers'
 
 interface TokenItemProps {
   token: Token | TokenWithBalance
@@ -32,9 +32,13 @@ const TokenItem: React.FC<TokenItemProps> = ({ token, selectedToken, handleSelec
     <span className='ml-auto'>
       {isLoading ? (
         <span className='loading loading-spinner'></span>
-      ) : (token as TokenWithBalance).balance ? (
-        <span className='tooltip tooltip-left	' data-tip={(token as TokenWithBalance).balance}>
-          {formatBalanceToFixedDecimal((token as TokenWithBalance).balance)}
+      ) : (token as TokenWithBalance).formattedBalance ? (
+        <span
+          className='tooltip tooltip-left'
+          data-tip={
+            ethers.formatUnits((token as TokenWithBalance).balance, (token as TokenWithBalance).decimals) // display full balance on tooltip
+          }>
+          {(token as TokenWithBalance).formattedBalance}
         </span>
       ) : (
         '0'

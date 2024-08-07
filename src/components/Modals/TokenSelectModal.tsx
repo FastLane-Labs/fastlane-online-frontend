@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useCallback } from 'react'
 import ModalWrapper from '@/components/Wrappers/ModalWrapper'
 import { useCurrentTokenList } from '@/hooks/useTokenList'
 import { useAccount } from 'wagmi'
@@ -9,7 +9,7 @@ import TokenItem from '@/components/TokenItem/TokenItem'
 import TokenGrid from '@/components/TokenGrid/TokenGrid'
 import { MagnifyingGlassIcon } from '@heroicons/react/24/outline'
 import UnknownToken from '@/assets/svg/unknownToken.svg'
-import { adjustAmount } from '@/utils/format'
+import { formatTokenBalance, adjustAmount } from '@/utils/format'
 
 interface TokenSelectModalProps {
   selectedToken: Token | null
@@ -18,7 +18,7 @@ interface TokenSelectModalProps {
   defaultLabel: string
 }
 
-type TokenWithBalance = Token & { balance: string }
+type TokenWithBalance = Token & { balance: bigint; formattedBalance: string }
 
 const TokenSelectModal: React.FC<TokenSelectModalProps> = ({
   selectedToken,
@@ -39,10 +39,21 @@ const TokenSelectModal: React.FC<TokenSelectModalProps> = ({
 
   const [hasAttemptedRefetch, setHasAttemptedRefetch] = useState(false)
 
+  const getFormattedBalance = useCallback(
+    (balance: bigint, token: Token) => formatTokenBalance(balance, token.decimals, 4),
+    []
+  )
+
   const tokensWithBalances: TokenWithBalance[] = tokens.map((token, index) => ({
     ...token,
-    balance: balancesQuery.data && balancesQuery.data.length > 0 ? balancesQuery.data[index] : '0',
+    balance: balancesQuery.data && balancesQuery.data.length > 0 ? balancesQuery.data[index] : 0n,
+    formattedBalance:
+      balancesQuery.data && balancesQuery.data.length > 0 ? getFormattedBalance(balancesQuery.data[index], token) : '0',
   }))
+
+  useEffect(() => {
+    console.log('Tokens with Balances:', tokensWithBalances)
+  }, [tokensWithBalances])
 
   const filteredTokensWithBalances = tokensWithBalances.filter((token) => {
     if (direction === 'sell' && toToken && token.address.toLowerCase() === toToken.address.toLowerCase()) {
@@ -57,13 +68,16 @@ const TokenSelectModal: React.FC<TokenSelectModalProps> = ({
     )
   })
 
-  const sortedTokensWithBalances = filteredTokensWithBalances.sort(
-    (a, b) => parseFloat(b.balance) - parseFloat(a.balance)
-  )
+  const sortedTokensWithBalances = filteredTokensWithBalances.sort((a, b) => Number(b.balance) - Number(a.balance))
 
   const popularTokens = tokensWithBalances.filter((token) => token.tags?.includes('popular'))
-  const tokensWithUserBalances = sortedTokensWithBalances.filter((token) => parseFloat(token.balance) > 0)
-  const remainingTokens = sortedTokensWithBalances.filter((token) => parseFloat(token.balance) === 0)
+  const tokensWithUserBalances = sortedTokensWithBalances.filter((token) => token.balance > 0n)
+  const remainingTokens = sortedTokensWithBalances.filter((token) => token.balance === 0n)
+
+  useEffect(() => {
+    console.log('Tokens with User Balances:', tokensWithUserBalances)
+    console.log('Remaining Tokens:', remainingTokens)
+  }, [tokensWithUserBalances, remainingTokens])
 
   useEffect(() => {
     if ((balancesQuery.error || balancesQuery.data === undefined) && !hasAttemptedRefetch) {
