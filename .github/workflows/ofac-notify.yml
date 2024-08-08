@@ -28,6 +28,46 @@ jobs:
           cat changes.txt >> $GITHUB_OUTPUT
           echo "EOF" >> $GITHUB_OUTPUT
 
+      - name: Create Trello Card
+        id: create_trello_card
+        env:
+          TRELLO_API_KEY: ${{ secrets.TRELLO_API_KEY }}
+          TRELLO_TOKEN: ${{ secrets.TRELLO_TOKEN }}
+          TRELLO_LIST_ID: ${{ secrets.TRELLO_LIST_ID }}
+          TRELLO_MEMBER_IDS: ${{ secrets.TRELLO_MEMBER_IDS }}
+          GITHUB_ACTOR: ${{ github.actor }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+          GITHUB_SHA: ${{ github.sha }}
+        run: |
+          CARD_NAME="OFAC List Updated - $(date +'%Y-%m-%d')"
+          CARD_DESC="OFAC Sanctioned Addresses list was updated.\n\nRepository: $GITHUB_REPOSITORY\nUpdated by: $GITHUB_ACTOR\nCommit: ${GITHUB_SHA:0:7}\n\nPlease review the changes and take necessary actions."
+          COMMIT_URL="https://github.com/$GITHUB_REPOSITORY/commit/$GITHUB_SHA"
+          
+          RESPONSE=$(curl -s -X POST "https://api.trello.com/1/cards" \
+            -H "Content-Type: application/json" \
+            -d '{
+              "key": "'"$TRELLO_API_KEY"'",
+              "token": "'"$TRELLO_TOKEN"'",
+              "idList": "'"$TRELLO_LIST_ID"'",
+              "name": "'"$CARD_NAME"'",
+              "desc": "'"$CARD_DESC"'",
+              "urlSource": "'"$COMMIT_URL"'",
+              "idMembers": '"$TRELLO_MEMBER_IDS"'
+            }')
+          
+          CARD_ID=$(echo $RESPONSE | jq -r '.id')
+          CARD_URL=$(echo $RESPONSE | jq -r '.shortUrl')
+          
+          if [ -n "$CARD_ID" ]; then
+            echo "Trello card created successfully with ID: $CARD_ID"
+            echo "card_url=$CARD_URL" >> $GITHUB_OUTPUT
+          else
+            echo "Failed to create Trello card. API response: $RESPONSE"
+            exit 1
+          fi
+  
+
+
       - name: Send message to Slack
         env:
           SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK_NOTIFICATION_CHANNEL }}
