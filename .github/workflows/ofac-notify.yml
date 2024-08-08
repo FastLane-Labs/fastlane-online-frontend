@@ -1,10 +1,10 @@
-name: Notify on OFAC changes
+name: Notify on OFAC list changes
 
 on:
   workflow_dispatch:
   push:
     branches:
-      - ofac-notify
+      - develop
     paths:
       - 'src/constants/sanctioned_addresses_ofac.json'
 
