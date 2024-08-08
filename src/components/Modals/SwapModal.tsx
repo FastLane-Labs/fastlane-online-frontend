@@ -18,8 +18,17 @@ const SwapModal: React.FC<SwapModalProps> = ({ isVisible, onClose, onSwap, onApp
   const [error, setError] = useState<Error | null>(null)
   const [txBlockExplorerUrl, setTxBlockExplorerUrl] = useState<string | undefined>(undefined)
 
-  const { isSwapping, isSigning, isApproving, setIsSigning, setIsSwapping, setIsApproving, swapResult, setSwapData } =
-    useSwapStateContext()
+  const {
+    isSwapping,
+    isSigning,
+    isApproving,
+    setIsSigning,
+    setIsSwapping,
+    setIsApproving,
+    swapResult,
+    setSwapData,
+    setHasUserOperationSignature,
+  } = useSwapStateContext()
 
   useEffect(() => {
     if (swapResult?.transaction?.txHash) {
@@ -90,6 +99,3 @@ const SwapModal: React.FC<SwapModalProps> = ({ isVisible, onClose, onSwap, onApp
 }
 
 export default SwapModal
-function setHasUserOperationSignature(arg0: boolean) {
-  throw new Error('Function not implemented.')
-}
