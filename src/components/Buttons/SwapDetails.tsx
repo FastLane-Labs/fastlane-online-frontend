@@ -2,7 +2,6 @@ import { useState, useMemo } from 'react'
 import { useSwapStateContext } from '@/context/SwapStateContext'
 import { ChevronDownIcon } from '@heroicons/react/20/solid'
 import { calculateExchangeRate } from '@/utils/exchangeRate'
-import { formatUnits } from 'ethers'
 
 const SwapDetails = () => {
   const { fromToken, toToken, fromAmount, toAmount } = useSwapStateContext()
