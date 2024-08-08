@@ -15,7 +15,7 @@ export const useSwapCallData = (
   swapDirection: 'buy' | 'sell',
   debouncedAmount: string,
   quoteResult: QuoteResult | null | undefined,
-  isSwapDataReady: boolean,
+  isReadyForCallDataGeneration: boolean,
   provider: any,
   atlasAddress: string,
   dappAddress: string,
@@ -35,7 +35,7 @@ export const useSwapCallData = (
       ],
       queryFn: async (): Promise<any> => {
         if (
-          !isSwapDataReady ||
+          !isReadyForCallDataGeneration ||
           !quoteResult ||
           !provider ||
           !atlasAddress ||
@@ -47,7 +47,6 @@ export const useSwapCallData = (
         }
 
         const swapIntent = buildSwapIntent(quoteResult)
-
         const executionEnvironment = await getExecutionEnvironment(
           atlasAddress as Address,
           address as Address,
@@ -89,9 +88,8 @@ export const useSwapCallData = (
           gasSurcharge: getAtlasGasSurcharge(gas * maxFeePerGas),
         }
       },
-      enabled: isSwapDataReady && !!quoteResult,
+      enabled: isReadyForCallDataGeneration && !!quoteResult,
       refetchOnWindowFocus: false,
-      staleTime: 20000,
     }),
     [
       address,
@@ -99,7 +97,7 @@ export const useSwapCallData = (
       toToken,
       swapDirection,
       debouncedAmount,
-      isSwapDataReady,
+      isReadyForCallDataGeneration,
       quoteResult,
       provider,
       atlasAddress,

@@ -4,7 +4,6 @@ import { FastlaneOnlineAbi, atlasAbi } from '@/abis'
 import { BaseSwapService } from '@/services/baseSwap'
 import { BaselineCall, SwapIntent } from '@/types/atlas'
 import { getExchangeRouter } from '@/services/exchanges'
-import { ATLAS_GAS_SURCHARGE_PERCENTAGE } from '@/constants'
 import { Address } from 'viem'
 import { newUserOperation } from '@/core/operations/utils'
 import { UserOperation } from '@/core/operations'
@@ -75,7 +74,6 @@ export async function buildUserOperation(
       console.error('Error getting user operation:', error)
       throw error
     })
-  console.log('userOp', userOp)
   // Convert the returned userOp to our UserOperation interface
   return newUserOperation(userOp)
 }
@@ -121,7 +119,6 @@ export async function signUserOperation(
     'signature',
     await signer.signTypedData(eip712Domain, userOp.toTypedDataTypes(), userOp.toTypedDataValues())
   )
-
   userOp.validateSignature(eip712Domain)
   return userOp
 }

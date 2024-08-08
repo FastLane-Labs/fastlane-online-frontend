@@ -21,8 +21,10 @@ export const useSwapProcessManager = () => {
     swapDirection,
     setQuote,
     setSwapData,
+    setIsSwapDataSigned,
     isSwapping,
     isSigning,
+    allowQuoteUpdate,
   } = useSwapStateContext()
   const { address, chainId } = useAccount()
   const { provider } = useEthersProviderContext()
@@ -33,18 +35,18 @@ export const useSwapProcessManager = () => {
 
   // only fetch quote when the user is not isSwapping
   const isQuoteReady = useMemo(() => {
-    return Boolean(fromToken && toToken && chainId && debouncedAmount && !isSwapping && !isSigning)
-  }, [fromToken, toToken, chainId, debouncedAmount, isSwapping, isSigning])
-
-  const isSwapDataReady = useMemo(() => {
-    return Boolean(isQuoteReady && provider && atlasAddress && dappAddress && atlasVerificationAddress)
-  }, [isQuoteReady, provider, atlasAddress, dappAddress, atlasVerificationAddress])
+    return Boolean(fromToken && toToken && chainId && debouncedAmount && !isSwapping && !isSigning && allowQuoteUpdate)
+  }, [fromToken, toToken, chainId, debouncedAmount, isSwapping, isSigning, allowQuoteUpdate])
 
   const {
     data: quoteResult,
     isLoading: quoteLoading,
     error: quoteError,
   } = useBaselineQuote(address, fromToken, toToken, swapDirection, debouncedAmount, chainId, isQuoteReady)
+
+  const isReadyForCallDataGeneration = useMemo(() => {
+    return Boolean(isQuoteReady && provider && atlasAddress && dappAddress && atlasVerificationAddress && quoteResult)
+  }, [isQuoteReady, provider, atlasAddress, dappAddress, atlasVerificationAddress, quoteResult])
 
   const {
     data: swapCallData,
@@ -57,7 +59,7 @@ export const useSwapProcessManager = () => {
     swapDirection,
     debouncedAmount,
     quoteResult,
-    isSwapDataReady && Boolean(quoteResult),
+    isReadyForCallDataGeneration,
     provider,
     atlasAddress,
     dappAddress,
@@ -94,11 +96,13 @@ export const useSwapProcessManager = () => {
   const updateSwapData = useCallback(() => {
     if (swapCallData) {
       setSwapData(swapCallData)
+      setIsSwapDataSigned(false)
     } else if (swapDataError) {
       console.error('Error generating swap data:', swapDataError)
       setSwapData(null)
+      setIsSwapDataSigned(false)
     }
-  }, [swapCallData, swapDataError, setSwapData])
+  }, [swapCallData, swapDataError, setSwapData, setIsSwapDataSigned])
 
   useEffect(() => {
     updateQuoteLoading()

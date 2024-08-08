@@ -3,10 +3,10 @@ import { QuoteResult, SwapCallData, SwapDirection, SwapResult, Token } from '@/t
 import { useCurrentTokenList } from './useTokenList'
 import { useAccount } from 'wagmi'
 import { toBigInt } from '@/utils/format'
-import { useFastLaneAddresses } from './useFastLaneAddresses'
 import useDebounce from '@/hooks/useDebounce'
 import { useAllowanceManager } from './useAllowanceManager'
 import { nativeEvmTokenAddress } from '@/constants'
+import { useExecutionEnv } from './useExecutionEnv'
 
 export interface SwapState {
   // Token and Amount States
@@ -19,6 +19,7 @@ export interface SwapState {
   // Quote States
   quote: QuoteResult | null
   isQuoteing: boolean
+  allowQuoteUpdate: boolean
 
   // Approve State
   isApproving: boolean
@@ -28,6 +29,7 @@ export interface SwapState {
 
   // Swap Data
   swapData: SwapCallData | null
+  isSwapDataSigned: boolean
   isSwapping: boolean
   // Swap Progress State
   isSigning: boolean
@@ -50,6 +52,8 @@ export interface SwapState {
   setIsSigning: (isSigning: boolean) => void
   setIsApproving: (isApproving: boolean) => void
   setSwapResult: (result: SwapResult | null) => void
+  setIsSwapDataSigned: (isSigned: boolean) => void
+  setAllowQuoteUpdate: (allowQuoteUpdate: boolean) => void
 
   // Actions
   swapTokens: () => void
@@ -68,15 +72,14 @@ export const useSwapState = (): SwapState => {
   const { chainId } = useAccount()
   const { tokens } = useCurrentTokenList()
   const { address: userAddress } = useAccount()
-  const { dappAddress: spenderAddress } = useFastLaneAddresses()
+  const { data: spenderAddress } = useExecutionEnv(userAddress as string)
   const allowanceManager = useAllowanceManager()
-
   const defaultToken = useMemo(() => tokens.find((token) => token.tags?.includes('default')) as Token | null, [tokens])
   const nativeToken = useMemo(
     () => tokens.find((token) => token.address === nativeEvmTokenAddress) as Token | null,
     [tokens]
   )
-
+  const [allowQuoteUpdate, setAllowQuoteUpdate] = useState<boolean>(true)
   const [fromToken, setFromToken] = useState<Token | null>(() => defaultToken)
   const [toToken, setToToken] = useState<Token | null>(null)
   const [fromAmount, setFromAmount] = useState<string>('')
@@ -89,7 +92,7 @@ export const useSwapState = (): SwapState => {
   const [isSigning, setIsSigning] = useState<boolean>(false)
   const [isApproving, setIsApproving] = useState<boolean>(false)
   const [swapResult, setSwapResult] = useState<SwapResult | null>(null)
-
+  const [isSwapDataSigned, setIsSwapDataSigned] = useState<boolean>(false)
   const debouncedFromAmount = useDebounce(fromAmount, 500) // 500ms delay
   const debouncedToAmount = useDebounce(toAmount, 500) // 500ms delay
 
@@ -116,9 +119,13 @@ export const useSwapState = (): SwapState => {
     }
   }, [chainId, tokens, resetSelections])
 
-  const checkAllowance = useCallback(() => {
+  const checkAllowance = useCallback(async () => {
     if (fromToken && userAddress && spenderAddress && debouncedFromAmount) {
-      allowanceManager.checkAllowance(fromToken, userAddress, spenderAddress)
+      try {
+        await allowanceManager.checkAllowance(fromToken, userAddress, spenderAddress)
+      } catch (error) {
+        console.error('Error checking allowance:', error)
+      }
     }
   }, [fromToken, userAddress, spenderAddress, debouncedFromAmount, allowanceManager.checkAllowance])
 
@@ -140,6 +147,7 @@ export const useSwapState = (): SwapState => {
 
   const setSwapDataSigned = useCallback((isSigned: boolean) => {
     setSwapData((prevData) => (prevData ? { ...prevData, isSigned } : null))
+    setIsSwapDataSigned(isSigned)
   }, [])
 
   return {
@@ -152,6 +160,7 @@ export const useSwapState = (): SwapState => {
     // Quote States
     quote,
     isQuoteing,
+    allowQuoteUpdate,
 
     // Approve State
     isApproving,
@@ -161,6 +170,7 @@ export const useSwapState = (): SwapState => {
 
     // Swap Data
     swapData,
+    isSwapDataSigned,
     swapResult,
 
     // Allowance State
@@ -173,10 +183,12 @@ export const useSwapState = (): SwapState => {
     setFromAmount,
     setToAmount,
     setQuote,
+    setAllowQuoteUpdate,
     setIsQuoteing,
     setSwapData,
     setSwapResult,
     setSwapDataSigned,
+    setIsSwapDataSigned,
     setIsSigning,
     setIsSwapping,
     setIsApproving,

@@ -15,6 +15,7 @@ export const useAllowanceManager = () => {
 
   const checkAllowance = useCallback(
     async (token: Token, userAddress: string, spenderAddress: string) => {
+      console.log('checkAllowance', token, userAddress, spenderAddress)
       if (!token || !userAddress || !spenderAddress || !provider) {
         return 0n
       }
@@ -22,11 +23,14 @@ export const useAllowanceManager = () => {
       const key = `${token.address}-${userAddress}-${spenderAddress}`
       setLoading((prev) => ({ ...prev, [key]: true }))
       setError((prev) => ({ ...prev, [key]: null }))
-
+      console.log('before try')
       try {
         if (token.address.toLowerCase() === nativeEvmTokenAddress.toLowerCase()) {
+          console.log('checkAllowance nativeEvmTokenAddress')
+          setAllowances((prev) => ({ ...prev, [key]: BigInt(ethers.MaxUint256.toString()) }))
           return BigInt(ethers.MaxUint256.toString())
         } else {
+          console.log('checkAllowance else')
           const result = await fetchErc20Allowance(provider, token.address, userAddress, spenderAddress)
           setAllowances((prev) => ({ ...prev, [key]: result }))
           return result

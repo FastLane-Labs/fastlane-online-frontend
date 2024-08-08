@@ -22,6 +22,7 @@ export const useHandleSwap = () => {
     isSwapping,
     setIsSwapping,
     isSigning,
+    isSwapDataSigned,
     setIsSigning,
     setSwapDataSigned,
     setSwapResult,
@@ -42,6 +43,7 @@ export const useHandleSwap = () => {
       return true
     } catch (error) {
       console.error('Signature generation failed', error)
+      setSwapDataSigned(false)
       return false
     } finally {
       setIsSigning(false)
@@ -52,10 +54,22 @@ export const useHandleSwap = () => {
     // Check if all required data is available
     const hashMissingContractAddress = !atlasVerificationAddress || !dappAddress || !atlasAddress
     const missingWeb3Provider = !address || !provider || !signer || !chainId
-    const missingQuote = !quote || isQuoteing || !swapData?.userOperation
+    const missingQuote = !quote || isQuoteing
+    const missingUserOperation = !swapData?.userOperation
 
-    if (hashMissingContractAddress || missingWeb3Provider || missingQuote) {
+    if (
+      hashMissingContractAddress ||
+      missingWeb3Provider ||
+      missingQuote ||
+      missingUserOperation ||
+      !isSwapDataSigned
+    ) {
       console.error('Missing required data for swap')
+      console.log('hashMissingContractAddress', hashMissingContractAddress)
+      console.log('missingWeb3Provider', missingWeb3Provider)
+      console.log('missingQuote', missingQuote)
+      console.log('missingUserOperation', missingUserOperation)
+      console.log('isSwapDataSigned', isSwapDataSigned)
       return false
     }
 
@@ -64,6 +78,7 @@ export const useHandleSwap = () => {
       const feeData = await getFeeData(provider)
       if (!feeData.maxFeePerGas || !feeData.gasPrice) {
         console.error('Missing required data for swap')
+        console.log('feeData', feeData)
         return false
       }
 
@@ -73,7 +88,6 @@ export const useHandleSwap = () => {
       const contract = new ethers.Contract(dappAddress, FastlaneOnlineAbi, signer)
       const tx = await contract.fastOnlineSwap(swapData.userOperation.toStruct(), {
         gasLimit: gas,
-        maxFeePerGas: maxFeePerGas,
         value: getAtlasGasSurcharge(gas * maxFeePerGas),
       })
 

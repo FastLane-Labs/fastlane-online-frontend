@@ -10,6 +10,7 @@ import { SUPPORTED_CHAIN_IDS } from '@/constants'
 import { useAllowanceManager } from '@/hooks/useAllowanceManager'
 import SwapDetails from '@/components/Buttons/SwapDetails'
 import { useHandleSwap } from '@/hooks/useHandleSwap'
+import { useExecutionEnv } from '@/hooks/useExecutionEnv'
 
 interface SwapButtonProps {
   handleSwap: () => Promise<boolean>
@@ -21,14 +22,14 @@ const LOADING_SPINNER = <span className='loading loading-spinner'></span>
 const SwapButton: React.FC<SwapButtonProps> = ({ handleSwap, isLoading }) => {
   const { openConnectModal } = useConnectModal()
   const { openChainModal } = useChainModal()
-  const { fromToken, toToken, fromAmount, setSwapDataSigned, swapData, setSwapData } = useSwapStateContext()
+  const { fromToken, toToken, fromAmount, setSwapDataSigned, swapData, setAllowQuoteUpdate } = useSwapStateContext()
   const { address: userAddress, status, isConnected, chainId } = useAccount()
   const [isSupportedChain, setIsSupportedChain] = useState(false)
   const [localLoading, setLocalLoading] = useState(false)
   const [isSwapModalOpen, setIsSwapModalOpen] = useState(false)
   const [initialized, setInitialized] = useState(false)
   const { data: balance, isLoading: balanceLoading } = useBalance({ token: fromToken!, userAddress: userAddress! })
-  const { dappAddress: spenderAddress } = useFastLaneAddresses()
+  const { data: spenderAddress } = useExecutionEnv(userAddress as string)
   const { updateAllowance, checkAllowance } = useAllowanceManager()
   const { handleSignature } = useHandleSwap()
 
@@ -92,11 +93,29 @@ const SwapButton: React.FC<SwapButtonProps> = ({ handleSwap, isLoading }) => {
   }, [swapData])
 
   const isDisabled = useMemo(() => {
-    return (
-      status === 'reconnecting' ||
-      !initialized ||
-      (isSupportedChain && (isMissingUserInput || !hasSufficientBalance || isMissingSwapData))
-    )
+    if (status === 'reconnecting') {
+      console.log('Button disabled because status is reconnecting')
+      return true
+    }
+    if (!initialized) {
+      console.log('Button disabled because not initialized')
+      return true
+    }
+    if (isSupportedChain) {
+      if (isMissingUserInput) {
+        console.log('Button disabled because user input is missing')
+        return true
+      }
+      if (!hasSufficientBalance) {
+        console.log('Button disabled because balance is insufficient')
+        return true
+      }
+      if (isMissingSwapData) {
+        console.log('Button disabled because swap data is missing')
+        return true
+      }
+    }
+    return false
   }, [status, initialized, isSupportedChain, isMissingUserInput, hasSufficientBalance, isMissingSwapData])
 
   const getButtonText = useCallback(() => {
@@ -128,13 +147,14 @@ const SwapButton: React.FC<SwapButtonProps> = ({ handleSwap, isLoading }) => {
       openChainModal?.()
     } else if (!isDisabled) {
       setIsSwapModalOpen(true)
+      setAllowQuoteUpdate(false)
     }
   }, [isConnected, isSupportedChain, isDisabled, openConnectModal, openChainModal])
 
   const handleSwapModalClose = useCallback(() => {
     setIsSwapModalOpen(false)
-    setSwapData(null) // Reset swapData when modal is closed
-  }, [setSwapData])
+    setAllowQuoteUpdate(true) // Reset allowQuoteUpdate to true when modal is closed
+  }, [])
 
   return (
     <>
