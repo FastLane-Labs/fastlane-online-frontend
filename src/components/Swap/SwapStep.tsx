@@ -238,10 +238,8 @@ const SwapStep: React.FC<SwapStepProps> = ({ step, onAction, isLoading, error, s
 
   return (
     <div className='text-neutral-content flex flex-col min-h-96 w-full items-center justify-between mt-4'>
-      {/* <div className='flex-grow w-full bg-red-800'> */}
       {renderStepContent()}
       {error && <p className='text-red-500 mt-2'>{error.message}</p>}
-      {/* </div> */}
       <div className='w-full mt-4'>{renderButton()}</div>
     </div>
   )
