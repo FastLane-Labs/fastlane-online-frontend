@@ -1,3 +1,4 @@
+'use client'
 import React, { useState, useEffect, useCallback, useMemo } from 'react'
 import { useChainModal, useConnectModal } from '@rainbow-me/rainbowkit'
 import { useAccount } from 'wagmi'
