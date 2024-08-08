@@ -5,10 +5,6 @@ const config: Config = {
   content: ['./src/**/*.{js,ts,jsx,tsx,mdx}'],
   plugins: [require('@tailwindcss/typography'), require('daisyui')],
   daisyui: {
-    // More details at https://daisyui.com/docs/config/
-    // themes: ['dark, dim, sunset, dracula, retro, night'],
-    // themes: ['cupcake', 'bumblebee', 'lemonade', 'nord' ],
-    // themes: ['dark', 'retro'],
     themes: [
       {
         dark: {
@@ -37,18 +33,6 @@ const config: Config = {
           '.gray-text': {
             color: '#a1a1aa',
           },
-        },
-      },
-      {
-        retro: {
-          ...require('daisyui/src/theming/themes')['retro'],
-          primary: '#F12379', // pink
-          secondary: '#F3A042', // orange
-          accent: '#A72F60', // dark pink
-          'accent-content': '#78143C', // darkest pink
-          // neutral: '#0D0935', // dark blue
-          'neutral-content': 'white', // white
-          'base-300': '#e8e8e8', // beige
         },
       },
       {
