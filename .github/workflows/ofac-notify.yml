@@ -5,10 +5,8 @@ on:
   push:
     branches:
       - ofac-notify
-    # paths:
-    #   - 'src/constants/sanctioned_addresses_ofac.json'
     paths:
-      - 'test.txt'
+      - 'src/constants/sanctioned_addresses_ofac.json'
 
 jobs:
   ofac_notification:
