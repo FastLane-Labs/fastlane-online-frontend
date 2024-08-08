@@ -1,4 +1,4 @@
-import { useCallback } from 'react'
+import { useCallback, useState } from 'react'
 import { useQueryClient } from '@tanstack/react-query'
 import { useEthersProviderContext } from '@/context/EthersProviderContext'
 import { fetchErc20Allowance } from '@/utils/fetchErc20Allowance'
@@ -7,9 +7,12 @@ import { Token } from '@/types'
 import { nativeEvmTokenAddress } from '@/constants'
 import { ethers } from 'ethers'
 import { keys } from '@/core/queries/query-keys'
+import { useAccount } from 'wagmi'
 
 export const useAllowanceManager = () => {
   const { provider, signer } = useEthersProviderContext()
+  const { address: userAddress } = useAccount()
+  const [allowanceUpdateTrigger, setAllowanceUpdateTrigger] = useState(0)
   const queryClient = useQueryClient()
 
   const checkAllowance = useCallback(
@@ -27,7 +30,6 @@ export const useAllowanceManager = () => {
         queryFn: () => fetchErc20Allowance(provider, token.address, userAddress, spenderAddress),
         staleTime: 30000, // Consider data stale after 30 seconds
       })
-
       return allowance
     },
     [provider, queryClient]
@@ -35,18 +37,20 @@ export const useAllowanceManager = () => {
 
   const updateAllowance = useCallback(
     async (token: Token, spenderAddress: string, amount: bigint): Promise<boolean> => {
-      if (!signer || token.address.toLowerCase() === nativeEvmTokenAddress.toLowerCase()) {
+      if (!signer || !userAddress || token.address.toLowerCase() === nativeEvmTokenAddress.toLowerCase()) {
         return false
       }
 
       try {
         await approveErc20Token(signer, token.address, spenderAddress, amount, true)
-        const userAddress = await signer.getAddress()
 
         // Invalidate the query to trigger a refetch
         await queryClient.invalidateQueries({
           queryKey: keys({ address: userAddress }).allowance(token.address, userAddress, spenderAddress),
         })
+
+        // Trigger a re-check
+        setAllowanceUpdateTrigger((prev) => prev + 1)
 
         return true
       } catch (error) {
@@ -73,5 +77,6 @@ export const useAllowanceManager = () => {
     checkAllowance,
     updateAllowance,
     isSufficientAllowance,
+    allowanceUpdateTrigger,
   }
 }

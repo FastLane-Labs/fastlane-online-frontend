@@ -23,7 +23,17 @@ const LOADING_SPINNER = <span className='loading loading-spinner'></span>
 const SwapButton: React.FC<SwapButtonProps> = ({ handleSwap, isLoading }) => {
   const { openConnectModal } = useConnectModal()
   const { openChainModal } = useChainModal()
-  const { fromToken, toToken, fromAmount, setSwapDataSigned, swapData, setAllowQuoteUpdate } = useSwapStateContext()
+  const {
+    fromToken,
+    toToken,
+    fromAmount,
+    setSwapDataSigned,
+    swapData,
+    setAllowQuoteUpdate,
+    hasSufficientAllowance,
+    updateAllowance,
+    checkAllowance,
+  } = useSwapStateContext()
   const { address: userAddress, status, isConnected, chainId } = useAccount()
   const [isSupportedChain, setIsSupportedChain] = useState(false)
   const [localLoading, setLocalLoading] = useState(false)
@@ -32,7 +42,6 @@ const SwapButton: React.FC<SwapButtonProps> = ({ handleSwap, isLoading }) => {
   const [userBlocked, setUserBlocked] = useState(false)
   const { data: balance, isLoading: balanceLoading } = useBalance({ token: fromToken!, userAddress: userAddress! })
   const { atlasAddress: spenderAddress } = useFastLaneAddresses()
-  const { updateAllowance, checkAllowance } = useAllowanceManager()
   const { handleSignature } = useHandleSwap()
 
   useEffect(() => {
@@ -57,6 +66,7 @@ const SwapButton: React.FC<SwapButtonProps> = ({ handleSwap, isLoading }) => {
       const amount = toBigInt(fromAmount, fromToken.decimals)
       const success = await updateAllowance(fromToken, spenderAddress, amount)
       if (success) {
+        console.log('Approval successful - checking allowance')
         await checkAllowance(fromToken, userAddress, spenderAddress)
       }
       return success

@@ -126,7 +126,14 @@ export const useSwapState = (): SwapState => {
     }
 
     checkAllowance()
-  }, [fromToken, userAddress, spenderAddress, debouncedFromAmount, allowanceManager.isSufficientAllowance])
+  }, [
+    fromToken,
+    userAddress,
+    spenderAddress,
+    debouncedFromAmount,
+    allowanceManager.isSufficientAllowance,
+    allowanceManager.allowanceUpdateTrigger,
+  ])
 
   const resetSelections = useCallback(() => {
     setFromToken(defaultToken)
