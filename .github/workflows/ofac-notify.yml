@@ -40,6 +40,7 @@ jobs:
           GITHUB_SHA: ${{ github.sha }}
         run: |
           CARD_NAME="OFAC List Updated - $(date +'%Y-%m-%d')"
+          echo "pass"
           CARD_DESC="OFAC Sanctioned Addresses list was updated.\n\nRepository: $GITHUB_REPOSITORY\nUpdated by: $GITHUB_ACTOR\nCommit: ${GITHUB_SHA:0:7}\n\nPlease review the changes and take necessary actions."
           COMMIT_URL="https://github.com/$GITHUB_REPOSITORY/commit/$GITHUB_SHA"
           
