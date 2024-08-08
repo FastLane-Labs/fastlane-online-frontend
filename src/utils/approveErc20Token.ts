@@ -9,17 +9,11 @@ export const approveErc20Token = async (
   infiniteApproval: boolean = true,
   overrides: ethers.Overrides = {}
 ): Promise<boolean> => {
-  try {
-    const contract = new ethers.Contract(tokenAddress, ierc20Abi, signer)
-    const amountToApprove = infiniteApproval ? ethers.MaxUint256 : amount
+  const contract = new ethers.Contract(tokenAddress, ierc20Abi, signer)
+  const amountToApprove = infiniteApproval ? ethers.MaxUint256 : amount
 
-    const approveTx = await contract.approve(spenderAddress, amountToApprove, overrides)
+  const approveTx = await contract.approve(spenderAddress, amountToApprove, overrides)
 
-    await approveTx.wait()
-
-    return true
-  } catch (error) {
-    console.error('Approval Error:', error)
-    return false
-  }
+  await approveTx.wait()
+  return true
 }

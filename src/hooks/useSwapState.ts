@@ -9,100 +9,123 @@ import { nativeEvmTokenAddress } from '@/constants'
 import { useFastLaneAddresses } from './useFastLaneAddresses'
 
 export interface SwapState {
-  // Token and Amount States
+  // Token States
   fromToken: Token | null
   toToken: Token | null
+  nativeToken: Token | null
+
+  // Amount States
   fromAmount: string
   toAmount: string
-  nativeToken: Token | null
+
+  // Swap Configuration
+  swapDirection: SwapDirection
 
   // Quote States
   quote: QuoteResult | null
   isQuoteing: boolean
   allowQuoteUpdate: boolean
 
-  // Approve State
-  isApproving: boolean
-
-  // Swap Direction
-  swapDirection: SwapDirection
-
   // Swap Data
   swapData: SwapCallData | null
-  hasUserOperationSignature: boolean
-  isSwapping: boolean
-  // Swap Progress State
-  isSigning: boolean
-
   swapResult: SwapResult | null
+
   // Allowance State
   hasSufficientAllowance: boolean
 
+  // Progress States
+  isApproving: boolean
+  isSwapping: boolean
+  isSigning: boolean
+  hasUserOperationSignature: boolean
+
   // State Setters
-  setSwapDirection: (direction: SwapDirection) => void
   setFromToken: (token: Token | null) => void
   setToToken: (token: Token | null) => void
   setFromAmount: (amount: string) => void
   setToAmount: (amount: string) => void
+  setSwapDirection: (direction: SwapDirection) => void
   setQuote: (quote: QuoteResult | null) => void
   setIsQuoteing: (isQuoteing: boolean) => void
+  setAllowQuoteUpdate: (allowQuoteUpdate: boolean) => void
   setSwapData: (data: SwapCallData | null) => void
-  setSwapDataSigned: (isSigned: boolean) => void
+  setSwapResult: (result: SwapResult | null) => void
+  setIsApproving: (isApproving: boolean) => void
   setIsSwapping: (isSwapping: boolean) => void
   setIsSigning: (isSigning: boolean) => void
-  setIsApproving: (isApproving: boolean) => void
-  setSwapResult: (result: SwapResult | null) => void
   setHasUserOperationSignature: (hasUserOperationSignature: boolean) => void
-  setAllowQuoteUpdate: (allowQuoteUpdate: boolean) => void
+  setSwapDataSigned: (isSigned: boolean) => void
 
   // Actions
   swapTokens: () => void
   resetSelections: () => void
 
-  // Allowance functions (from useAllowanceManager)
+  // Allowance functions
   checkAllowance: (token: Token, userAddress: string, spenderAddress: string) => Promise<bigint>
   updateAllowance: (token: Token, spenderAddress: string, amount: bigint) => Promise<boolean>
-  isSufficientAllowance: (token: Token, userAddress: string, spenderAddress: string, requiredAmount: bigint) => boolean
-  allowances: Record<string, bigint>
-  allowanceLoading: Record<string, boolean>
-  allowanceError: Record<string, Error | null>
 }
 
 export const useSwapState = (): SwapState => {
-  const { chainId } = useAccount()
+  // External hooks and derived values
+  const { chainId, address: userAddress } = useAccount()
   const { tokens } = useCurrentTokenList()
-  const { address: userAddress } = useAccount()
-  //const { data: spenderAddress } = useExecutionEnv(userAddress as string)
   const { atlasAddress: spenderAddress } = useFastLaneAddresses()
   const allowanceManager = useAllowanceManager()
+
+  // Derived token values
   const defaultToken = useMemo(() => tokens.find((token) => token.tags?.includes('default')) as Token | null, [tokens])
   const nativeToken = useMemo(
     () => tokens.find((token) => token.address === nativeEvmTokenAddress) as Token | null,
     [tokens]
   )
-  const [allowQuoteUpdate, setAllowQuoteUpdate] = useState<boolean>(true)
+
+  // Token states
   const [fromToken, setFromToken] = useState<Token | null>(() => defaultToken)
   const [toToken, setToToken] = useState<Token | null>(null)
+
+  // Amount states
   const [fromAmount, setFromAmount] = useState<string>('')
   const [toAmount, setToAmount] = useState<string>('')
+  const debouncedFromAmount = useDebounce(fromAmount, 500) // 500ms delay
+
+  // Swap configuration
   const [swapDirection, setSwapDirection] = useState<SwapDirection>('sell')
+
+  // Quote states
   const [quote, setQuote] = useState<QuoteResult | null>(null)
   const [isQuoteing, setIsQuoteing] = useState<boolean>(false)
+  const [allowQuoteUpdate, setAllowQuoteUpdate] = useState<boolean>(true)
+
+  // Swap data and result
   const [swapData, setSwapData] = useState<SwapCallData | null>(null)
+  const [swapResult, setSwapResult] = useState<SwapResult | null>(null)
+
+  // Progress states
+  const [isApproving, setIsApproving] = useState<boolean>(false)
   const [isSwapping, setIsSwapping] = useState<boolean>(false)
   const [isSigning, setIsSigning] = useState<boolean>(false)
-  const [isApproving, setIsApproving] = useState<boolean>(false)
-  const [swapResult, setSwapResult] = useState<SwapResult | null>(null)
   const [hasUserOperationSignature, setHasUserOperationSignature] = useState<boolean>(false)
-  const debouncedFromAmount = useDebounce(fromAmount, 500) // 500ms delay
-  const debouncedToAmount = useDebounce(toAmount, 500) // 500ms delay
 
-  const hasSufficientAllowance = useMemo(() => {
-    if (!fromToken || !userAddress || !spenderAddress || !debouncedFromAmount) {
-      return false
+  // Allowance state
+  const [hasSufficientAllowance, setHasSufficientAllowance] = useState<boolean>(false)
+
+  useEffect(() => {
+    const checkAllowance = async () => {
+      if (!fromToken || !userAddress || !spenderAddress || !debouncedFromAmount) {
+        setHasSufficientAllowance(false)
+        return
+      }
+      const requiredAmount = toBigInt(debouncedFromAmount, fromToken.decimals)
+      const isAllowanceSufficient = await allowanceManager.isSufficientAllowance(
+        fromToken,
+        userAddress,
+        spenderAddress,
+        requiredAmount
+      )
+      setHasSufficientAllowance(isAllowanceSufficient)
     }
-    const requiredAmount = toBigInt(debouncedFromAmount, fromToken.decimals)
-    return allowanceManager.isSufficientAllowance(fromToken, userAddress, spenderAddress, requiredAmount)
+
+    checkAllowance()
   }, [fromToken, userAddress, spenderAddress, debouncedFromAmount, allowanceManager.isSufficientAllowance])
 
   const resetSelections = useCallback(() => {
@@ -119,20 +142,6 @@ export const useSwapState = (): SwapState => {
       resetSelections()
     }
   }, [chainId, tokens, resetSelections])
-
-  const checkAllowance = useCallback(async () => {
-    if (fromToken && userAddress && spenderAddress && debouncedFromAmount) {
-      try {
-        await allowanceManager.checkAllowance(fromToken, userAddress, spenderAddress)
-      } catch (error) {
-        console.error('Error checking allowance:', error)
-      }
-    }
-  }, [fromToken, userAddress, spenderAddress, debouncedFromAmount, allowanceManager.checkAllowance])
-
-  useEffect(() => {
-    checkAllowance()
-  }, [checkAllowance])
 
   const handleSwapTokens = useCallback(() => {
     setFromToken(toToken)
@@ -223,10 +232,6 @@ export const useSwapState = (): SwapState => {
     // Allowance functions (from useAllowanceManager)
     checkAllowance: allowanceManager.checkAllowance,
     updateAllowance: allowanceManager.updateAllowance,
-    isSufficientAllowance: allowanceManager.isSufficientAllowance,
-    allowances: allowanceManager.allowances,
-    allowanceLoading: allowanceManager.loading,
-    allowanceError: allowanceManager.error,
 
     // Swap Progress State
     isSwapping,
