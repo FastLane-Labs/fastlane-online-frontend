@@ -43,18 +43,21 @@ jobs:
           
           CARD_DESC="OFAC Sanctioned Addresses list was updated.\n\nRepository: $GITHUB_REPOSITORY\nUpdated by: $GITHUB_ACTOR\nCommit: ${GITHUB_SHA:0:7}\n\nPlease review the changes and take necessary actions."
           COMMIT_URL="https://github.com/$GITHUB_REPOSITORY/commit/$GITHUB_SHA"
-          echo "pass"
+          
           RESPONSE=$(curl -s -X POST "https://api.trello.com/1/cards" \
             -H "Content-Type: application/json" \
-            -d '{
-              \"key\": \"$TRELLO_API_KEY\",
-              \"token\": \"$TRELLO_TOKEN\",
-              \"idList\": \"$TRELLO_LIST_ID\",
-              \"name\": \"$CARD_NAME\",
-              \"desc\": \"$CARD_DESC\",
-              \"urlSource\": \"$COMMIT_URL\",
-              \"idMembers\": \"$TRELLO_MEMBER_IDS\"
-            }')
+            -d @- <<EOF
+{
+  "key": "$TRELLO_API_KEY",
+  "token": "$TRELLO_TOKEN",
+  "idList": "$TRELLO_LIST_ID",
+  "name": "$CARD_NAME",
+  "desc": "$CARD_DESC",
+  "urlSource": "$COMMIT_URL",
+  "idMembers": "$TRELLO_MEMBER_IDS"
+}
+EOF
+          )
           
           CARD_ID=$(echo $RESPONSE | jq -r '.id')
           CARD_URL=$(echo $RESPONSE | jq -r '.shortUrl')
