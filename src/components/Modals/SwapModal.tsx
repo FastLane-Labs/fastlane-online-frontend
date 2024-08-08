@@ -75,7 +75,7 @@ const SwapModal: React.FC<SwapModalProps> = ({ isVisible, onClose, onSwap, onApp
   }, [step, onClose])
 
   return (
-    <ModalWrapper isVisible={isVisible} onClose={handleClose}>
+    <ModalWrapper isVisible={isVisible} onClose={handleClose} style={{ paddingBottom: '28px' }}>
       <SwapStep
         step={step}
         setStep={setStep}

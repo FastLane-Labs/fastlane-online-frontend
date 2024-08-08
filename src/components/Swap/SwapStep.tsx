@@ -176,14 +176,14 @@ const SwapStep: React.FC<SwapStepProps> = ({ step, onAction, isLoading, error, s
 
     if (step === 'success' && txBlockExplorerUrl) {
       return (
-        <a href={txBlockExplorerUrl} target='_blank' rel='noopener noreferrer' className='btn w-full'>
+        <a href={txBlockExplorerUrl} target='_blank' rel='noopener noreferrer' className='btn'>
           {buttonText}
         </a>
       )
     }
 
     return (
-      <button onClick={() => onAction(action)} disabled={isDisabled} className='btn w-full'>
+      <button onClick={() => onAction(action)} disabled={isDisabled} className='btn'>
         {buttonText}
       </button>
     )
@@ -238,14 +238,11 @@ const SwapStep: React.FC<SwapStepProps> = ({ step, onAction, isLoading, error, s
 
   return (
     <div className='text-neutral-content flex flex-col min-h-96 w-full items-center justify-between mt-4'>
-      <div className='flex-grow w-full'>
-        {renderStepContent()}
-        {error && <p className='text-red-500 mt-2'>{error.message}</p>}
-      </div>
-      <div className='w-full mt-4'>
-        {renderButton()}
-        <div className='mt-4 text-sm gray-text'></div>
-      </div>
+      {/* <div className='flex-grow w-full bg-red-800'> */}
+      {renderStepContent()}
+      {error && <p className='text-red-500 mt-2'>{error.message}</p>}
+      {/* </div> */}
+      <div className='w-full mt-4'>{renderButton()}</div>
     </div>
   )
 }
