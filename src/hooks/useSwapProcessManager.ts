@@ -35,7 +35,7 @@ export const useSwapProcessManager = () => {
   // only fetch quote when the user is not isSwapping
   const isQuoteReady = useMemo(() => {
     return Boolean(fromToken && toToken && chainId && debouncedAmount && !isSwapping && !isSigning && allowQuoteUpdate)
-  }, [fromToken, toToken, chainId, debouncedAmount, isSwapping, isSigning, allowQuoteUpdate, allowQuoteUpdate])
+  }, [fromToken, toToken, chainId, debouncedAmount, isSwapping, isSigning, allowQuoteUpdate])
 
   const {
     data: quoteResult,

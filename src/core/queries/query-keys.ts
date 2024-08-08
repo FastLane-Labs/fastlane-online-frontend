@@ -25,5 +25,4 @@ export const keys = ({ address }: { address?: string }) => ({
     amount,
   ],
   estimatedSwapFees: (chainId?: number) => [...keys({ address }).all, 'estimatedSwapFees', chainId],
-  executionEnv: (address: string) => [...keys({ address }).all, 'executionEnv', address],
 })

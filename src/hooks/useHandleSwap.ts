@@ -64,12 +64,6 @@ export const useHandleSwap = () => {
       missingUserOperation ||
       !hasUserOperationSignature
     ) {
-      console.error('Missing required data for swap')
-      console.log('hashMissingContractAddress', hashMissingContractAddress)
-      console.log('missingWeb3Provider', missingWeb3Provider)
-      console.log('missingQuote', missingQuote)
-      console.log('missingUserOperation', missingUserOperation)
-      console.log('hasUserOperationSignature', hasUserOperationSignature)
       return false
     }
 
@@ -127,14 +121,13 @@ export const useHandleSwap = () => {
     dappAddress,
     atlasVerificationAddress,
     swapData?.userOperation,
-    config.slippage,
-    config.deadline,
     atlasAddress,
     chainId,
     signer,
     provider,
     setIsSwapping,
     setSwapResult,
+    hasUserOperationSignature,
   ])
 
   return {

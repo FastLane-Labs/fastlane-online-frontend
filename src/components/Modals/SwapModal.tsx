@@ -3,7 +3,6 @@ import ModalWrapper from '@/components/Wrappers/ModalWrapper'
 import SwapStep from '@/components/Swap/SwapStep'
 import { useSwapStateContext } from '@/context/SwapStateContext'
 import { getBlockExplorerUrl } from '@/utils/getBlockExploer'
-import { N } from 'ethers'
 
 interface SwapModalProps {
   isVisible: boolean
@@ -82,7 +81,7 @@ const SwapModal: React.FC<SwapModalProps> = ({ isVisible, onClose, onSwap, onApp
       setHasUserOperationSignature(false)
     }
     onClose()
-  }, [step, onClose, setSwapData])
+  }, [step, onClose, setSwapData, setHasUserOperationSignature])
 
   return (
     <ModalWrapper isVisible={isVisible} onClose={handleClose} style={{ paddingBottom: '28px' }}>

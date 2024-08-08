@@ -6,7 +6,7 @@ import { toBigInt } from '@/utils/format'
 import useDebounce from '@/hooks/useDebounce'
 import { useAllowanceManager } from './useAllowanceManager'
 import { nativeEvmTokenAddress } from '@/constants'
-import { useExecutionEnv } from './useExecutionEnv'
+import { useFastLaneAddresses } from './useFastLaneAddresses'
 
 export interface SwapState {
   // Token and Amount States
@@ -72,7 +72,8 @@ export const useSwapState = (): SwapState => {
   const { chainId } = useAccount()
   const { tokens } = useCurrentTokenList()
   const { address: userAddress } = useAccount()
-  const { data: spenderAddress } = useExecutionEnv(userAddress as string)
+  //const { data: spenderAddress } = useExecutionEnv(userAddress as string)
+  const { atlasAddress: spenderAddress } = useFastLaneAddresses()
   const allowanceManager = useAllowanceManager()
   const defaultToken = useMemo(() => tokens.find((token) => token.tags?.includes('default')) as Token | null, [tokens])
   const nativeToken = useMemo(

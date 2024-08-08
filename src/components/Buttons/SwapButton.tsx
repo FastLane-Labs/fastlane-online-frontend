@@ -9,7 +9,7 @@ import { SUPPORTED_CHAIN_IDS } from '@/constants'
 import { useAllowanceManager } from '@/hooks/useAllowanceManager'
 import SwapDetails from '@/components/Buttons/SwapDetails'
 import { useHandleSwap } from '@/hooks/useHandleSwap'
-import { useExecutionEnv } from '@/hooks/useExecutionEnv'
+import { useFastLaneAddresses } from '@/hooks/useFastLaneAddresses'
 
 interface SwapButtonProps {
   handleSwap: () => Promise<boolean>
@@ -28,7 +28,7 @@ const SwapButton: React.FC<SwapButtonProps> = ({ handleSwap, isLoading }) => {
   const [isSwapModalOpen, setIsSwapModalOpen] = useState(false)
   const [initialized, setInitialized] = useState(false)
   const { data: balance, isLoading: balanceLoading } = useBalance({ token: fromToken!, userAddress: userAddress! })
-  const { data: spenderAddress } = useExecutionEnv(userAddress as string)
+  const { atlasAddress: spenderAddress } = useFastLaneAddresses()
   const { updateAllowance, checkAllowance } = useAllowanceManager()
   const { handleSignature } = useHandleSwap()
 
@@ -149,12 +149,20 @@ const SwapButton: React.FC<SwapButtonProps> = ({ handleSwap, isLoading }) => {
       setIsSwapModalOpen(true)
       setAllowQuoteUpdate(false) // disable quote update to prevent fetching new quote
     }
-  }, [isConnected, isSupportedChain, isDisabled, openConnectModal, openChainModal])
+  }, [
+    isConnected,
+    isSupportedChain,
+    isDisabled,
+    openConnectModal,
+    openChainModal,
+    setIsSwapModalOpen,
+    setAllowQuoteUpdate,
+  ])
 
   const handleSwapModalClose = useCallback(() => {
     setIsSwapModalOpen(false)
     setAllowQuoteUpdate(true) // Reset allowQuoteUpdate to true when modal is closed
-  }, [])
+  }, [setIsSwapModalOpen, setAllowQuoteUpdate])
 
   return (
     <>
