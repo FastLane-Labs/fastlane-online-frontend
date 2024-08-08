@@ -27,6 +27,10 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ isVisible, onClose }) => 
 
   const handleCustomSlippageChange = useCallback((value: string) => {
     setCustomSlippage(value)
+    if (value === '') {
+      setLocalSlippage(0)
+      return
+    }
     const numValue = parseFloat(value)
     if (!isNaN(numValue) && numValue <= 10) {
       setLocalSlippage(percentToBasisPoints(numValue))
@@ -73,6 +77,12 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ isVisible, onClose }) => 
     }
   }
 
+  const handleKeyDown = (event: React.KeyboardEvent) => {
+    if (event.key === 'Enter') {
+      handleSave()
+    }
+  }
+
   return (
     <ModalWrapper isVisible={isVisible} onClose={closeModal} style={{ paddingBottom: '28px' }}>
       <h3 className='text-lg mt-4 font-semibold text-center'>Transaction Settings</h3>
@@ -97,6 +107,7 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ isVisible, onClose }) => 
               placeholder='0.50'
               value={customSlippage || slippagePercent || ''}
               onChange={(e) => handleCustomSlippageChange(e.target.value)}
+              onKeyDown={handleKeyDown}
               min='0'
               max='10'
               step='0.1'
@@ -121,6 +132,7 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ isVisible, onClose }) => 
             value={localDeadline || ''}
             placeholder='10'
             onChange={(e) => handleDeadlineChange(e.target.value)}
+            onKeyDown={handleKeyDown}
             className='input bg-neutral !outline-none px-3 py-1 rounded-md w-20'
           />
           <span className='ml-2'>minutes</span>

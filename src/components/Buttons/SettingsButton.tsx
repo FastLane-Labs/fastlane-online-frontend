@@ -16,10 +16,10 @@ const SettingsButton: React.FC<SettingsButtonProps> = ({ setIsSettingsModalVisib
 
   return (
     <button
-      className='btn-outline text-neutral-content hover:text-neutral-content gear'
+      className='btn-outline flex items-center gap-2 text-neutral-content hover:text-neutral-content gear'
       onClick={() => setIsSettingsModalVisible(true)}>
       {slippagePercent !== null && slippagePercent !== 0.5 && (
-        <span className='text-gray-6000 font-normal text-xs'>{slippagePercent}% slippage</span>
+        <span className='gray-text font-normal text-xs'>{slippagePercent}% slippage</span>
       )}
       <svg
         xmlns='http://www.w3.org/2000/svg'
