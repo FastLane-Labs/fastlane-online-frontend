@@ -70,6 +70,7 @@ const SwapModal: React.FC<SwapModalProps> = ({ isVisible, onClose, onSwap, onApp
     if (step === 'success') {
       setStep('approve')
       setSwapData(null)
+      setHasUserOperationSignature(false)
     }
     onClose()
   }, [step, onClose, setSwapData])
@@ -89,3 +90,6 @@ const SwapModal: React.FC<SwapModalProps> = ({ isVisible, onClose, onSwap, onApp
 }
 
 export default SwapModal
+function setHasUserOperationSignature(arg0: boolean) {
+  throw new Error('Function not implemented.')
+}

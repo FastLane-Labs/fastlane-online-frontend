@@ -5,7 +5,6 @@ import { useBalance } from '@/hooks/useBalance'
 import { useSwapStateContext } from '@/context/SwapStateContext'
 import { toBigInt } from '@/utils/format'
 import SwapModal from '@/components/Modals/SwapModal'
-import { useFastLaneAddresses } from '@/hooks/useFastLaneAddresses'
 import { SUPPORTED_CHAIN_IDS } from '@/constants'
 import { useAllowanceManager } from '@/hooks/useAllowanceManager'
 import SwapDetails from '@/components/Buttons/SwapDetails'
@@ -69,6 +68,7 @@ const SwapButton: React.FC<SwapButtonProps> = ({ handleSwap, isLoading }) => {
       return success
     } catch (error) {
       console.error('Signing Error:', error)
+      setSwapDataSigned(false)
       return false
     }
   }, [handleSignature, setSwapDataSigned])
@@ -147,7 +147,7 @@ const SwapButton: React.FC<SwapButtonProps> = ({ handleSwap, isLoading }) => {
       openChainModal?.()
     } else if (!isDisabled) {
       setIsSwapModalOpen(true)
-      setAllowQuoteUpdate(false)
+      setAllowQuoteUpdate(false) // disable quote update to prevent fetching new quote
     }
   }, [isConnected, isSupportedChain, isDisabled, openConnectModal, openChainModal])
 

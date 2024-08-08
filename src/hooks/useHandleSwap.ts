@@ -22,7 +22,7 @@ export const useHandleSwap = () => {
     isSwapping,
     setIsSwapping,
     isSigning,
-    isSwapDataSigned,
+    hasUserOperationSignature,
     setIsSigning,
     setSwapDataSigned,
     setSwapResult,
@@ -62,14 +62,14 @@ export const useHandleSwap = () => {
       missingWeb3Provider ||
       missingQuote ||
       missingUserOperation ||
-      !isSwapDataSigned
+      !hasUserOperationSignature
     ) {
       console.error('Missing required data for swap')
       console.log('hashMissingContractAddress', hashMissingContractAddress)
       console.log('missingWeb3Provider', missingWeb3Provider)
       console.log('missingQuote', missingQuote)
       console.log('missingUserOperation', missingUserOperation)
-      console.log('isSwapDataSigned', isSwapDataSigned)
+      console.log('hasUserOperationSignature', hasUserOperationSignature)
       return false
     }
 

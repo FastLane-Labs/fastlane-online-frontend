@@ -21,7 +21,6 @@ export const useSwapProcessManager = () => {
     swapDirection,
     setQuote,
     setSwapData,
-    setIsSwapDataSigned,
     isSwapping,
     isSigning,
     allowQuoteUpdate,
@@ -36,7 +35,7 @@ export const useSwapProcessManager = () => {
   // only fetch quote when the user is not isSwapping
   const isQuoteReady = useMemo(() => {
     return Boolean(fromToken && toToken && chainId && debouncedAmount && !isSwapping && !isSigning && allowQuoteUpdate)
-  }, [fromToken, toToken, chainId, debouncedAmount, isSwapping, isSigning, allowQuoteUpdate])
+  }, [fromToken, toToken, chainId, debouncedAmount, isSwapping, isSigning, allowQuoteUpdate, allowQuoteUpdate])
 
   const {
     data: quoteResult,
@@ -69,6 +68,8 @@ export const useSwapProcessManager = () => {
   )
 
   const updateQuoteLoading = useCallback(() => {
+    console.log('isQuoteReady', isQuoteReady)
+    console.log('quoteLoading', quoteLoading)
     setIsQuoteing(isQuoteReady && quoteLoading)
   }, [isQuoteReady, quoteLoading, setIsQuoteing])
 
@@ -96,13 +97,11 @@ export const useSwapProcessManager = () => {
   const updateSwapData = useCallback(() => {
     if (swapCallData) {
       setSwapData(swapCallData)
-      setIsSwapDataSigned(false)
     } else if (swapDataError) {
       console.error('Error generating swap data:', swapDataError)
       setSwapData(null)
-      setIsSwapDataSigned(false)
     }
-  }, [swapCallData, swapDataError, setSwapData, setIsSwapDataSigned])
+  }, [swapCallData, swapDataError, setSwapData])
 
   useEffect(() => {
     updateQuoteLoading()

@@ -29,7 +29,7 @@ export interface SwapState {
 
   // Swap Data
   swapData: SwapCallData | null
-  isSwapDataSigned: boolean
+  hasUserOperationSignature: boolean
   isSwapping: boolean
   // Swap Progress State
   isSigning: boolean
@@ -52,7 +52,7 @@ export interface SwapState {
   setIsSigning: (isSigning: boolean) => void
   setIsApproving: (isApproving: boolean) => void
   setSwapResult: (result: SwapResult | null) => void
-  setIsSwapDataSigned: (isSigned: boolean) => void
+  setHasUserOperationSignature: (hasUserOperationSignature: boolean) => void
   setAllowQuoteUpdate: (allowQuoteUpdate: boolean) => void
 
   // Actions
@@ -92,7 +92,7 @@ export const useSwapState = (): SwapState => {
   const [isSigning, setIsSigning] = useState<boolean>(false)
   const [isApproving, setIsApproving] = useState<boolean>(false)
   const [swapResult, setSwapResult] = useState<SwapResult | null>(null)
-  const [isSwapDataSigned, setIsSwapDataSigned] = useState<boolean>(false)
+  const [hasUserOperationSignature, setHasUserOperationSignature] = useState<boolean>(false)
   const debouncedFromAmount = useDebounce(fromAmount, 500) // 500ms delay
   const debouncedToAmount = useDebounce(toAmount, 500) // 500ms delay
 
@@ -145,10 +145,32 @@ export const useSwapState = (): SwapState => {
     setSwapData(null)
   }, [fromToken, toToken, fromAmount, toAmount, swapDirection])
 
-  const setSwapDataSigned = useCallback((isSigned: boolean) => {
-    setSwapData((prevData) => (prevData ? { ...prevData, isSigned } : null))
-    setIsSwapDataSigned(isSigned)
-  }, [])
+  const checkSignatureValidity = useCallback(() => {
+    if (!swapData?.userOperation?.toStruct) {
+      setHasUserOperationSignature(false)
+      return
+    }
+    const signature = swapData.userOperation.toStruct().signature
+    const isValid = signature !== undefined && signature !== '0x'
+    setHasUserOperationSignature(isValid)
+    if (isValid) {
+      console.log(signature)
+    }
+  }, [swapData])
+
+  useEffect(() => {
+    checkSignatureValidity()
+  }, [checkSignatureValidity])
+
+  const setSwapDataSigned = useCallback(
+    (isSigned: boolean) => {
+      setSwapData((prevData) => (prevData ? { ...prevData, isSigned } : null))
+      if (isSigned) {
+        checkSignatureValidity()
+      }
+    },
+    [checkSignatureValidity]
+  )
 
   return {
     // Token and Amount States
@@ -170,7 +192,7 @@ export const useSwapState = (): SwapState => {
 
     // Swap Data
     swapData,
-    isSwapDataSigned,
+    hasUserOperationSignature,
     swapResult,
 
     // Allowance State
@@ -187,8 +209,8 @@ export const useSwapState = (): SwapState => {
     setIsQuoteing,
     setSwapData,
     setSwapResult,
+    setHasUserOperationSignature,
     setSwapDataSigned,
-    setIsSwapDataSigned,
     setIsSigning,
     setIsSwapping,
     setIsApproving,

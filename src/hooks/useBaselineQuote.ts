@@ -30,7 +30,7 @@ export const useBaselineQuote = (
       ),
       queryFn: async (): Promise<QuoteResult | null> => {
         if (!fromToken || !toToken || !chainId) return null
-
+        console.log(`get baseline quote for ${fromToken.symbol} to ${toToken.symbol}`)
         const swapRoutes = await swapPathService.getSwapRoutes(fromToken, toToken, chainId, Exchange.UNISWAPV3)
         if (swapRoutes.length === 0) return null
 

@@ -16,8 +16,16 @@ interface SwapStepProps {
 }
 
 const SwapStep: React.FC<SwapStepProps> = ({ step, onAction, isLoading, error, setStep, txBlockExplorerUrl }) => {
-  const { fromToken, toToken, fromAmount, toAmount, nativeToken, hasSufficientAllowance, isSwapping } =
-    useSwapStateContext()
+  const {
+    fromToken,
+    toToken,
+    fromAmount,
+    toAmount,
+    nativeToken,
+    hasSufficientAllowance,
+    isSwapping,
+    hasUserOperationSignature,
+  } = useSwapStateContext()
 
   const { data: estimatedFees } = useEstimatedSwapFees()
   const [isExpanded, setIsExpanded] = useState(false)
@@ -27,10 +35,14 @@ const SwapStep: React.FC<SwapStepProps> = ({ step, onAction, isLoading, error, s
   }
 
   useEffect(() => {
-    if (step === 'approve' && hasSufficientAllowance) {
+    if (!hasSufficientAllowance) {
+      setStep('approve')
+    } else if (!hasUserOperationSignature) {
       setStep('sign')
+    } else {
+      setStep('swap')
     }
-  }, [hasSufficientAllowance, step, setStep])
+  }, [hasSufficientAllowance, hasUserOperationSignature, setStep])
 
   const renderTokenInfo = (token: Token | null | undefined, amount: string, label: string) => (
     <div className='items-end justify-between flex w-full gap-3'>
