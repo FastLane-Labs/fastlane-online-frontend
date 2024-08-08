@@ -1,7 +1,2 @@
 # delete me, I was used for Actions tests
 new line
-new line
-
-why not sending this?
-d
-dd
