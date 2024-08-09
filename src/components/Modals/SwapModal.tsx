@@ -3,6 +3,7 @@ import ModalWrapper from '@/components/Wrappers/ModalWrapper'
 import SwapStep from '@/components/Swap/SwapStep'
 import { useSwapStateContext } from '@/context/SwapStateContext'
 import { getBlockExplorerUrl } from '@/utils/getBlockExploer'
+import { useNotifications } from '@/context/Notifications'
 
 interface SwapModalProps {
   isVisible: boolean
@@ -28,6 +29,23 @@ const SwapModal: React.FC<SwapModalProps> = ({ isVisible, onClose, onSwap, onApp
     setSwapData,
     setHasUserOperationSignature,
   } = useSwapStateContext()
+
+  const { Add } = useNotifications()
+
+  // list of errors we want to create notifications for:
+  const validErrorList = ['approve failed', 'swap failed']
+
+  useEffect(() => {
+    if (error) {
+      const errorMessage = error.message.toLowerCase()
+      const isValidError = validErrorList.some((validError) => errorMessage.includes(validError.toLowerCase()))
+
+      if (isValidError) {
+        // create notification
+        Add(error.message, { type: 'error' })
+      }
+    }
+  }, [error])
 
   useEffect(() => {
     if (swapResult?.transaction?.txHash) {
@@ -64,6 +82,7 @@ const SwapModal: React.FC<SwapModalProps> = ({ isVisible, onClose, onSwap, onApp
         if (!success) throw new Error(`${action} failed`)
       } catch (err) {
         setError(err instanceof Error ? err : new Error('An unknown error occurred'))
+        // error notifications can also be created here instead of in the useEffect
       } finally {
         setIsApproving(false)
         setIsSigning(false)
