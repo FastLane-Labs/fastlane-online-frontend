@@ -29,6 +29,7 @@ const BuyComponent: React.FC = () => {
         setBuyAmount={setBuyAmount}
         quoteLoading={isQuoteing}
         setSwapDirection={setSwapDirection}
+        disabled={true}
       />
     </div>
   )

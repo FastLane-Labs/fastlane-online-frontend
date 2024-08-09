@@ -10,6 +10,7 @@ interface BuyAmountProps {
   setBuyAmount: (amount: string) => void
   quoteLoading: boolean
   setSwapDirection: (direction: SwapDirection) => void
+  disabled: boolean
 }
 
 const BuyAmount: React.FC<BuyAmountProps> = ({
@@ -19,6 +20,7 @@ const BuyAmount: React.FC<BuyAmountProps> = ({
   setBuyAmount,
   quoteLoading,
   setSwapDirection,
+  disabled = true,
 }) => {
   const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value
@@ -36,8 +38,11 @@ const BuyAmount: React.FC<BuyAmountProps> = ({
           type='number'
           value={buyAmount}
           onChange={handleChange}
-          className='bg-theme text-neutral-content p-2 rounded-xl flex-grow text-4xl w-full focus:outline-none'
+          className={`bg-theme text-neutral-content p-2 rounded-xl flex-grow text-4xl w-full focus:outline-none ${
+            disabled ? 'opacity-50 cursor-not-allowed' : ''
+          }`}
           placeholder='0'
+          disabled={disabled}
         />
         {quoteLoading && <span className='absolute right-4 loading loading-spinner loading-sm'></span>}
       </div>
