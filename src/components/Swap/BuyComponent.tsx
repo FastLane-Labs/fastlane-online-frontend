@@ -40,6 +40,7 @@ const BuyComponent: React.FC = () => {
         setBuyAmount={setBuyAmount}
         quoteLoading={isQuoteing}
         setSwapDirection={setSwapDirection}
+        disabled={true}
       />
       <div className='text-left mt-2 text-sm text-base-content h-5'>
         {usdValue !== null ? `$${usdValue.toFixed(2)}` : '\u00A0'}
