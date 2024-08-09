@@ -3,7 +3,7 @@ import { Token } from '@/types'
 import { keys } from '@/core/queries/query-keys'
 import { useAccount } from 'wagmi'
 import { TokenPriceService } from '@/services/tokenPrice'
-import { TOKEN_ADDRESSES } from '@/constants'
+import { ChainId, TOKEN_ADDRESSES } from '@/constants'
 
 type TokenPriceData = { price: number; lastUpdated: number } | null
 
@@ -18,7 +18,8 @@ export const useTokenUsdPrice = (token: Token | null) => {
       if (!token || !chainId) return null
 
       // Check if the token is USDC
-      if (token.address.toLowerCase() === TOKEN_ADDRESSES[chainId].usdc.toLowerCase()) {
+      const usdcTokenAddress = TOKEN_ADDRESSES[chainId as ChainId].usdc
+      if (token.address.toLowerCase() === usdcTokenAddress.toLowerCase()) {
         return { price: 1, lastUpdated: Date.now() }
       }
 
@@ -28,16 +29,18 @@ export const useTokenUsdPrice = (token: Token | null) => {
         return cachedData
       }
 
+      const noPriceFound = { price: 0, lastUpdated: Date.now() }
+
       // If cache is stale or doesn't exist, fetch new price
       try {
-        const usdcToken = await tokenPriceService.getTokenByAddress(TOKEN_ADDRESSES[chainId].usdc, chainId)
+        const usdcToken = await tokenPriceService.getTokenByAddress(usdcTokenAddress, chainId)
         if (!usdcToken) throw new Error('USDC token not found')
 
         const price = await tokenPriceService.getUsdPriceForToken(usdcToken, token)
 
-        if (price === null) {
-          console.warn(`Received null price for ${token.symbol}`)
-          return cachedData // Return cached data if available, otherwise null
+        if (price === 0) {
+          console.warn(`Failed to get price for ${token.symbol}`)
+          return cachedData ? cachedData : noPriceFound
         }
 
         const newData = { price, lastUpdated: Date.now() }
@@ -48,8 +51,8 @@ export const useTokenUsdPrice = (token: Token | null) => {
         return newData
       } catch (error) {
         console.error(`Failed to fetch price for ${token.symbol}:`, error)
-        // If fetch fails, return cached data if available, otherwise null
-        return cachedData
+        // If fetch fails, return cached data if available, otherwise zero
+        return cachedData ? cachedData : noPriceFound
       }
     },
     enabled: !!token && !!chainId,

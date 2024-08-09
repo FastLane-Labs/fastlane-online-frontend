@@ -38,7 +38,6 @@ export const TokenPriceProvider: React.FC<React.PropsWithChildren<{}>> = ({ chil
     for (const token of tokensToUpdate) {
       try {
         const price = await tokenPriceService.getUsdPriceForToken(usdcToken, token)
-        console.log(`price for ${token.symbol}`, price)
         queryClient.setQueryData(keys({ address }).tokenPrice(token), { price, lastUpdated: Date.now() })
       } catch (error) {
         console.error(`Failed to update price for ${token.symbol}:`, error)
