@@ -6,7 +6,7 @@ const Logo: React.FC = () => {
   return (
     <div className='flex justify-center mt-7 mb-9'>
       {/* <LinkComponent href='/'> */}
-      <Image src='/rocketboost-logo-white.png' alt='RocketSwap Logo' width={220} height={220} />
+      <Image src='/rocketboost-logo-white.png' alt='RocketBoost Logo' width={220} height={220} />
       {/* </LinkComponent> */}
     </div>
   )

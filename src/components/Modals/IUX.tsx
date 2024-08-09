@@ -41,7 +41,7 @@ const IUXModal: React.FC<IUXModalProps> = ({ isVisible, onClose }) => {
         <div className='relative w-full rounded-2xl md:overflow-hidden'>
           <Image
             src='/rb-gif.gif'
-            alt='RocketSwap branding graphic'
+            alt='RocketBoost branding graphic'
             layout='responsive'
             width={500}
             height={500}
