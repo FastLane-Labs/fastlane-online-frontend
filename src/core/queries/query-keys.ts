@@ -32,4 +32,5 @@ export const keys = ({ address }: { address?: string }) => ({
     userAddress,
     spenderAddress,
   ],
+  tokenPrice: (token: Token) => [...keys({ address }).all, 'tokenPrice', token.address],
 })

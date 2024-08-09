@@ -13,6 +13,20 @@ interface IBaseSwapService {
 }
 
 export class BaseSwapService implements IBaseSwapService {
+  private static instance: BaseSwapService
+
+  /**
+   * Get the instance of the BaseSwapService
+   * @returns The instance of the BaseSwapService
+   */
+  public static getInstance(): BaseSwapService {
+    if (!BaseSwapService.instance) {
+      BaseSwapService.instance = new BaseSwapService()
+    }
+
+    return BaseSwapService.instance
+  }
+
   /**
    * Get the best quote from a list of candidates routes for an exact input swap
    * @param amountIn The exact amount in

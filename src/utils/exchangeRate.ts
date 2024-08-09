@@ -1,5 +1,5 @@
 import { Token } from '@/types'
-import { FixedNumber, formatUnits, parseUnits } from 'ethers'
+import { FixedNumber, parseUnits } from 'ethers'
 
 export const calculateExchangeRate = (
   fromToken: Token,

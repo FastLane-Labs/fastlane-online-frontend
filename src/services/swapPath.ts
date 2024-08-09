@@ -10,10 +10,19 @@ interface ISwapPathService {
 }
 
 export class SwapPathService implements ISwapPathService {
+  private static instance: SwapPathService
   protected tokens: Map<ChainId, Map<Address, Token>> = new Map()
   protected nativeTokens: Map<ChainId, Token> = new Map()
   protected wrappedNativeTokens: Map<ChainId, Token> = new Map()
   protected gatewayTokens: Map<ChainId, Token> = new Map()
+
+  public static getInstance(): SwapPathService {
+    if (!SwapPathService.instance) {
+      SwapPathService.instance = new SwapPathService()
+    }
+
+    return SwapPathService.instance
+  }
 
   /**
    * Load tokens for the chain ID set in the constructor

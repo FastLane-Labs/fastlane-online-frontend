@@ -9,6 +9,7 @@ import '../assets/globals.css'
 import React from 'react'
 import GeoBlock from '@/components/GeoBlock/GeoBlock'
 import { AppStateProvider } from '@/context/AppStateContext'
+import { TokenPriceProvider } from '@/context/TokenPriceProvider'
 
 export const metadata: Metadata = {
   applicationName: SITE_NAME,
@@ -59,13 +60,15 @@ export default function RootLayout(props: PropsWithChildren) {
           <GeoBlock country={country} />
         ) : (
           <ClientWeb3Provider>
-            <NotificationProvider>
-              <AppStateProvider>
-                <AppRouter>
-                  <Layout>{props.children}</Layout>
-                </AppRouter>
-              </AppStateProvider>
-            </NotificationProvider>
+            <TokenPriceProvider>
+              <NotificationProvider>
+                <AppStateProvider>
+                  <AppRouter>
+                    <Layout>{props.children}</Layout>
+                  </AppRouter>
+                </AppStateProvider>
+              </NotificationProvider>
+            </TokenPriceProvider>
           </ClientWeb3Provider>
         )}
       </body>
