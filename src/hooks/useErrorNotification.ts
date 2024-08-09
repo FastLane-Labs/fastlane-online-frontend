@@ -12,7 +12,6 @@ export const useErrorNotification = (error: Error | null) => {
   ]
 
   useEffect(() => {
-    console.log('new erR:', error)
     if (error) {
       const errorMessage = error.message.toLowerCase()
       // check if error is one we want to create a notification for
