@@ -2,7 +2,7 @@
 
 import { TokenPriceService } from '@/services/tokenPrice'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
-import React, { createContext, useContext, useEffect, useRef } from 'react'
+import React, { createContext, useContext, useEffect, useRef, useCallback, useMemo } from 'react'
 import { useAccount } from 'wagmi'
 import { ChainId, TOKEN_ADDRESSES } from '@/constants'
 import { keys } from '@/core/queries/query-keys'
@@ -10,7 +10,7 @@ import { keys } from '@/core/queries/query-keys'
 const TokenPriceContext = createContext<TokenPriceService | null>(null)
 
 export const TokenPriceProvider: React.FC<React.PropsWithChildren<{}>> = ({ children }) => {
-  const tokenPriceService = new TokenPriceService()
+  const tokenPriceService = useMemo(() => new TokenPriceService(), [])
   const { address, chainId } = useAccount()
   const queryClient = useQueryClient()
   const updateInterval = useRef<NodeJS.Timeout | null>(null)
@@ -21,7 +21,7 @@ export const TokenPriceProvider: React.FC<React.PropsWithChildren<{}>> = ({ chil
     enabled: !!chainId,
   })
 
-  const updatePrices = async () => {
+  const updatePrices = useCallback(async () => {
     if (!tokens || !chainId) return
 
     const usdcToken = tokens.find((token) => token.address === TOKEN_ADDRESSES[chainId as ChainId].usdc)
@@ -43,7 +43,7 @@ export const TokenPriceProvider: React.FC<React.PropsWithChildren<{}>> = ({ chil
         console.error(`Failed to update price for ${token.symbol}:`, error)
       }
     }
-  }
+  }, [tokens, chainId, address, tokenPriceService, queryClient])
 
   useEffect(() => {
     if (tokens && chainId) {
@@ -56,7 +56,7 @@ export const TokenPriceProvider: React.FC<React.PropsWithChildren<{}>> = ({ chil
         clearInterval(updateInterval.current)
       }
     }
-  }, [tokens, chainId, address])
+  }, [tokens, chainId, updatePrices])
 
   return <TokenPriceContext.Provider value={tokenPriceService}>{children}</TokenPriceContext.Provider>
 }

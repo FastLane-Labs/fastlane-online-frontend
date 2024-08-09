@@ -58,7 +58,7 @@ export const useAllowanceManager = () => {
         return false
       }
     },
-    [signer, queryClient]
+    [signer, queryClient, userAddress]
   )
 
   const isSufficientAllowance = useCallback(
