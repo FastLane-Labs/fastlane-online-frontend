@@ -71,4 +71,4 @@ export const SANCTIONED_ADDRESSES = SANCTIONED_ADDRS as Address[]
 export const ATLAS_GAS_SURCHARGE_PERCENTAGE = 12n
 // Constants for gas estimates for swap and solver
 export const SWAP_GAS_ESTIMATE = 350_000n
-export const SOLVER_GAS_ESTIMATE = 1_500_000n
+export const SOLVER_GAS_ESTIMATE = 2_500_000n
