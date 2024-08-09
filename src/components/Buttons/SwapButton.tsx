@@ -111,33 +111,27 @@ const SwapButton: React.FC<SwapButtonProps> = ({ handleSwap, isLoading }) => {
 
   const isDisabled = useMemo(() => {
     if (userBlocked) {
-      console.log('Button disabled because user is blocked')
       return true
     }
     if (status === 'reconnecting') {
-      console.log('Button disabled because status is reconnecting')
       return true
     }
     if (!initialized) {
-      console.log('Button disabled because not initialized')
       return true
     }
     if (isSupportedChain) {
       if (isMissingUserInput) {
-        console.log('Button disabled because user input is missing')
         return true
       }
       if (!hasSufficientBalance) {
-        console.log('Button disabled because balance is insufficient')
         return true
       }
       if (isMissingSwapData) {
-        console.log('Button disabled because swap data is missing')
         return true
       }
     }
     return false
-  }, [status, initialized, isSupportedChain, isMissingUserInput, hasSufficientBalance, isMissingSwapData])
+  }, [status, initialized, isSupportedChain, isMissingUserInput, hasSufficientBalance, isMissingSwapData, userBlocked])
 
   const getButtonText = useCallback(() => {
     if (userBlocked) return 'You are not allowed to use this app'
