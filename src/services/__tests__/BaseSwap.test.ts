@@ -4,7 +4,7 @@
 
 import { BaseSwapService } from '@/services/baseSwap'
 import { ChainId, Exchange, SwapType } from '@/constants'
-import { Token, SwapRoute } from '@/types'
+import { Token, SwapRoute, QuoteResult } from '@/types'
 
 const chainId = ChainId.POLYGON
 
@@ -356,5 +356,97 @@ describe('baseSwap', () => {
     expect(result?.swapType).toBe(SwapType.EXACT_OUT)
     expect(result?.amountIn).toBeGreaterThan(BigInt(0))
     expect(result?.amountOut).toBe(BigInt(10e6))
+  })
+
+  test('getSwapIntent - single step route with 0.5% slippage', () => {
+    const quoteResult: QuoteResult = {
+      swapType: SwapType.EXACT_IN,
+      swapRoute: {
+        chainId: ChainId.POLYGON,
+        exchange: Exchange.UNISWAPV3,
+        swapSteps: [
+          {
+            tokenIn: POLYGON_WMATIC,
+            tokenOut: POLYGON_USDC,
+            extra: { fee: 500 },
+          },
+        ],
+      },
+      amountIn: BigInt(10e18),
+      amountOut: BigInt(20e6),
+      validUntil: 0,
+    }
+
+    const swapIntent = baseSwapService.getSwapIntent(quoteResult, 50) // 0.5% slippage, valid until now
+
+    expect(swapIntent).toEqual({
+      tokenUserBuys: POLYGON_USDC.address,
+      minAmountUserBuys: BigInt(19900000), // 20e6 * 0.995
+      tokenUserSells: POLYGON_WMATIC.address,
+      amountUserSells: BigInt(10e18),
+    })
+  })
+
+  test('getSwapIntent - multi-step route with 1% slippage', () => {
+    const quoteResult: QuoteResult = {
+      swapType: SwapType.EXACT_OUT,
+      swapRoute: {
+        chainId: ChainId.POLYGON,
+        exchange: Exchange.UNISWAPV3,
+        swapSteps: [
+          {
+            tokenIn: POLYGON_WMATIC,
+            tokenOut: POLYGON_USDT,
+            extra: { fee: 500 },
+          },
+          {
+            tokenIn: POLYGON_USDT,
+            tokenOut: POLYGON_USDC,
+            extra: { fee: 500 },
+          },
+        ],
+      },
+      amountIn: BigInt(15e18),
+      amountOut: BigInt(30e6),
+      validUntil: 0,
+    }
+
+    const swapIntent = baseSwapService.getSwapIntent(quoteResult, 100) // 1% slippage
+
+    expect(swapIntent).toEqual({
+      tokenUserBuys: POLYGON_USDC.address,
+      minAmountUserBuys: BigInt(29700000), // 30e6 * 0.99
+      tokenUserSells: POLYGON_WMATIC.address,
+      amountUserSells: BigInt(15e18),
+    })
+  })
+
+  test('getSwapIntent - zero slippage', () => {
+    const quoteResult: QuoteResult = {
+      swapType: SwapType.EXACT_IN,
+      swapRoute: {
+        chainId: ChainId.POLYGON,
+        exchange: Exchange.UNISWAPV3,
+        swapSteps: [
+          {
+            tokenIn: POLYGON_WMATIC,
+            tokenOut: POLYGON_USDC,
+            extra: { fee: 500 },
+          },
+        ],
+      },
+      amountIn: BigInt(10e18),
+      amountOut: BigInt(20e6),
+      validUntil: 0,
+    }
+
+    const swapIntent = baseSwapService.getSwapIntent(quoteResult, 0) // 0% slippage
+
+    expect(swapIntent).toEqual({
+      tokenUserBuys: POLYGON_USDC.address,
+      minAmountUserBuys: BigInt(20e6), // No change with 0% slippage
+      tokenUserSells: POLYGON_WMATIC.address,
+      amountUserSells: BigInt(10e18),
+    })
   })
 })

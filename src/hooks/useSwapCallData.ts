@@ -3,10 +3,11 @@ import { useQuery, UseQueryOptions } from '@tanstack/react-query'
 import { keys } from '@/core/queries/query-keys'
 import { QuoteResult, SwapCallData, Token } from '@/types'
 import { Address } from 'viem'
-import { buildSwapIntent, buildBaselineCallData, buildUserOperation, getExecutionEnvironment } from '@/core/atlas'
+import { buildBaselineCallData, buildUserOperation, getExecutionEnvironment } from '@/core/atlas'
 import { calculateDeadlineBlockNumber } from '@/utils/settings'
 import { getAtlasGasSurcharge, getFeeData } from '@/utils/gasFee'
 import { SOLVER_GAS_ESTIMATE, SWAP_GAS_ESTIMATE } from '@/constants'
+import { BaseSwapService } from '@/services/baseSwap'
 
 export const useSwapCallData = (
   address: string | undefined,
@@ -46,7 +47,7 @@ export const useSwapCallData = (
           return null
         }
 
-        const swapIntent = buildSwapIntent(quoteResult)
+        const swapIntent = BaseSwapService.getInstance().getSwapIntent(quoteResult, config.slippage)
         const executionEnvironment = await getExecutionEnvironment(
           atlasAddress as Address,
           address as Address,

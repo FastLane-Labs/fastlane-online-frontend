@@ -8,21 +8,7 @@ import { Address } from 'viem'
 import { newUserOperation } from '@/core/operations/utils'
 import { UserOperation } from '@/core/operations'
 
-const baseSwapService = new BaseSwapService()
-
-/**
- * Build the swap intent for an Atlas swap
- * @param quoteResult The quote result
- * @returns The swap intent
- */
-export function buildSwapIntent(quoteResult: QuoteResult): SwapIntent {
-  return {
-    tokenUserBuys: quoteResult.swapRoute.swapSteps[quoteResult.swapRoute.swapSteps.length - 1].tokenOut.address,
-    minAmountUserBuys: quoteResult.amountOut,
-    tokenUserSells: quoteResult.swapRoute.swapSteps[0].tokenIn.address,
-    amountUserSells: quoteResult.amountIn,
-  }
-}
+const baseSwapService = BaseSwapService.getInstance()
 
 /**
  * Build the baseline call data for an Atlas swap

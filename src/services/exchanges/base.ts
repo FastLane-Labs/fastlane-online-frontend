@@ -1,4 +1,5 @@
 import { Token, SwapStep, QuoteRequest, QuoteResult } from '@/types'
+import { SwapIntent } from '@/types/atlas'
 import { ContractFunctionParameters, Address, Hex } from 'viem'
 
 /**
@@ -53,6 +54,17 @@ export abstract class Exchange {
    * @returns The swap calldata
    */
   public static getSwapCalldataFromQuoteResult(quoteResult: QuoteResult, recipient: Address, slippage: number): Hex {
+    throw new Error('Method not implemented.')
+  }
+
+  /**
+   * Get the swap intent from a quote result
+   * @param quoteResult The quote result
+   * @param recipient The recipient of the swap
+   * @param slippage The allowed slippage in basis points
+   * @returns The swap intent
+   */
+  public static getSwapIntent(quoteResult: QuoteResult, slippage: number): SwapIntent {
     throw new Error('Method not implemented.')
   }
 }

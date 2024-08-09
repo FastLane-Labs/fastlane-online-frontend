@@ -4,6 +4,7 @@ import { Token, SwapStep, SwapRoute, QuoteRequest, QuoteResult } from '@/types'
 import { SwapType, CONTRACT_ADDRRESSES } from '@/constants'
 import { QUOTERV2_ABI, SWAPROUTER02_ABI } from '@/constants/uniswap/v3'
 import { Address, Hex, ContractFunctionParameters, encodeFunctionData, encodePacked } from 'viem'
+import { SwapIntent } from '@/types/atlas'
 
 const POOL_FEES = [500, 3000, 10000]
 
@@ -87,6 +88,21 @@ export class UniswapV3 extends Exchange {
       functionName: this._getSwapFunctionName(quoteResult),
       args: this._getSwapFunctionParameters(quoteResult, recipient, slippage),
     })
+  }
+
+  /**
+   * Get the swap intent from a quote result
+   * @param quoteResult The quote result
+   * @param slippage The allowed slippage in basis points
+   * @returns The swap intent
+   */
+  public static getSwapIntent(quoteResult: QuoteResult, slippage: number): SwapIntent {
+    return {
+      tokenUserBuys: quoteResult.swapRoute.swapSteps[quoteResult.swapRoute.swapSteps.length - 1].tokenOut.address,
+      minAmountUserBuys: this._amountWithSlippage(quoteResult.amountOut, slippage, false),
+      tokenUserSells: quoteResult.swapRoute.swapSteps[0].tokenIn.address,
+      amountUserSells: quoteResult.amountIn,
+    }
   }
 
   /**
