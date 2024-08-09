@@ -35,9 +35,11 @@ const SwapModal: React.FC<SwapModalProps> = ({ isVisible, onClose, onSwap, onApp
   // list of errors we want to create notifications for:
   const validErrorList = ['approve failed', 'swap failed']
 
+  // create notification for valid errors when they occur
   useEffect(() => {
     if (error) {
       const errorMessage = error.message.toLowerCase()
+      // check if error is one we want to create a notification for
       const isValidError = validErrorList.some((validError) => errorMessage.includes(validError.toLowerCase()))
 
       if (isValidError) {
