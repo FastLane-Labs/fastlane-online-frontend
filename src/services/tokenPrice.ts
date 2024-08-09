@@ -6,7 +6,13 @@ import { toBigInt } from '@/utils/format'
 import { TokenProvider } from '@/providers/StaticTokenListProvider'
 import { calculateExchangeRate } from '@/utils/exchangeRate'
 
-export class TokenPriceService {
+export interface ITokenPriceService {
+  getTokens(chainId: ChainId): Promise<Token[]>
+  getTokenByAddress(address: string, chainId: ChainId): Promise<Token | null>
+  getUsdPriceForToken(usdcToken: Token, token: Token): Promise<number>
+}
+
+export class TokenPriceService implements ITokenPriceService {
   private swapPathService: SwapPathService
   private baseSwapService: BaseSwapService
 
