@@ -29,7 +29,8 @@ export interface SwapRoute {
 
 export interface QuoteRequest {
   swapType: SwapType
-  amount: bigint // in or out depending on swapType
+  amount: bigint // Regular amount (in or out depending on swapType)
+  smallAmount: bigint // Small amount for price impact calculation
   swapRoute: SwapRoute
 }
 
@@ -39,6 +40,15 @@ export interface QuoteResult {
   amountOut: bigint
   swapRoute: SwapRoute
   validUntil: number
+}
+
+export interface QuoteResults {
+  regularQuote: QuoteResult
+  smallQuote: QuoteResult
+}
+
+export interface QuoteResultWithPriceImpact extends QuoteResult {
+  priceImpact: string
 }
 
 export interface SwapCallData {

@@ -1,11 +1,12 @@
 import { config } from '../../wagmi.config'
 import { SwapType } from '@/constants'
-import { QuoteRequest, QuoteResult, SwapRoute } from '@/types'
+import { QuoteRequest, QuoteResult, QuoteResultWithPriceImpact, SwapRoute } from '@/types'
 import { getExchange } from '@/services/exchanges'
 import { multicall } from '@wagmi/core'
 import { tokenCmp } from '@/utils/token'
 import { ContractFunctionParameters, Address, Hex } from 'viem'
 import { SwapIntent } from '@/types/atlas'
+import { calculatePriceImpact, calculateQuotePriceImpact } from '@/utils/calculatePriceImpact'
 
 interface IBaseSwapService {
   getBestQuoteExactIn(amountIn: bigint, candidates: SwapRoute[]): Promise<QuoteResult | undefined>
@@ -35,7 +36,10 @@ export class BaseSwapService implements IBaseSwapService {
    * @param candidates The swap route candidates
    * @returns The best quote result or undefined in case of failure
    */
-  async getBestQuoteExactIn(amountIn: bigint, candidates: SwapRoute[]): Promise<QuoteResult | undefined> {
+  async getBestQuoteExactIn(
+    amountIn: bigint,
+    candidates: SwapRoute[]
+  ): Promise<QuoteResultWithPriceImpact | undefined> {
     return this.getBestQuote(SwapType.EXACT_IN, amountIn, candidates)
   }
 
@@ -45,7 +49,10 @@ export class BaseSwapService implements IBaseSwapService {
    * @param candidates The swap route candidates
    * @returns The best quote result or undefined in case of failure
    */
-  async getBestQuoteExactOut(amountOut: bigint, candidates: SwapRoute[]): Promise<QuoteResult | undefined> {
+  async getBestQuoteExactOut(
+    amountOut: bigint,
+    candidates: SwapRoute[]
+  ): Promise<QuoteResultWithPriceImpact | undefined> {
     return this.getBestQuote(SwapType.EXACT_OUT, amountOut, candidates)
   }
 
@@ -81,21 +88,60 @@ export class BaseSwapService implements IBaseSwapService {
       throw new Error('validateSwapRouteCandidates: no swap route candidates provided')
     }
 
-    // All routes must start and end with the same tokens
-    const tokenIn = candidates[0].swapSteps[0].tokenIn
-    const tokenOut = candidates[0].swapSteps[candidates[0].swapSteps.length - 1].tokenOut
+    const referenceTokenIn = candidates[0].swapSteps[0].tokenIn
+    const referenceTokenOut = candidates[0].swapSteps[candidates[0].swapSteps.length - 1].tokenOut
 
-    if (tokenCmp(tokenIn, tokenOut)) {
-      throw new Error('validateSwapRouteCandidates: invalid route, tokenIn and tokenOut are the same')
-    }
+    for (let i = 0; i < candidates.length; i++) {
+      const candidate = candidates[i]
 
-    for (const candidate of candidates) {
-      if (!tokenCmp(candidate.swapSteps[0].tokenIn, tokenIn)) {
-        throw new Error('validateSwapRouteCandidates: invalid route, tokenIn mismatch')
+      // Ensure each candidate has at least one swap step
+      if (candidate.swapSteps.length === 0) {
+        throw new Error(`validateSwapRouteCandidates: candidate ${i} has no swap steps`)
       }
 
-      if (!tokenCmp(candidate.swapSteps[candidate.swapSteps.length - 1].tokenOut, tokenOut)) {
-        throw new Error('validateSwapRouteCandidates: invalid route, tokenOut mismatch')
+      const firstTokenIn = candidate.swapSteps[0].tokenIn
+      const lastTokenOut = candidate.swapSteps[candidate.swapSteps.length - 1].tokenOut
+
+      // Ensure all candidates have the same first tokenIn and last tokenOut
+      if (!tokenCmp(referenceTokenIn, firstTokenIn)) {
+        throw new Error(
+          `validateSwapRouteCandidates: candidate ${i} has a different first tokenIn (${firstTokenIn.symbol}) than the reference (${referenceTokenIn.symbol})`
+        )
+      }
+
+      if (!tokenCmp(referenceTokenOut, lastTokenOut)) {
+        throw new Error(
+          `validateSwapRouteCandidates: candidate ${i} has a different last tokenOut (${lastTokenOut.symbol}) than the reference (${referenceTokenOut.symbol})`
+        )
+      }
+
+      // Check that the first and last tokens are different within the candidate
+      if (tokenCmp(firstTokenIn, lastTokenOut)) {
+        throw new Error(
+          `validateSwapRouteCandidates: invalid route in candidate ${i}, first tokenIn (${firstTokenIn.symbol}) and last tokenOut (${lastTokenOut.symbol}) are the same`
+        )
+      }
+
+      // Check each swap step within this candidate
+      for (let j = 0; j < candidate.swapSteps.length; j++) {
+        const step = candidate.swapSteps[j]
+
+        // Each step's tokenIn and tokenOut should be different
+        if (tokenCmp(step.tokenIn, step.tokenOut)) {
+          throw new Error(
+            `validateSwapRouteCandidates: invalid step ${j} in candidate ${i}, tokenIn (${step.tokenIn.symbol}) and tokenOut (${step.tokenOut.symbol}) are the same`
+          )
+        }
+
+        // Check connection between steps within this candidate
+        if (j < candidate.swapSteps.length - 1) {
+          const nextStep = candidate.swapSteps[j + 1]
+          if (!tokenCmp(step.tokenOut, nextStep.tokenIn)) {
+            throw new Error(
+              `validateSwapRouteCandidates: invalid route in candidate ${i}, step ${j} tokenOut (${step.tokenOut.symbol}) doesn't match step ${j + 1} tokenIn (${nextStep.tokenIn.symbol})`
+            )
+          }
+        }
       }
     }
   }
@@ -111,7 +157,7 @@ export class BaseSwapService implements IBaseSwapService {
     swapType: SwapType,
     amount: bigint,
     candidates: SwapRoute[]
-  ): Promise<QuoteResult | undefined> {
+  ): Promise<QuoteResultWithPriceImpact | undefined> {
     try {
       this.validateSwapRouteCandidates(candidates)
     } catch (error: any) {
@@ -119,15 +165,34 @@ export class BaseSwapService implements IBaseSwapService {
       return
     }
 
+    const smallAmountPercentage = 1 // 1% of the regular amount
+    const smallAmount = (amount * BigInt(smallAmountPercentage)) / BigInt(100)
+
     if (candidates.length === 1) {
-      // Single candidate, direct quote call
       const quoteRequest: QuoteRequest = {
         swapType,
         amount,
+        smallAmount,
         swapRoute: candidates[0],
       }
 
-      return getExchange(candidates[0].exchange).getQuote(quoteRequest)
+      const exchange = getExchange(candidates[0].exchange)
+      const quotes = await exchange.getQuote(quoteRequest)
+
+      if (!quotes) return undefined
+
+      const { regularQuote, smallQuote } = quotes
+      const fromToken = regularQuote.swapRoute.swapSteps[0].tokenIn
+      const toToken = regularQuote.swapRoute.swapSteps[regularQuote.swapRoute.swapSteps.length - 1].tokenOut
+      const priceImpact = calculateQuotePriceImpact(
+        fromToken,
+        toToken,
+        regularQuote.amountIn.toString(),
+        regularQuote.amountOut.toString(),
+        smallQuote.amountIn.toString(),
+        smallQuote.amountOut.toString()
+      )
+      return { ...regularQuote, priceImpact }
     }
 
     // Multicall when more than one candidate
@@ -138,11 +203,12 @@ export class BaseSwapService implements IBaseSwapService {
       const quoteRequest: QuoteRequest = {
         swapType,
         amount,
+        smallAmount,
         swapRoute: candidate,
       }
 
       quoteRequests.push(quoteRequest)
-      calls.push(getExchange(candidate.exchange).getQuoteContractCall(quoteRequest))
+      calls.push(...getExchange(candidate.exchange).getQuoteContractCalls(quoteRequest))
     }
 
     const results = await multicall(config, {
@@ -150,39 +216,44 @@ export class BaseSwapService implements IBaseSwapService {
       contracts: calls,
     })
 
-    let bestAmount = BigInt(0)
-    let bestQuoteResult: QuoteResult | undefined
+    let bestQuote: QuoteResult | undefined
+    let bestPriceImpact: string | undefined
 
-    for (let i = 0; i < results.length; i++) {
-      if (results[i].status === 'failure') {
-        continue
-      }
-
-      const quoteResult = getExchange(candidates[i].exchange).getFormattedQuoteResult(
-        quoteRequests[i],
-        results[i].result
+    for (let i = 0; i < candidates.length; i++) {
+      const exchange = getExchange(candidates[i].exchange)
+      const regularQuote = exchange.getFormattedQuoteResult(quoteRequests[i], results[i * 2].result)
+      const smallQuote = exchange.getFormattedQuoteResult(
+        { ...quoteRequests[i], amount: quoteRequests[i].smallAmount },
+        results[i * 2 + 1].result
       )
 
-      if (!quoteResult || !quoteResult.amountOut || !quoteResult.amountIn) {
+      if (!regularQuote || !smallQuote) {
         continue
       }
 
-      switch (swapType) {
-        case SwapType.EXACT_IN:
-          if (quoteResult.amountOut > bestAmount) {
-            bestAmount = quoteResult.amountOut
-            bestQuoteResult = quoteResult
-          }
-          break
-        case SwapType.EXACT_OUT:
-          if (quoteResult.amountIn < bestAmount || bestAmount === BigInt(0)) {
-            bestAmount = quoteResult.amountIn
-            bestQuoteResult = quoteResult
-          }
-          break
+      const fromToken = regularQuote.swapRoute.swapSteps[0].tokenIn
+      const toToken = regularQuote.swapRoute.swapSteps[regularQuote.swapRoute.swapSteps.length - 1].tokenOut
+
+      const priceImpact = calculateQuotePriceImpact(
+        fromToken,
+        toToken,
+        regularQuote.amountIn.toString(),
+        regularQuote.amountOut.toString(),
+        smallQuote.amountIn.toString(),
+        smallQuote.amountOut.toString()
+      )
+
+      if (
+        !bestQuote ||
+        (swapType === SwapType.EXACT_IN
+          ? regularQuote.amountOut > bestQuote.amountOut
+          : regularQuote.amountIn < bestQuote.amountIn)
+      ) {
+        bestQuote = regularQuote
+        bestPriceImpact = priceImpact
       }
     }
 
-    return bestQuoteResult
+    return bestQuote && bestPriceImpact ? { ...bestQuote, priceImpact: bestPriceImpact } : undefined
   }
 }

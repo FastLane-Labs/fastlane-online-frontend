@@ -1,6 +1,6 @@
 import { publicClient } from '../../../wagmi.config'
 import { Exchange } from './base'
-import { Token, SwapStep, SwapRoute, QuoteRequest, QuoteResult } from '@/types'
+import { Token, SwapStep, SwapRoute, QuoteRequest, QuoteResult, QuoteResults } from '@/types'
 import { SwapType, CONTRACT_ADDRRESSES } from '@/constants'
 import { QUOTERV2_ABI, SWAPROUTER02_ABI } from '@/constants/uniswap/v3'
 import { Address, Hex, ContractFunctionParameters, encodeFunctionData, encodePacked } from 'viem'
@@ -45,12 +45,22 @@ export class UniswapV3 extends Exchange {
   /**
    * inherited and overriden from Exchange
    */
-  public static async getQuote(quoteRequest: QuoteRequest): Promise<QuoteResult | undefined> {
+  public static async getQuote(quoteRequest: QuoteRequest): Promise<QuoteResults | undefined> {
     try {
-      const { result } = await publicClient.simulateContract(this.getQuoteContractCall(quoteRequest))
-      return this.getFormattedQuoteResult(quoteRequest, result)
+      const calls = this.getQuoteContractCalls(quoteRequest)
+      const results = await Promise.all(calls.map((call) => publicClient.simulateContract(call)))
+
+      const processQuote = (amount: bigint, result: any) =>
+        this.getFormattedQuoteResult({ ...quoteRequest, amount }, result)
+
+      const [regularQuote, smallQuote] = results.map((res, index) =>
+        processQuote(index === 0 ? quoteRequest.amount : quoteRequest.smallAmount, res.result)
+      )
+
+      return { regularQuote, smallQuote }
     } catch (error: any) {
-      // Let the function return undefined in case of an error
+      // consider more granular error handling here
+      return undefined
     }
   }
 
@@ -70,13 +80,20 @@ export class UniswapV3 extends Exchange {
   /**
    * inherited and overriden from Exchange
    */
-  public static getQuoteContractCall(quoteRequest: QuoteRequest): ContractFunctionParameters {
-    return {
+  public static getQuoteContractCalls(quoteRequest: QuoteRequest): ContractFunctionParameters[] {
+    const regularCall = {
       address: CONTRACT_ADDRRESSES[quoteRequest.swapRoute.chainId].UNISWAPV3.quoter,
       abi: QUOTERV2_ABI,
       functionName: this._getQuoteFunctionName(quoteRequest),
       args: this._getQuoteFunctionParameters(quoteRequest),
     }
+
+    const smallCall = {
+      ...regularCall,
+      args: this._getQuoteFunctionParameters({ ...quoteRequest, amount: quoteRequest.smallAmount }),
+    }
+
+    return [regularCall, smallCall]
   }
 
   /**

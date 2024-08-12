@@ -1,4 +1,4 @@
-import { Token, SwapStep, QuoteRequest, QuoteResult } from '@/types'
+import { Token, SwapStep, QuoteRequest, QuoteResult, QuoteResults } from '@/types'
 import { SwapIntent } from '@/types/atlas'
 import { ContractFunctionParameters, Address, Hex } from 'viem'
 
@@ -23,7 +23,7 @@ export abstract class Exchange {
    * @returns The quote result
    * @dev Use this method to quote a single candidate route swap
    */
-  public static async getQuote(quoteRequest: QuoteRequest): Promise<QuoteResult | undefined> {
+  public static async getQuote(quoteRequest: QuoteRequest): Promise<QuoteResults | undefined> {
     throw new Error('Method not implemented.')
   }
 
@@ -42,7 +42,7 @@ export abstract class Exchange {
    * @param quoteRequest The quote request
    * @returns The contract call parameters
    */
-  public static getQuoteContractCall(quoteRequest: QuoteRequest): ContractFunctionParameters {
+  public static getQuoteContractCalls(quoteRequest: QuoteRequest): ContractFunctionParameters[] {
     throw new Error('Method not implemented.')
   }
 
