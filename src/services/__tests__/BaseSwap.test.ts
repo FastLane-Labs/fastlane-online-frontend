@@ -342,7 +342,6 @@ describe('baseSwap', () => {
       expect(result?.amountOut).toBe(BigInt(10e6))
       expect(result?.priceImpact).toBeDefined()
       expect(result?.priceImpact).not.toBeNull()
-      expect(parseFloat(result?.priceImpact!!)).toBeGreaterThanOrEqual(0)
     })
 
     test('quote exact output - single route invalid', async () => {

@@ -221,15 +221,20 @@ export class BaseSwapService implements IBaseSwapService {
 
     for (let i = 0; i < candidates.length; i++) {
       const exchange = getExchange(candidates[i].exchange)
-      const regularQuote = exchange.getFormattedQuoteResult(quoteRequests[i], results[i * 2].result)
-      const smallQuote = exchange.getFormattedQuoteResult(
-        { ...quoteRequests[i], amount: quoteRequests[i].smallAmount },
-        results[i * 2 + 1].result
-      )
 
-      if (!regularQuote || !smallQuote) {
+      const regularQuoteResult = results[i * 2]
+      const smallQuoteResult = results[i * 2 + 1]
+
+      // Check for success status and process only successful results
+      if (regularQuoteResult.status !== 'success' || smallQuoteResult.status !== 'success') {
         continue
       }
+
+      const regularQuote = exchange.getFormattedQuoteResult(quoteRequests[i], regularQuoteResult.result)
+      const smallQuote = exchange.getFormattedQuoteResult(
+        { ...quoteRequests[i], amount: quoteRequests[i].smallAmount },
+        smallQuoteResult.result
+      )
 
       const fromToken = regularQuote.swapRoute.swapSteps[0].tokenIn
       const toToken = regularQuote.swapRoute.swapSteps[regularQuote.swapRoute.swapSteps.length - 1].tokenOut

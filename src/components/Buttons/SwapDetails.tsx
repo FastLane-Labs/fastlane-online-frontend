@@ -2,9 +2,11 @@ import { useState, useMemo } from 'react'
 import { useSwapStateContext } from '@/context/SwapStateContext'
 import { ChevronDownIcon } from '@heroicons/react/20/solid'
 import { calculateExchangeRate } from '@/utils/exchangeRate'
+import { useAppStore } from '@/store/useAppStore'
 
 const SwapDetails = () => {
-  const { fromToken, toToken, fromAmount, toAmount } = useSwapStateContext()
+  const { fromToken, toToken, fromAmount, toAmount, quote } = useSwapStateContext()
+  const { config } = useAppStore()
   const [isExpanded, setIsExpanded] = useState(false)
 
   const exchangeRate = useMemo(() => {
@@ -13,6 +15,12 @@ const SwapDetails = () => {
     }
     return '0'
   }, [fromToken, toToken, fromAmount, toAmount])
+
+  const priceImpact = useMemo(() => {
+    if (!quote) return null
+    const amount = parseFloat(quote.priceImpact)
+    return amount
+  }, [quote])
 
   const toggleExpand = () => {
     setIsExpanded(!isExpanded)
@@ -64,7 +72,7 @@ const SwapDetails = () => {
 
         <div className='flex w-full items-center justify-between'>
           <h3 className='gray-text'>Price impact</h3>
-          <span className='text-end text-neutral-content'>{`<$0.01`}</span>
+          <span className='text-end text-neutral-content'>{`${priceImpact?.toFixed(2)}%`}</span>
         </div>
 
         <div className='flex w-full items-center justify-between'>
@@ -74,7 +82,7 @@ const SwapDetails = () => {
 
         <div className='flex w-full items-center justify-between'>
           <h3 className='gray-text'>Slippage</h3>
-          <span className='text-end text-neutral-content'>{`0.5%`}</span>
+          <span className='text-end text-neutral-content'>{`${config.slippage / 100}%`}</span>
         </div>
       </div>
 

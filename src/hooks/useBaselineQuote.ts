@@ -5,7 +5,7 @@ import { SwapPathService } from '@/services/swapPath'
 import { Exchange } from '@/constants'
 import { toBigInt } from '@/utils/format'
 import { keys } from '@/core/queries/query-keys'
-import { QuoteResult, Token } from '@/types'
+import { QuoteResult, QuoteResultWithPriceImpact, Token } from '@/types'
 
 const getTokenIdentifier = (token: Token | null) => (token ? token : ({} as Token))
 export const useBaselineQuote = (
@@ -20,7 +20,7 @@ export const useBaselineQuote = (
   const baselineSwapService = useMemo(() => new BaseSwapService(), [])
   const swapPathService = useMemo(() => new SwapPathService(), [])
 
-  const queryOptions: UseQueryOptions<QuoteResult | null, Error> = useMemo(
+  const queryOptions: UseQueryOptions<QuoteResultWithPriceImpact | null, Error> = useMemo(
     () => ({
       queryKey: keys({ address }).swapQuote(
         getTokenIdentifier(fromToken),
@@ -28,9 +28,9 @@ export const useBaselineQuote = (
         swapDirection,
         amount
       ),
-      queryFn: async (): Promise<QuoteResult | null> => {
+      queryFn: async (): Promise<QuoteResultWithPriceImpact | null> => {
         if (!fromToken || !toToken || !chainId) return null
-        console.log(`get baseline quote for ${fromToken.symbol} to ${toToken.symbol}`)
+
         const swapRoutes = await swapPathService.getSwapRoutes(fromToken, toToken, chainId, Exchange.UNISWAPV3)
         if (swapRoutes.length === 0) return null
 
@@ -52,5 +52,5 @@ export const useBaselineQuote = (
     [address, fromToken, toToken, swapDirection, amount, chainId, enabled, swapPathService, baselineSwapService]
   )
 
-  return useQuery<QuoteResult | null, Error>(queryOptions)
+  return useQuery<QuoteResultWithPriceImpact | null, Error>(queryOptions)
 }

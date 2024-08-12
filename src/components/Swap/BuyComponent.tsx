@@ -12,6 +12,7 @@ const BuyComponent: React.FC = () => {
     setToAmount: setBuyAmount,
     isQuoteing,
     setSwapDirection,
+    quote,
   } = useSwapStateContext()
 
   const { data: tokenPrice } = useTokenUsdPrice(buyToken)
@@ -21,6 +22,12 @@ const BuyComponent: React.FC = () => {
     const amount = parseFloat(buyAmount)
     return isNaN(amount) ? null : amount * tokenPrice
   }, [tokenPrice, buyAmount])
+
+  const priceImpact = useMemo(() => {
+    if (!quote) return null
+    const amount = parseFloat(quote.priceImpact)
+    return amount
+  }, [quote])
 
   return (
     <div className='input-card mb-4'>
@@ -43,7 +50,8 @@ const BuyComponent: React.FC = () => {
         disabled={true}
       />
       <div className='text-left mt-2 text-sm text-base-content h-5'>
-        {usdValue !== null ? `$${usdValue.toFixed(2)}` : '\u00A0'}
+        {usdValue !== null ? `$${usdValue.toFixed(2)} ` : '\u000A0'}
+        {priceImpact !== null ? `(${priceImpact.toFixed(4)}%)` : '\u000A0'}
       </div>
     </div>
   )

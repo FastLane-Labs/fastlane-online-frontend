@@ -1,5 +1,5 @@
 import { Token } from '@/types'
-import { FixedNumber, parseUnits } from 'ethers'
+import { formatUnits, parseUnits } from 'ethers'
 
 export const calculateExchangeRate = (
   fromToken: Token,
@@ -7,18 +7,35 @@ export const calculateExchangeRate = (
   amountIn: string,
   amountOut: string
 ): string => {
-  // Convert amounts to BigInt, considering token decimals
-  const sourceAmountBigInt = parseUnits(amountIn, fromToken.decimals)
-  const destAmountBigInt = parseUnits(amountOut, toToken.decimals)
+  const sourceAmount = parseUnits(amountIn, fromToken.decimals)
+  const destAmount = parseUnits(amountOut, toToken.decimals)
 
-  // Convert to FixedNumber for division
-  const sourceTokenBN = FixedNumber.fromValue(sourceAmountBigInt, fromToken.decimals)
-  const destinationTokenBN = FixedNumber.fromValue(destAmountBigInt, toToken.decimals)
-
-  if (sourceTokenBN.isZero()) {
+  if (sourceAmount === 0n) {
     return '0'
   }
 
-  // Calculate rate
-  return destinationTokenBN.divUnsafe(sourceTokenBN).toString()
+  const rate = (destAmount * parseUnits('1', 36)) / sourceAmount
+  const scaledRate = (rate * parseUnits('1', fromToken.decimals)) / parseUnits('1', toToken.decimals)
+
+  let formattedRate = formatUnits(scaledRate, 36)
+
+  // Trim trailing zeros and unnecessary decimal point
+  formattedRate = formattedRate.replace(/\.?0+$/, '')
+  if (formattedRate.endsWith('.')) {
+    formattedRate = formattedRate.slice(0, -1)
+  }
+  if (!formattedRate.includes('.')) {
+    formattedRate += '.0'
+  }
+
+  // Ensure the result has the correct number of decimal places
+  const parts = formattedRate.split('.')
+  if (parts[1]) {
+    parts[1] = parts[1].slice(0, fromToken.decimals)
+    formattedRate = parts.join('.')
+  }
+
+  // Handle negative rates
+  const isNegative = sourceAmount < 0n !== destAmount < 0n
+  return isNegative ? '-' + formattedRate : formattedRate
 }

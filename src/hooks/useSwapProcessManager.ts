@@ -68,8 +68,6 @@ export const useSwapProcessManager = () => {
   )
 
   const updateQuoteLoading = useCallback(() => {
-    console.log('isQuoteReady', isQuoteReady)
-    console.log('quoteLoading', quoteLoading)
     setIsQuoteing(isQuoteReady && quoteLoading)
   }, [isQuoteReady, quoteLoading, setIsQuoteing])
 

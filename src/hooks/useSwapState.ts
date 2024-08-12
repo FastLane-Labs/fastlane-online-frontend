@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback, useMemo } from 'react'
-import { QuoteResult, SwapCallData, SwapDirection, SwapResult, Token } from '@/types'
+import { QuoteResult, QuoteResultWithPriceImpact, SwapCallData, SwapDirection, SwapResult, Token } from '@/types'
 import { useCurrentTokenList } from './useTokenList'
 import { useAccount } from 'wagmi'
 import { toBigInt } from '@/utils/format'
@@ -22,7 +22,7 @@ export interface SwapState {
   swapDirection: SwapDirection
 
   // Quote States
-  quote: QuoteResult | null
+  quote: QuoteResultWithPriceImpact | null
   isQuoteing: boolean
   allowQuoteUpdate: boolean
 
@@ -45,7 +45,7 @@ export interface SwapState {
   setFromAmount: (amount: string) => void
   setToAmount: (amount: string) => void
   setSwapDirection: (direction: SwapDirection) => void
-  setQuote: (quote: QuoteResult | null) => void
+  setQuote: (quote: QuoteResultWithPriceImpact | null) => void
   setIsQuoteing: (isQuoteing: boolean) => void
   setAllowQuoteUpdate: (allowQuoteUpdate: boolean) => void
   setSwapData: (data: SwapCallData | null) => void
@@ -92,7 +92,7 @@ export const useSwapState = (): SwapState => {
   const [swapDirection, setSwapDirection] = useState<SwapDirection>('sell')
 
   // Quote states
-  const [quote, setQuote] = useState<QuoteResult | null>(null)
+  const [quote, setQuote] = useState<QuoteResultWithPriceImpact | null>(null)
   const [isQuoteing, setIsQuoteing] = useState<boolean>(false)
   const [allowQuoteUpdate, setAllowQuoteUpdate] = useState<boolean>(true)
 
