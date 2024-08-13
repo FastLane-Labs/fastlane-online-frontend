@@ -5,6 +5,7 @@
 import { BaseSwapService } from '@/services/baseSwap'
 import { ChainId, Exchange, SwapType } from '@/constants'
 import { Token, SwapRoute, QuoteResult, QuoteRequest, QuoteResultWithPriceImpact } from '@/types'
+import { zeroAddress } from 'viem'
 
 const chainId = ChainId.POLYGON
 
@@ -151,6 +152,8 @@ describe('baseSwap', () => {
               extra: { fee: 500 },
             },
           ],
+          isFromNative: false,
+          isToNative: false,
         },
         {
           chainId: ChainId.POLYGON,
@@ -184,6 +187,8 @@ describe('baseSwap', () => {
               extra: { fee: 500 },
             },
           ],
+          isFromNative: false,
+          isToNative: false,
         },
         {
           chainId: ChainId.POLYGON,
@@ -480,14 +485,12 @@ describe('baseSwap', () => {
         priceImpact: '0.5',
       }
 
-      const swapIntent = baseSwapService.getSwapIntent(quoteResult, 50) // 0.5% slippage, valid until now
+      const swapIntent = baseSwapService.getSwapIntent(quoteResult, 50) // 0.5% slippage
 
-      expect(swapIntent).toEqual({
-        tokenUserBuys: POLYGON_USDC.address,
-        minAmountUserBuys: BigInt(19900000), // 20e6 * 0.995
-        tokenUserSells: POLYGON_WMATIC.address,
-        amountUserSells: BigInt(10e18),
-      })
+      expect(swapIntent.tokenUserBuys).toBe(POLYGON_USDC.address)
+      expect(swapIntent.minAmountUserBuys.toString()).toBe('19900000') // 20e6 * 0.995
+      expect(swapIntent.tokenUserSells).toBe(POLYGON_WMATIC.address)
+      expect(swapIntent.amountUserSells.toString()).toBe('10000000000000000000') // 10e18
     })
 
     test('getSwapIntent - multi-step route with 1% slippage', () => {
@@ -519,12 +522,10 @@ describe('baseSwap', () => {
 
       const swapIntent = baseSwapService.getSwapIntent(quoteResult, 100) // 1% slippage
 
-      expect(swapIntent).toEqual({
-        tokenUserBuys: POLYGON_USDC.address,
-        minAmountUserBuys: BigInt(29700000), // 30e6 * 0.99
-        tokenUserSells: POLYGON_WMATIC.address,
-        amountUserSells: BigInt(15e18),
-      })
+      expect(swapIntent.tokenUserBuys).toBe(POLYGON_USDC.address)
+      expect(swapIntent.minAmountUserBuys.toString()).toBe('29700000') // 30e6 * 0.99
+      expect(swapIntent.tokenUserSells).toBe(POLYGON_WMATIC.address)
+      expect(swapIntent.amountUserSells.toString()).toBe('15000000000000000000') // 15e18
     })
 
     test('getSwapIntent - zero slippage', () => {
@@ -551,12 +552,69 @@ describe('baseSwap', () => {
 
       const swapIntent = baseSwapService.getSwapIntent(quoteResult, 0) // 0% slippage
 
-      expect(swapIntent).toEqual({
-        tokenUserBuys: POLYGON_USDC.address,
-        minAmountUserBuys: BigInt(20e6), // No change with 0% slippage
-        tokenUserSells: POLYGON_WMATIC.address,
-        amountUserSells: BigInt(10e18),
-      })
+      expect(swapIntent.tokenUserBuys).toBe(POLYGON_USDC.address)
+      expect(swapIntent.minAmountUserBuys.toString()).toBe('20000000') // No change with 0% slippage
+      expect(swapIntent.tokenUserSells).toBe(POLYGON_WMATIC.address)
+      expect(swapIntent.amountUserSells.toString()).toBe('10000000000000000000') // 10e18
+    })
+
+    test('getSwapIntent - from native token', () => {
+      const quoteResult: QuoteResultWithPriceImpact = {
+        swapType: SwapType.EXACT_IN,
+        swapRoute: {
+          chainId: ChainId.POLYGON,
+          exchange: Exchange.UNISWAPV3,
+          swapSteps: [
+            {
+              tokenIn: POLYGON_WMATIC,
+              tokenOut: POLYGON_USDC,
+              extra: { fee: 500 },
+            },
+          ],
+          isFromNative: true,
+          isToNative: false,
+        },
+        amountIn: BigInt(10e18),
+        amountOut: BigInt(20e6),
+        validUntil: 0,
+        priceImpact: '0.5',
+      }
+
+      const swapIntent = baseSwapService.getSwapIntent(quoteResult, 50) // 0.5% slippage
+
+      expect(swapIntent.tokenUserBuys).toBe(POLYGON_USDC.address)
+      expect(swapIntent.minAmountUserBuys.toString()).toBe('19900000') // 20e6 * 0.995
+      expect(swapIntent.tokenUserSells).toBe(zeroAddress)
+      expect(swapIntent.amountUserSells.toString()).toBe('10000000000000000000') // 10e18
+    })
+
+    test('getSwapIntent - to native token', () => {
+      const quoteResult: QuoteResultWithPriceImpact = {
+        swapType: SwapType.EXACT_IN,
+        swapRoute: {
+          chainId: ChainId.POLYGON,
+          exchange: Exchange.UNISWAPV3,
+          swapSteps: [
+            {
+              tokenIn: POLYGON_USDC,
+              tokenOut: POLYGON_WMATIC,
+              extra: { fee: 500 },
+            },
+          ],
+          isFromNative: false,
+          isToNative: true,
+        },
+        amountIn: BigInt(20e6),
+        amountOut: BigInt(10e18),
+        validUntil: 0,
+        priceImpact: '0.5',
+      }
+
+      const swapIntent = baseSwapService.getSwapIntent(quoteResult, 50) // 0.5% slippage
+      expect(swapIntent.tokenUserBuys).toBe(zeroAddress)
+      expect(swapIntent.minAmountUserBuys.toString()).toBe('9950000000000000000') // 10e18 * 0.995
+      expect(swapIntent.tokenUserSells).toBe(POLYGON_USDC.address)
+      expect(swapIntent.amountUserSells.toString()).toBe('20000000') // 20e6
     })
   })
 })

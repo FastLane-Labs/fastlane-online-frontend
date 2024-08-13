@@ -108,25 +108,6 @@ export class UniswapV3 extends Exchange {
   }
 
   /**
-   * Get the swap intent from a quote result
-   * @param quoteResult The quote result
-   * @param slippage The allowed slippage in basis points
-   * @returns The swap intent
-   */
-  public static getSwapIntent(quoteResult: QuoteResult, slippage: number): SwapIntent {
-    const { isFromNative, isToNative, swapSteps } = quoteResult.swapRoute
-    const tokenUserSells = isToNative ? zeroAddress : swapSteps[0].tokenIn.address //From token
-    const tokenUserBuys = isFromNative ? zeroAddress : swapSteps[swapSteps.length - 1].tokenOut.address //To token
-
-    return {
-      tokenUserBuys: tokenUserBuys,
-      minAmountUserBuys: this._amountWithSlippage(quoteResult.amountOut, slippage, false),
-      tokenUserSells: tokenUserSells,
-      amountUserSells: quoteResult.amountIn,
-    }
-  }
-
-  /**
    * Get the contract quote function name based on the swap type and swap steps
    * @param quoteRequest The quote request
    * @returns The quote function name
@@ -350,16 +331,5 @@ export class UniswapV3 extends Exchange {
     }
 
     return encodePacked(types, values)
-  }
-
-  /**
-   * Compute the slippage amount
-   * @param amount The amount
-   * @param slippage The slippage in basis points
-   * @returns The slippage amount
-   */
-  protected static _amountWithSlippage(amount: bigint, slippage: number, positive: boolean): bigint {
-    const _slippage = (amount * BigInt(slippage)) / BigInt(10000)
-    return positive ? amount + _slippage : amount - _slippage
   }
 }

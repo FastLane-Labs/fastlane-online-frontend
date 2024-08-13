@@ -1,6 +1,6 @@
 import { Token, SwapStep, QuoteRequest, QuoteResult, QuoteResults } from '@/types'
 import { SwapIntent } from '@/types/atlas'
-import { ContractFunctionParameters, Address, Hex } from 'viem'
+import { ContractFunctionParameters, Address, Hex, zeroAddress } from 'viem'
 
 /**
  * Base class for exchanges. All exchanges should extend this class and implement the required methods.
@@ -60,11 +60,30 @@ export abstract class Exchange {
   /**
    * Get the swap intent from a quote result
    * @param quoteResult The quote result
-   * @param recipient The recipient of the swap
    * @param slippage The allowed slippage in basis points
    * @returns The swap intent
    */
   public static getSwapIntent(quoteResult: QuoteResult, slippage: number): SwapIntent {
-    throw new Error('Method not implemented.')
+    const { isFromNative, isToNative, swapSteps } = quoteResult.swapRoute
+    const tokenUserSells = isFromNative ? zeroAddress : swapSteps[0].tokenIn.address //From token
+    const tokenUserBuys = isToNative ? zeroAddress : swapSteps[swapSteps.length - 1].tokenOut.address //To token
+
+    return {
+      tokenUserBuys: tokenUserBuys,
+      minAmountUserBuys: this._amountWithSlippage(quoteResult.amountOut, slippage, false),
+      tokenUserSells: tokenUserSells,
+      amountUserSells: quoteResult.amountIn,
+    }
+  }
+
+  /**
+   * Compute the slippage amount
+   * @param amount The amount
+   * @param slippage The slippage in basis points
+   * @returns The slippage amount
+   */
+  protected static _amountWithSlippage(amount: bigint, slippage: number, positive: boolean): bigint {
+    const _slippage = (amount * BigInt(slippage)) / BigInt(10000)
+    return positive ? amount + _slippage : amount - _slippage
   }
 }
