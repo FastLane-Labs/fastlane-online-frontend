@@ -4,7 +4,8 @@
 
 import { UniswapV2 } from './uniswapV2'
 import { ChainId, Exchange, SwapType } from '@/constants'
-import { Token, QuoteRequest } from '@/types'
+import { Token, QuoteRequest, QuoteResult } from '@/types'
+import { Address } from 'viem'
 
 const chainId = ChainId.POLYGON
 
@@ -297,6 +298,177 @@ describe('UniswapV2', () => {
       expect(calls[1].functionName).toBe('getAmountsIn')
       expect(calls[0].args?.[0]).toBe(BigInt(10e6))
       expect(calls[1].args?.[0]).toBe(BigInt(1e6))
+    })
+  })
+
+  describe('UniswapV2 - getSwapCalldataFromQuoteResult', () => {
+    const recipient: Address = '0x1234567890123456789012345678901234567890'
+    const slippage = 50 // 0.5% (50 basis points)
+
+    const functionSelectors = {
+      swapExactETHForTokens: '7ff36ab5',
+      swapETHForExactTokens: 'fb3bdb41',
+      swapExactTokensForETH: '18cbafe5',
+      swapExactTokensForTokens: '38ed1739',
+      swapTokensForExactTokens: '8803dbee',
+      swapTokensForExactETH: '4a25d94a',
+    }
+
+    function checkCalldata(calldata: string, expectedSelector: string) {
+      expect(calldata).toBeDefined()
+      expect(typeof calldata).toBe('string')
+      expect(calldata.startsWith('0x')).toBe(true)
+      expect(calldata.slice(2, 10)).toBe(expectedSelector)
+    }
+
+    test('swapExactTokensForTokens', () => {
+      const quoteResult: QuoteResult = {
+        swapType: SwapType.EXACT_IN,
+        amountIn: BigInt(1e18),
+        amountOut: BigInt(2e6),
+        swapRoute: {
+          chainId: ChainId.POLYGON,
+          exchange: Exchange.UNISWAPV2,
+          swapSteps: [
+            {
+              tokenIn: POLYGON_WMATIC,
+              tokenOut: POLYGON_USDC,
+              extra: {},
+            },
+          ],
+          isFromNative: false,
+          isToNative: false,
+        },
+        validUntil: Date.now() + 20 * 1000,
+      }
+
+      const calldata = UniswapV2.getSwapCalldataFromQuoteResult(quoteResult, recipient, slippage)
+      checkCalldata(calldata, functionSelectors.swapExactTokensForTokens)
+    })
+
+    test('swapTokensForExactTokens', () => {
+      const quoteResult: QuoteResult = {
+        swapType: SwapType.EXACT_OUT,
+        amountIn: BigInt(11e17),
+        amountOut: BigInt(2e6),
+        swapRoute: {
+          chainId: ChainId.POLYGON,
+          exchange: Exchange.UNISWAPV2,
+          swapSteps: [
+            {
+              tokenIn: POLYGON_WMATIC,
+              tokenOut: POLYGON_USDC,
+              extra: {},
+            },
+          ],
+          isFromNative: false,
+          isToNative: false,
+        },
+        validUntil: Date.now() + 20 * 1000,
+      }
+
+      const calldata = UniswapV2.getSwapCalldataFromQuoteResult(quoteResult, recipient, slippage)
+      checkCalldata(calldata, functionSelectors.swapTokensForExactTokens)
+    })
+
+    test('swapExactETHForTokens', () => {
+      const quoteResult: QuoteResult = {
+        swapType: SwapType.EXACT_IN,
+        amountIn: BigInt(1e18),
+        amountOut: BigInt(2e6),
+        swapRoute: {
+          chainId: ChainId.POLYGON,
+          exchange: Exchange.UNISWAPV2,
+          swapSteps: [
+            {
+              tokenIn: POLYGON_WMATIC,
+              tokenOut: POLYGON_USDC,
+              extra: {},
+            },
+          ],
+          isFromNative: true,
+          isToNative: false,
+        },
+        validUntil: Date.now() + 20 * 1000,
+      }
+
+      const calldata = UniswapV2.getSwapCalldataFromQuoteResult(quoteResult, recipient, slippage)
+      checkCalldata(calldata, functionSelectors.swapExactETHForTokens)
+    })
+
+    test('swapTokensForExactETH', () => {
+      const quoteResult: QuoteResult = {
+        swapType: SwapType.EXACT_OUT,
+        amountIn: BigInt(11e5),
+        amountOut: BigInt(2e18),
+        swapRoute: {
+          chainId: ChainId.POLYGON,
+          exchange: Exchange.UNISWAPV2,
+          swapSteps: [
+            {
+              tokenIn: POLYGON_USDC,
+              tokenOut: POLYGON_WMATIC,
+              extra: {},
+            },
+          ],
+          isFromNative: false,
+          isToNative: true,
+        },
+        validUntil: Date.now() + 20 * 1000,
+      }
+
+      const calldata = UniswapV2.getSwapCalldataFromQuoteResult(quoteResult, recipient, slippage)
+      checkCalldata(calldata, functionSelectors.swapTokensForExactETH)
+    })
+
+    test('swapExactTokensForETH', () => {
+      const quoteResult: QuoteResult = {
+        swapType: SwapType.EXACT_IN,
+        amountIn: BigInt(1e6),
+        amountOut: BigInt(2e18),
+        swapRoute: {
+          chainId: ChainId.POLYGON,
+          exchange: Exchange.UNISWAPV2,
+          swapSteps: [
+            {
+              tokenIn: POLYGON_USDC,
+              tokenOut: POLYGON_WMATIC,
+              extra: {},
+            },
+          ],
+          isFromNative: false,
+          isToNative: true,
+        },
+        validUntil: Date.now() + 20 * 1000,
+      }
+
+      const calldata = UniswapV2.getSwapCalldataFromQuoteResult(quoteResult, recipient, slippage)
+      checkCalldata(calldata, functionSelectors.swapExactTokensForETH)
+    })
+
+    test('swapETHForExactTokens', () => {
+      const quoteResult: QuoteResult = {
+        swapType: SwapType.EXACT_OUT,
+        amountIn: BigInt(11e17),
+        amountOut: BigInt(2e6),
+        swapRoute: {
+          chainId: ChainId.POLYGON,
+          exchange: Exchange.UNISWAPV2,
+          swapSteps: [
+            {
+              tokenIn: POLYGON_WMATIC,
+              tokenOut: POLYGON_USDC,
+              extra: {},
+            },
+          ],
+          isFromNative: true,
+          isToNative: false,
+        },
+        validUntil: Date.now() + 20 * 1000,
+      }
+
+      const calldata = UniswapV2.getSwapCalldataFromQuoteResult(quoteResult, recipient, slippage)
+      checkCalldata(calldata, functionSelectors.swapETHForExactTokens)
     })
   })
 })

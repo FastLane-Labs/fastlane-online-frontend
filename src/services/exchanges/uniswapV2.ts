@@ -110,9 +110,6 @@ export class UniswapV2 extends Exchange {
     const functionName = this._getSwapFunctionName(quoteResult)
     const args = this._getSwapFunctionParameters(quoteResult, recipient, slippage, path, deadline)
 
-    console.log('functionName', functionName)
-    console.log('args', args)
-
     return encodeFunctionData({
       abi: ROUTER02_ABI,
       functionName,
