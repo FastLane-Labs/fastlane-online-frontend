@@ -48,6 +48,7 @@ export const useSwapCallData = (
         }
 
         const swapIntent = BaseSwapService.getInstance().getSwapIntent(quoteResult, config.slippage)
+        console.log('swapIntent', swapIntent)
         const executionEnvironment = await getExecutionEnvironment(
           atlasAddress as Address,
           address as Address,
@@ -55,6 +56,7 @@ export const useSwapCallData = (
           provider
         )
 
+        const { isFromNative } = quoteResult.swapRoute
         const baselineCall = await buildBaselineCallData(quoteResult, executionEnvironment, config.slippage)
 
         const block = await provider.getBlock('latest')
@@ -77,9 +79,11 @@ export const useSwapCallData = (
           dappAddress,
           provider
         )
-        // fix incorrect from address in userOperation helper contract
-        // TODO: discuss with Atlas team
-        userOperation.setField('from', address)
+
+        if (isFromNative) {
+          // If the user is swapping from ETH, no need to send ETH
+          userOperation.setField('value', swapIntent.amountUserSells)
+        }
 
         return {
           baselineCall,

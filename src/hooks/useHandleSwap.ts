@@ -76,13 +76,16 @@ export const useHandleSwap = () => {
         return false
       }
 
+      const { isFromNative } = quote.swapRoute
+      const value = isFromNative ? 0n : quote.amountIn
+
       const maxFeePerGas = feeData.maxFeePerGas
       const gas = SWAP_GAS_ESTIMATE + SOLVER_GAS_ESTIMATE
 
       const contract = new ethers.Contract(dappAddress, FastlaneOnlineAbi, signer)
       const tx = await contract.fastOnlineSwap(swapData.userOperation.toStruct(), {
         gasLimit: gas,
-        value: getAtlasGasSurcharge(gas * maxFeePerGas),
+        value: value + getAtlasGasSurcharge(gas * maxFeePerGas),
       })
 
       const transactionParams: TransactionParams = {
