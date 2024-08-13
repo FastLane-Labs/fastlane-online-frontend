@@ -9,6 +9,7 @@ export enum ChainId {
 
 export enum Exchange {
   UNISWAPV3 = 'UNISWAPV3',
+  UNISWAPV2 = 'UNISWAPV2',
 }
 
 export enum SwapType {
@@ -17,7 +18,7 @@ export enum SwapType {
 }
 
 interface ExchangeAddresses {
-  quoter: Address
+  quoter?: Address
   factory: Address
   router: Address
 }
@@ -31,9 +32,15 @@ type IContractAddresses = {
 export const CONTRACT_ADDRRESSES: IContractAddresses = {
   [ChainId.POLYGON]: {
     [Exchange.UNISWAPV3]: {
+      // UniswapV3 on Polygon
       quoter: '0x61fFE014bA17989E743c5F6cB21bF9697530B21e', // QuoterV2
       factory: '0x1F98431c8aD98523631AE4a59f267346ea31F984', // UniswapV3Factory
       router: '0x68b3465833fb72A70ecDF485E0e4C7bD8665Fc45', // SwapRouter02
+    },
+    [Exchange.UNISWAPV2]: {
+      // QuickswapV2 on Polygon
+      router: '0xa5E0829CaCEd8fFDD4De3c43696c57F7D7A678ff', // QuickSwapV2Router
+      factory: '0x5757371414417b8C6CAad45bAeF941aBc7d3Ab32', // QuickSwapV2Factory
     },
   },
 }

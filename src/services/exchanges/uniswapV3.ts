@@ -4,7 +4,6 @@ import { Token, SwapStep, SwapRoute, QuoteRequest, QuoteResult, QuoteResults } f
 import { SwapType, CONTRACT_ADDRRESSES } from '@/constants'
 import { QUOTERV2_ABI, SWAPROUTER02_ABI } from '@/constants/uniswap/v3'
 import { Address, Hex, ContractFunctionParameters, encodeFunctionData, encodePacked, zeroAddress } from 'viem'
-import { SwapIntent } from '@/types/atlas'
 
 const POOL_FEES = [500, 3000, 10000]
 
@@ -82,7 +81,7 @@ export class UniswapV3 extends Exchange {
    */
   public static getQuoteContractCalls(quoteRequest: QuoteRequest): ContractFunctionParameters[] {
     const regularCall = {
-      address: CONTRACT_ADDRRESSES[quoteRequest.swapRoute.chainId].UNISWAPV3.quoter,
+      address: CONTRACT_ADDRRESSES[quoteRequest.swapRoute.chainId].UNISWAPV3.quoter as Address,
       abi: QUOTERV2_ABI,
       functionName: this._getQuoteFunctionName(quoteRequest),
       args: this._getQuoteFunctionParameters(quoteRequest),
