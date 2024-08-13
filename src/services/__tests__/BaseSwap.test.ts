@@ -58,6 +58,8 @@ describe('baseSwap', () => {
               extra: { fee: 500 },
             },
           ],
+          isFromNative: false,
+          isToNative: false,
         },
         {
           chainId: ChainId.POLYGON,
@@ -74,6 +76,8 @@ describe('baseSwap', () => {
               extra: { fee: 500 },
             },
           ],
+          isFromNative: false,
+          isToNative: false,
         },
       ]
 
@@ -105,6 +109,8 @@ describe('baseSwap', () => {
               extra: { fee: 500 },
             },
           ],
+          isFromNative: false,
+          isToNative: false,
         },
       ]
 
@@ -123,6 +129,8 @@ describe('baseSwap', () => {
               extra: { fee: 500 },
             },
           ],
+          isFromNative: false,
+          isToNative: false,
         },
       ]
 
@@ -154,6 +162,8 @@ describe('baseSwap', () => {
               extra: { fee: 500 },
             },
           ],
+          isFromNative: false,
+          isToNative: false,
         },
       ]
 
@@ -185,6 +195,8 @@ describe('baseSwap', () => {
               extra: { fee: 500 },
             },
           ],
+          isFromNative: false,
+          isToNative: false,
         },
       ]
 
@@ -210,6 +222,8 @@ describe('baseSwap', () => {
               extra: { fee: 500 },
             },
           ],
+          isFromNative: false,
+          isToNative: false,
         },
       ]
 
@@ -231,6 +245,8 @@ describe('baseSwap', () => {
             extra: { fee: 500 },
           },
         ],
+        isFromNative: false,
+        isToNative: false,
       }
 
       const result = await baseSwapService.getBestQuoteExactIn(BigInt(10e18), [route])
@@ -257,6 +273,8 @@ describe('baseSwap', () => {
             extra: { fee: 500 },
           },
         ],
+        isFromNative: false,
+        isToNative: false,
       }
 
       const result = await baseSwapService.getBestQuoteExactIn(BigInt(10e6), [route])
@@ -281,6 +299,8 @@ describe('baseSwap', () => {
               extra: { fee: 500 },
             },
           ],
+          isFromNative: false,
+          isToNative: false,
         },
         {
           chainId: ChainId.POLYGON,
@@ -292,6 +312,8 @@ describe('baseSwap', () => {
               extra: { fee: 500 },
             },
           ],
+          isFromNative: false,
+          isToNative: false,
         },
         {
           chainId: ChainId.POLYGON,
@@ -308,6 +330,8 @@ describe('baseSwap', () => {
               extra: { fee: 500 },
             },
           ],
+          isFromNative: false,
+          isToNative: false,
         },
       ]
 
@@ -332,6 +356,8 @@ describe('baseSwap', () => {
             extra: { fee: 500 },
           },
         ],
+        isFromNative: false,
+        isToNative: false,
       }
 
       const result = await baseSwapService.getBestQuoteExactOut(BigInt(10e6), [route])
@@ -360,6 +386,8 @@ describe('baseSwap', () => {
             extra: { fee: 500 },
           },
         ],
+        isFromNative: false,
+        isToNative: false,
       }
 
       const result = await baseSwapService.getBestQuoteExactOut(BigInt(10e6), [route])
@@ -384,6 +412,8 @@ describe('baseSwap', () => {
               extra: { fee: 500 },
             },
           ],
+          isFromNative: false,
+          isToNative: false,
         },
         {
           chainId: ChainId.POLYGON,
@@ -395,6 +425,8 @@ describe('baseSwap', () => {
               extra: { fee: 500 },
             },
           ],
+          isFromNative: false,
+          isToNative: false,
         },
         {
           chainId: ChainId.POLYGON,
@@ -411,6 +443,8 @@ describe('baseSwap', () => {
               extra: { fee: 500 },
             },
           ],
+          isFromNative: false,
+          isToNative: false,
         },
       ]
 
@@ -437,6 +471,8 @@ describe('baseSwap', () => {
               extra: { fee: 500 },
             },
           ],
+          isFromNative: false,
+          isToNative: false,
         },
         amountIn: BigInt(10e18),
         amountOut: BigInt(20e6),
@@ -472,6 +508,8 @@ describe('baseSwap', () => {
               extra: { fee: 500 },
             },
           ],
+          isFromNative: false,
+          isToNative: false,
         },
         amountIn: BigInt(15e18),
         amountOut: BigInt(30e6),
@@ -502,6 +540,8 @@ describe('baseSwap', () => {
               extra: { fee: 500 },
             },
           ],
+          isFromNative: false,
+          isToNative: false,
         },
         amountIn: BigInt(10e18),
         amountOut: BigInt(20e6),

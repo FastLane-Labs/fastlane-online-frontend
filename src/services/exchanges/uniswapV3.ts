@@ -3,7 +3,7 @@ import { Exchange } from './base'
 import { Token, SwapStep, SwapRoute, QuoteRequest, QuoteResult, QuoteResults } from '@/types'
 import { SwapType, CONTRACT_ADDRRESSES } from '@/constants'
 import { QUOTERV2_ABI, SWAPROUTER02_ABI } from '@/constants/uniswap/v3'
-import { Address, Hex, ContractFunctionParameters, encodeFunctionData, encodePacked } from 'viem'
+import { Address, Hex, ContractFunctionParameters, encodeFunctionData, encodePacked, zeroAddress } from 'viem'
 import { SwapIntent } from '@/types/atlas'
 
 const POOL_FEES = [500, 3000, 10000]
@@ -114,10 +114,14 @@ export class UniswapV3 extends Exchange {
    * @returns The swap intent
    */
   public static getSwapIntent(quoteResult: QuoteResult, slippage: number): SwapIntent {
+    const { isFromNative, isToNative, swapSteps } = quoteResult.swapRoute
+    const tokenUserSells = isToNative ? zeroAddress : swapSteps[0].tokenIn.address //From token
+    const tokenUserBuys = isFromNative ? zeroAddress : swapSteps[swapSteps.length - 1].tokenOut.address //To token
+
     return {
-      tokenUserBuys: quoteResult.swapRoute.swapSteps[quoteResult.swapRoute.swapSteps.length - 1].tokenOut.address,
+      tokenUserBuys: tokenUserBuys,
       minAmountUserBuys: this._amountWithSlippage(quoteResult.amountOut, slippage, false),
-      tokenUserSells: quoteResult.swapRoute.swapSteps[0].tokenIn.address,
+      tokenUserSells: tokenUserSells,
       amountUserSells: quoteResult.amountIn,
     }
   }

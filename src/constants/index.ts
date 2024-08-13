@@ -54,7 +54,7 @@ export const TOKEN_ADDRESSES: ITokenAddresses = {
   },
 }
 
-export const nativeEvmTokenAddress = '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE'
+export const nativeEvmTokenAddress = '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE' as const
 export const defaultValues: AppConfigState = {
   config: {
     slippage: 50, // 0.5%

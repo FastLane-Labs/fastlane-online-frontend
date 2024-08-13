@@ -6,7 +6,7 @@ import { multicall } from '@wagmi/core'
 import { tokenCmp } from '@/utils/token'
 import { ContractFunctionParameters, Address, Hex } from 'viem'
 import { SwapIntent } from '@/types/atlas'
-import { calculatePriceImpact, calculateQuotePriceImpact } from '@/utils/calculatePriceImpact'
+import { calculateQuotePriceImpact } from '@/utils/calculatePriceImpact'
 
 interface IBaseSwapService {
   getBestQuoteExactIn(amountIn: bigint, candidates: SwapRoute[]): Promise<QuoteResult | undefined>

@@ -5,12 +5,12 @@ import { BaselineCall } from './atlas'
 import { TransactionParams } from './transactions'
 
 export interface SwapRoute {
-  fromChainId?: number
-  toChainId?: number
-  fromTokenAddress?: string
-  toTokenAddress?: string
-  destinationAddress?: string
+  chainId: ChainId
+  exchange: Exchange
+  swapSteps: SwapStep[]
   direction?: SwapDirection
+  isFromNative: boolean
+  isToNative: boolean
 }
 
 export type SwapDirection = 'buy' | 'sell'
@@ -19,12 +19,6 @@ export interface SwapStep {
   tokenIn: Token
   tokenOut: Token
   extra: any // Extra data needed for the swap (e.g. UniswapV3 pool fee)
-}
-
-export interface SwapRoute {
-  chainId: ChainId
-  exchange: Exchange
-  swapSteps: SwapStep[]
 }
 
 export interface QuoteRequest {

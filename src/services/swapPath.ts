@@ -76,11 +76,14 @@ export class SwapPathService implements ISwapPathService {
     const wrappedNativeToken = this.wrappedNativeTokens.get(chainId) as Token
     const gatewayToken = this.gatewayTokens.get(chainId) as Token
 
-    if (tokenCmp(from, nativeToken)) {
+    const isFromNative = tokenCmp(from, nativeToken)
+    const isToNative = tokenCmp(to, nativeToken)
+
+    if (isFromNative) {
       from = wrappedNativeToken
     }
 
-    if (tokenCmp(to, nativeToken)) {
+    if (isToNative) {
       to = wrappedNativeToken
     }
 
@@ -101,11 +104,7 @@ export class SwapPathService implements ISwapPathService {
 
     // Add direct routes
     for (const swapStep of exchange.buildSwapStepsFromTokens(from, to)) {
-      swapRoutes.push({
-        chainId: chainId,
-        exchange: _exchange,
-        swapSteps: [swapStep],
-      })
+      swapRoutes.push(this.createSwapRoute(chainId, _exchange, [swapStep], isFromNative, isToNative))
     }
 
     if (!tokenCmp(from, wrappedNativeToken) && !tokenCmp(to, wrappedNativeToken)) {
@@ -117,7 +116,9 @@ export class SwapPathService implements ISwapPathService {
           chainId,
           _exchange,
           exchange.buildSwapStepsFromTokens(from, wrappedNativeToken),
-          exchange.buildSwapStepsFromTokens(wrappedNativeToken, to)
+          exchange.buildSwapStepsFromTokens(wrappedNativeToken, to),
+          isFromNative,
+          isToNative
         )
       )
 
@@ -130,7 +131,9 @@ export class SwapPathService implements ISwapPathService {
             chainId,
             _exchange,
             exchange.buildSwapStepsFromTokens(from, gatewayToken),
-            exchange.buildSwapStepsFromTokens(gatewayToken, to)
+            exchange.buildSwapStepsFromTokens(gatewayToken, to),
+            isFromNative,
+            isToNative
           )
         )
       }
@@ -150,20 +153,45 @@ export class SwapPathService implements ISwapPathService {
     chainId: ChainId,
     exchange: Exchange,
     steps1: SwapStep[],
-    steps2: SwapStep[]
+    steps2: SwapStep[],
+    isFromNative: boolean,
+    isToNative: boolean
   ): SwapRoute[] {
     let routes: SwapRoute[] = []
 
     for (const step1 of steps1) {
       for (const step2 of steps2) {
-        routes.push({
-          chainId: chainId,
-          exchange: exchange,
-          swapSteps: [step1, step2],
-        })
+        routes.push(this.createSwapRoute(chainId, exchange, [step1, step2], isFromNative, isToNative))
       }
     }
 
     return routes
+  }
+
+  /**
+   * Create a swap route
+   * @param chainId The chain ID
+   * @param exchange The exchange
+   * @param swapSteps The swap steps
+   * @param fromOriginal The original from token
+   * @param toOriginal The original to token
+   * @param isFromNative Whether the from token is the native token
+   * @param isToNative Whether the to token is the native token
+   * @returns The swap route
+   */
+  protected createSwapRoute(
+    chainId: ChainId,
+    exchange: Exchange,
+    swapSteps: SwapStep[],
+    isFromNative: boolean,
+    isToNative: boolean
+  ): SwapRoute {
+    return {
+      chainId: chainId,
+      exchange: exchange,
+      swapSteps: swapSteps,
+      isFromNative: isFromNative,
+      isToNative: isToNative,
+    }
   }
 }

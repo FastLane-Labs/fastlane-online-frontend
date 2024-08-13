@@ -75,11 +75,34 @@ describe('path', () => {
     ).rejects.toThrow('getSwapRoutes: from and to tokens are the same')
   })
 
+  test('get swap routes - token from not found', async () => {
+    await expect(
+      swapPathService.getSwapRoutes(INVALID_TOKEN, POLYGON_WMATIC, chainId, Exchange.UNISWAPV3)
+    ).rejects.toThrow('getSwapRoutes: token not found: ' + INVALID_TOKEN.address)
+  })
+
+  test('get swap routes - token to not found', async () => {
+    await expect(
+      swapPathService.getSwapRoutes(POLYGON_WMATIC, INVALID_TOKEN, chainId, Exchange.UNISWAPV3)
+    ).rejects.toThrow('getSwapRoutes: token not found: ' + INVALID_TOKEN.address)
+  })
+
+  test('get swap routes - from and to are the same', async () => {
+    await expect(
+      swapPathService.getSwapRoutes(POLYGON_WMATIC, POLYGON_WMATIC, chainId, Exchange.UNISWAPV3)
+    ).rejects.toThrow('getSwapRoutes: from and to tokens are the same')
+  })
+
   test('get swap routes - wrapped native as from', async () => {
     const swapRoutes = await swapPathService.getSwapRoutes(POLYGON_WMATIC, POLYGON_USDC, chainId, Exchange.UNISWAPV3)
 
     // Should return 3 routes, 1 for each uniswap pool fee tier
     expect(swapRoutes).toHaveLength(3)
+
+    swapRoutes.forEach((route) => {
+      expect(route.isFromNative).toBe(false)
+      expect(route.isToNative).toBe(false)
+    })
 
     // Direct swap, pool fee 0.05%
     expect(swapRoutes[0].swapSteps).toHaveLength(1)
@@ -105,6 +128,11 @@ describe('path', () => {
 
     // Should return 3 routes, 1 for each uniswap pool fee tier
     expect(swapRoutes).toHaveLength(3)
+
+    swapRoutes.forEach((route) => {
+      expect(route.isFromNative).toBe(false)
+      expect(route.isToNative).toBe(false)
+    })
 
     // Direct swap, pool fee 0.05%
     expect(swapRoutes[0].swapSteps).toHaveLength(1)
@@ -132,6 +160,11 @@ describe('path', () => {
     // + 3 pool fee tiers for direct swap
     // + 3 pool fee tiers ** 2 for swap with wrapped native token as intermediate
     expect(swapRoutes).toHaveLength(12)
+
+    swapRoutes.forEach((route) => {
+      expect(route.isFromNative).toBe(false)
+      expect(route.isToNative).toBe(false)
+    })
 
     // Direct swap, pool fee 0.05%
     expect(swapRoutes[0].swapSteps).toHaveLength(1)
@@ -241,6 +274,11 @@ describe('path', () => {
     // + 3 pool fee tiers ** 2 for swap with wrapped native token as intermediate
     expect(swapRoutes).toHaveLength(12)
 
+    swapRoutes.forEach((route) => {
+      expect(route.isFromNative).toBe(false)
+      expect(route.isToNative).toBe(false)
+    })
+
     // Direct swap, pool fee 0.05%
     expect(swapRoutes[0].swapSteps).toHaveLength(1)
     expect(tokenCmp(swapRoutes[0].swapSteps[0].tokenIn, POLYGON_USDT)).toBe(true)
@@ -349,6 +387,11 @@ describe('path', () => {
     // + 3 pool fee tiers ** 2 for swap with wrapped native token as intermediate
     // + 3 pool fee tiers ** 2 for swap with gateway token as intermediate
     expect(swapRoutes).toHaveLength(21)
+
+    swapRoutes.forEach((route) => {
+      expect(route.isFromNative).toBe(false)
+      expect(route.isToNative).toBe(false)
+    })
 
     // Direct swap, pool fee 0.05%
     expect(swapRoutes[0].swapSteps).toHaveLength(1)
@@ -537,6 +580,11 @@ describe('path', () => {
     // Should return 3 routes
     expect(swapRoutes).toHaveLength(3)
 
+    swapRoutes.forEach((route) => {
+      expect(route.isFromNative).toBe(true)
+      expect(route.isToNative).toBe(false)
+    })
+
     // Direct swap, pool fee 0.05%
     expect(swapRoutes[0].swapSteps).toHaveLength(1)
     // Native token should have been switched to its wrapped version
@@ -564,6 +612,11 @@ describe('path', () => {
 
     // Should return 3 routes
     expect(swapRoutes).toHaveLength(3)
+
+    swapRoutes.forEach((route) => {
+      expect(route.isFromNative).toBe(false)
+      expect(route.isToNative).toBe(true)
+    })
 
     // Direct swap, pool fee 0.05%
     expect(swapRoutes[0].swapSteps).toHaveLength(1)
