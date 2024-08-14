@@ -1,10 +1,10 @@
 import { create } from 'zustand'
-import { persist } from 'zustand/middleware'
+import { persist, createJSONStorage } from 'zustand/middleware'
 import type { AppRoute } from '@/core/routes'
-import type { SwapRoute } from '@/types/swap'
-import type { TransactionHistoryStore, TransactionParams } from '@/types'
+import type { TransactionHistoryStore, TransactionParams, TransactionStatus } from '@/types'
 import { defaultValues } from '@/constants'
 import { AppConfig } from '@/types/config'
+import { AppNotification } from '@/types/notification'
 
 export interface AppConfigState {
   fromPrice?: string
@@ -12,6 +12,16 @@ export interface AppConfigState {
   currentTransaction?: TransactionParams
   currentQuoteId?: string // unique id for the quote
   config: AppConfig
+}
+
+interface NotificationStore {
+  notifications: AppNotification[]
+  transactions: TransactionHistoryStore
+  addNotification: (notification: AppNotification) => void
+  clearNotifications: () => void
+  addTransaction: (transaction: TransactionParams) => void
+  updateTransactionStatus: (txHash: string, status: TransactionStatus) => void
+  clearTransactions: () => void
 }
 
 export const useAppStore = create<AppConfigState & { updateConfig: (newConfig: Partial<AppConfig>) => void }>()(
@@ -54,36 +64,24 @@ export const useAppRouterStore = create<AppRouter>((_) => ({
   ],
 }))
 
-export const usePersistStore = create(
-  persist<{
-    transactionsHistory?: TransactionHistoryStore[]
-  }>(
-    (_) => {
-      return {
-        transactionsHistory: [],
-      }
-    },
+// Notifications store
+export const useNotificationStore = create<NotificationStore>()(
+  persist(
+    (set) => ({
+      notifications: [],
+      transactions: [],
+      addNotification: (notification) => set((state) => ({ notifications: [...state.notifications, notification] })),
+      clearNotifications: () => set({ notifications: [] }),
+      addTransaction: (transaction) => set((state) => ({ transactions: [...state.transactions, transaction] })),
+      updateTransactionStatus: (txHash, status) =>
+        set((state) => ({
+          transactions: state.transactions.map((t) => (t.txHash === txHash ? { ...t, status } : t)),
+        })),
+      clearTransactions: () => set({ transactions: [] }),
+    }),
     {
-      name: 'atlas.history.store',
-    }
-  )
-)
-
-export const useSwapRoutePersistStore = create(
-  persist<{
-    swapRoute?: SwapRoute
-    destinationAddressHasBeenUpdated?: {
-      updated: boolean
-      filledFromWallet: boolean
-    }
-  }>(
-    (_) => {
-      return {
-        swapRoute: undefined,
-      }
-    },
-    {
-      name: 'atlas.swaproute.store',
+      name: 'atlas.notification.store',
+      storage: createJSONStorage(() => localStorage),
     }
   )
 )

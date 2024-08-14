@@ -1,71 +1,66 @@
 'use client'
-
-import React, { createContext, PropsWithChildren, useContext, useEffect, useState } from 'react'
+import React, { createContext, PropsWithChildren, useContext, useCallback } from 'react'
 import { toast, ToastContainer } from 'react-toastify'
-import { Notification } from '@/utils/types'
 import { useAccount } from 'wagmi'
 import dayjs from 'dayjs'
 import 'react-toastify/dist/ReactToastify.min.css'
 import '@/assets/notifications.css'
 import { StatusIcon } from '@/components/Notifications/Alert'
-
-type NotificationOptions = Partial<Omit<Notification, 'message'>>
+import { useNotificationStore } from '@/store/useAppStore'
+import { TransactionHistoryStore, TransactionParams, TransactionStatus, AppNotification } from '@/types'
 
 interface NotificationContext {
-  Add: (message: string, options?: NotificationOptions) => void
-  Clear: () => void
-  notifications: Notification[]
+  addNotification: (message: string, options?: Partial<Omit<AppNotification, 'message'>>) => void
+  clearNotifications: () => void
+  notifications: AppNotification[]
+  addTransaction: (transaction: TransactionParams) => void
+  updateTransactionStatus: (txHash: string, status: TransactionStatus) => void
+  clearTransactions: () => void
+  transactions: TransactionHistoryStore
 }
 
-const defaultNotificationContext: NotificationContext = {
-  Add: (message: string, options?: NotificationOptions) => {},
-  Clear: () => {},
-  notifications: [],
-}
-
-const NotificationContext = createContext(defaultNotificationContext)
+const NotificationContext = createContext<NotificationContext | undefined>(undefined)
 
 export const useNotifications = () => {
   const context = useContext(NotificationContext)
   if (!context) {
     throw new Error('useNotifications must be used within a NotificationProvider')
   }
-
   return context
 }
 
-export function NotificationProvider(props: PropsWithChildren) {
-  const [notifications, setNotifications] = useState<Notification[]>([])
+export function NotificationProvider({ children }: PropsWithChildren) {
   const { address } = useAccount()
+  const store = useNotificationStore()
 
-  useEffect(() => {
-    const storedNotifications = localStorage?.getItem('notifications')
-    if (storedNotifications) {
-      setNotifications(JSON.parse(storedNotifications))
-    }
-  }, [])
+  const addNotification = useCallback(
+    (message: string, options?: Partial<Omit<AppNotification, 'message'>>) => {
+      const notification: AppNotification = {
+        message,
+        type: options?.type || 'info',
+        timestamp: options?.timestamp || dayjs().valueOf(),
+        from: options?.from || address,
+        ...options,
+      }
+      store.addNotification(notification)
+      toast(message, { type: notification.type as any, icon: <StatusIcon type={notification.type} /> })
+    },
+    [address, store]
+  )
 
-  function Add(message: string, options?: NotificationOptions) {
-    const notification: Notification = {
-      message,
-      type: options?.type || 'info',
-      timestamp: options?.timestamp || dayjs().valueOf(),
-      from: options?.from || address,
-      ...options,
-    }
-    localStorage.setItem('notifications', JSON.stringify([...notifications, notification]))
-    setNotifications([...notifications, notification])
-    toast(message, { type: notification.type, icon: <StatusIcon type={notification.type} /> })
-  }
-
-  function Clear() {
-    localStorage.removeItem('notifications')
-    setNotifications([])
+  const contextValue: NotificationContext = {
+    addNotification,
+    clearNotifications: store.clearNotifications,
+    notifications: store.notifications,
+    addTransaction: store.addTransaction,
+    updateTransactionStatus: store.updateTransactionStatus,
+    clearTransactions: store.clearTransactions,
+    transactions: store.transactions,
   }
 
   return (
-    <NotificationContext.Provider value={{ Add, Clear, notifications }}>
-      {props.children}
+    <NotificationContext.Provider value={contextValue}>
+      {children}
       <ToastContainer
         limit={5}
         theme='dark'

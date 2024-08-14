@@ -2,7 +2,7 @@ import { useEffect } from 'react'
 import { useNotifications } from '@/context/Notifications'
 
 export const useErrorNotification = (error: Error | null) => {
-  const { Add } = useNotifications()
+  const { addNotification } = useNotifications()
 
   // List of errors we want to create notifications for
   const validErrorList = [
@@ -19,8 +19,8 @@ export const useErrorNotification = (error: Error | null) => {
 
       if (isValidError) {
         // create notification
-        Add(error.message, { type: 'error' })
+        addNotification(error.message, { type: 'error' })
       }
     }
-  }, [error])
+  }, [error, addNotification, validErrorList])
 }

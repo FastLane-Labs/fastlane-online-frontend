@@ -7,7 +7,7 @@ import { useNotifications } from '@/context/Notifications'
 import { Alert } from './Alert'
 
 export function NotificationsDrawer() {
-  const { notifications, Clear } = useNotifications()
+  const { notifications, clearNotifications } = useNotifications()
   const className = 'shrink-0 h-5 w-5'
 
   return (
@@ -51,7 +51,7 @@ export function NotificationsDrawer() {
                 />
               ))}
               <div className='place-self-end'>
-                <button className='btn btn-xs btn-link inline' onClick={Clear}>
+                <button className='btn btn-xs btn-link inline' onClick={clearNotifications}>
                   Clear notifications
                 </button>
               </div>

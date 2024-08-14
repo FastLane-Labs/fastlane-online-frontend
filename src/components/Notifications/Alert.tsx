@@ -10,7 +10,8 @@ import { LinkComponent } from '../LinkComponent'
 import dayjs from 'dayjs'
 import relativeTime from 'dayjs/plugin/relativeTime'
 import { truncateAddress } from '@/utils/format'
-import { NotificationType } from '@/utils/types'
+import { NotificationType } from '@/types'
+
 dayjs.extend(relativeTime)
 
 interface StatusProps {
