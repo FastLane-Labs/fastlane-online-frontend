@@ -31,7 +31,7 @@ export const useBaselineQuote = (
       queryFn: async (): Promise<QuoteResultWithPriceImpact | null> => {
         if (!fromToken || !toToken || !chainId) return null
 
-        const swapRoutes = await swapPathService.getSwapRoutes(fromToken, toToken, chainId, Exchange.UNISWAPV3)
+        const swapRoutes = await swapPathService.getSwapRoutes(fromToken, toToken, chainId, Exchange.UNISWAPV2)
         if (swapRoutes.length === 0) return null
 
         const relevantAmountBigInt = toBigInt(amount, swapDirection === 'sell' ? fromToken.decimals : toToken.decimals)

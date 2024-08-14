@@ -77,7 +77,7 @@ export const useHandleSwap = () => {
       }
 
       const { isFromNative } = quote.swapRoute
-      const value = isFromNative ? 0n : quote.amountIn
+      const value = isFromNative ? quote.amountIn : 0n
 
       const maxFeePerGas = feeData.maxFeePerGas
       const gas = SWAP_GAS_ESTIMATE + SOLVER_GAS_ESTIMATE

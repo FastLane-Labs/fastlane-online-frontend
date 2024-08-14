@@ -1,7 +1,8 @@
 import { ChainId, CONTRACT_ADDRRESSES, Exchange as ExchangeName } from '@/constants'
-import { Exchange } from './base'
-import { UniswapV3 } from './uniswapV3'
 import { Address } from 'viem'
+import { Exchange } from './base'
+import { UniswapV2 } from './uniswapV2'
+import { UniswapV3 } from './uniswapV3'
 
 /**
  * Get an exchange class from the exchange name
@@ -12,7 +13,8 @@ export function getExchange(exchange: ExchangeName): typeof Exchange {
   switch (exchange) {
     case ExchangeName.UNISWAPV3:
       return UniswapV3
-
+    case ExchangeName.UNISWAPV2:
+      return UniswapV2
     default:
       throw new Error('Exchange not supported')
   }

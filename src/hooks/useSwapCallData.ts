@@ -48,7 +48,6 @@ export const useSwapCallData = (
         }
 
         const swapIntent = BaseSwapService.getInstance().getSwapIntent(quoteResult, config.slippage)
-        console.log('swapIntent', swapIntent)
         const executionEnvironment = await getExecutionEnvironment(
           atlasAddress as Address,
           address as Address,

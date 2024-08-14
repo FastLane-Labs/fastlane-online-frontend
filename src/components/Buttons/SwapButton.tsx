@@ -66,7 +66,6 @@ const SwapButton: React.FC<SwapButtonProps> = ({ handleSwap, isLoading }) => {
       const amount = toBigInt(fromAmount, fromToken.decimals)
       const success = await updateAllowance(fromToken, spenderAddress, amount)
       if (success) {
-        console.log('Approval successful - checking allowance')
         await checkAllowance(fromToken, userAddress, spenderAddress)
       }
       return success
