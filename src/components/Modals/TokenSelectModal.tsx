@@ -2,7 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react'
 import ModalWrapper from '@/components/Wrappers/ModalWrapper'
 import { useCurrentTokenList } from '@/hooks/useTokenList'
 import { useAccount } from 'wagmi'
-import { Token } from '@/types'
+import { Token, TokenWithBalance } from '@/types'
 import { useBalances } from '@/hooks/useBalances'
 import { useSwapStateContext } from '@/context/SwapStateContext'
 import TokenItem from '@/components/TokenItem/TokenItem'
@@ -17,8 +17,6 @@ interface TokenSelectModalProps {
   direction: 'buy' | 'sell'
   defaultLabel: string
 }
-
-type TokenWithBalance = Token & { balance: bigint; formattedBalance: string }
 
 const TokenSelectModal: React.FC<TokenSelectModalProps> = ({
   selectedToken,
@@ -46,7 +44,7 @@ const TokenSelectModal: React.FC<TokenSelectModalProps> = ({
 
   const tokensWithBalances: TokenWithBalance[] = tokens.map((token, index) => ({
     ...token,
-    balance: balancesQuery.data && balancesQuery.data.length > 0 ? balancesQuery.data[index] : 0n,
+    balance: balancesQuery.data && balancesQuery.data.length > 0 ? balancesQuery.data[index].toString() : '0',
     formattedBalance:
       balancesQuery.data && balancesQuery.data.length > 0 ? getFormattedBalance(balancesQuery.data[index], token) : '0',
   }))
@@ -67,8 +65,8 @@ const TokenSelectModal: React.FC<TokenSelectModalProps> = ({
   const sortedTokensWithBalances = filteredTokensWithBalances.sort((a, b) => Number(b.balance) - Number(a.balance))
 
   const popularTokens = tokensWithBalances.filter((token) => token.tags?.includes('popular'))
-  const tokensWithUserBalances = sortedTokensWithBalances.filter((token) => token.balance > 0n)
-  const remainingTokens = sortedTokensWithBalances.filter((token) => token.balance === 0n)
+  const tokensWithUserBalances = sortedTokensWithBalances.filter((token) => BigInt(token.balance) > 0n)
+  const remainingTokens = sortedTokensWithBalances.filter((token) => BigInt(token.balance) === 0n)
 
   useEffect(() => {
     if ((balancesQuery.error || balancesQuery.data === undefined) && !hasAttemptedRefetch) {

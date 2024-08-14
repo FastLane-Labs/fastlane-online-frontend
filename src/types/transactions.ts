@@ -1,8 +1,13 @@
+import { Token } from './token'
+
 export type TransactionHistoryStore = TransactionParams[]
 
+export type RouteType = 'swap' | 'approval'
 export interface TransactionParams {
-  routeType: string
+  routeType: RouteType
   chainId: number
+  fromToken: Token
+  toToken?: Token
   nonce?: number
   txHash: string
   timestamp?: number
