@@ -5,6 +5,7 @@ import { formatEther } from 'ethers'
 import { useEstimatedSwapFees } from '@/hooks/useEstimatedSwapFees'
 import { useSwapStateContext } from '@/context/SwapStateContext'
 import UnknownToken from '@/assets/svg/unknownToken.svg'
+import { ExclamationCircleIcon } from '@heroicons/react/24/outline'
 
 interface SwapStepProps {
   step: 'approve' | 'sign' | 'swap' | 'success'
@@ -103,7 +104,7 @@ const SwapStep: React.FC<SwapStepProps> = ({ step, onAction, isLoading, error, s
   )
 
   const renderShowMore = () => (
-    <div className='flex flex-col w-full justify-start pb-6 gap-2 text-sm'>
+    <div className='flex flex-col w-full justify-start pb-2 gap-2 text-sm'>
       <button
         className='text-black items-center cursor-pointer px-4 text-center flex w-full h-7 my-1'
         onClick={toggleExpand}>
@@ -277,8 +278,14 @@ const SwapStep: React.FC<SwapStepProps> = ({ step, onAction, isLoading, error, s
   return (
     <div className='text-neutral-content flex flex-col min-h-96 w-full items-center justify-between mt-4'>
       {renderStepContent()}
-      {/* {error && <p className='text-red-500 mt-2'>{error.message}</p>} */}
-      <div className='w-full mt-4'>{renderButton()}</div>
+
+      <div className='w-full mt-0'>{renderButton()}</div>
+      {error && (
+        <div className='flex w-full items-center justify-center text-secondary mt-4 gap-[3px] text-sm -mb-1'>
+          <p className='w-fit'>{error.message}</p>
+          <ExclamationCircleIcon className='h-[1.2rem] w-[1.2rem]' />
+        </div>
+      )}
     </div>
   )
 }
