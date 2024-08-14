@@ -7,7 +7,9 @@ export interface TransactionParams {
   routeType: RouteType
   chainId: number
   fromToken: Token
+  fromAmount?: string
   toToken?: Token
+  toAmount?: string
   nonce?: number
   txHash: string
   timestamp?: number

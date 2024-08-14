@@ -1,4 +1,4 @@
-import { useCallback } from 'react'
+import { useCallback, useState } from 'react'
 import { useAccount } from 'wagmi'
 import { useEthersProviderContext } from '@/context/EthersProviderContext'
 import { useSwapStateContext } from '@/context/SwapStateContext'
@@ -11,6 +11,7 @@ import { getAtlasGasSurcharge, getFeeData } from '@/utils/gasFee'
 import { ethers } from 'ethers'
 import { FastlaneOnlineAbi } from '@/abis'
 import { TransactionParams, TransactionStatus } from '@/types'
+import { useNotifications } from '@/context/Notifications'
 
 export const useHandleSwap = () => {
   const { signer, provider } = useEthersProviderContext()
@@ -29,6 +30,7 @@ export const useHandleSwap = () => {
   } = useSwapStateContext()
   const { config } = useAppStore()
   const { atlasAddress, dappAddress, atlasVerificationAddress } = useFastLaneAddresses()
+  const { addTransaction, updateTransactionStatus, addNotification } = useNotifications()
 
   const handleSignature = useCallback(async () => {
     if (!swapData?.userOperation || !signer || !chainId) {
@@ -68,19 +70,38 @@ export const useHandleSwap = () => {
     }
 
     setIsSwapping(true)
+    let transactionParams: TransactionParams | null = null
     try {
       const feeData = await getFeeData(provider)
       if (!feeData.maxFeePerGas || !feeData.gasPrice) {
         console.error('Missing required data for swap')
         console.log('feeData', feeData)
+        addNotification('Swap failed: Missing fee data', { type: 'error' })
         return false
       }
 
-      const { isFromNative } = quote.swapRoute
+      const { isFromNative, swapSteps } = quote.swapRoute
+      const fromToken = swapSteps[0].tokenIn
+      const toToken = swapSteps[swapSteps.length - 1].tokenOut
+
       const value = isFromNative ? quote.amountIn : 0n
 
       const maxFeePerGas = feeData.maxFeePerGas
       const gas = SWAP_GAS_ESTIMATE + SOLVER_GAS_ESTIMATE
+
+      // Create transaction parameters before sending the transaction
+      transactionParams = {
+        routeType: 'swap',
+        chainId: chainId,
+        txHash: '', // Will be updated with actual hash
+        fromToken: fromToken,
+        toToken: toToken,
+        fromAmount: quote.amountIn.toString(),
+        toAmount: quote.amountOut.toString(),
+        timestamp: Date.now(),
+        status: 'pending' as TransactionStatus,
+        fromAddress: address,
+      }
 
       const contract = new ethers.Contract(dappAddress, FastlaneOnlineAbi, signer)
       const tx = await contract.fastOnlineSwap(swapData.userOperation.toStruct(), {
@@ -88,14 +109,11 @@ export const useHandleSwap = () => {
         value: value + getAtlasGasSurcharge(gas * maxFeePerGas),
       })
 
-      const transactionParams: TransactionParams = {
-        routeType: 'swap', // Assuming this is a swap transaction
-        chainId: chainId,
-        txHash: tx.hash,
-        timestamp: Date.now(),
-        status: 'pending' as TransactionStatus,
-        fromAddress: address,
-      }
+      // Update transaction with actual hash
+      transactionParams.txHash = tx.hash
+
+      addTransaction(transactionParams)
+      addNotification(`Swap submitted: ${tx.hash}`, { type: 'info' })
 
       setSwapResult({ transaction: transactionParams })
 
@@ -103,16 +121,29 @@ export const useHandleSwap = () => {
       await tx.wait()
       console.log('Swap transaction confirmed')
 
-      // Update transaction status to 'success'
+      // Update transaction status to 'confirmed'
+      updateTransactionStatus(tx.hash, 'confirmed')
+      addNotification('Swap transaction confirmed', { type: 'success' })
+
       const updatedTransactionParams: TransactionParams = {
         ...transactionParams,
-        status: 'success' as TransactionStatus,
+        status: 'confirmed' as TransactionStatus,
       }
       setSwapResult({ transaction: updatedTransactionParams })
 
       return true
-    } catch (error) {
+    } catch (error: any) {
       console.error('Swap failed', error)
+
+      if (transactionParams?.txHash) {
+        // If we have a transaction hash, update its status to failed
+        updateTransactionStatus(transactionParams.txHash, 'failed')
+        addNotification(`Swap failed: ${error.message || 'Unknown error occurred'}`, { type: 'error' })
+      } else {
+        // If we don't have a transaction hash, just show an error notification
+        addNotification('Swap failed to submit', { type: 'error' })
+      }
+
       return false
     } finally {
       setIsSwapping(false)
@@ -131,6 +162,9 @@ export const useHandleSwap = () => {
     setIsSwapping,
     setSwapResult,
     hasUserOperationSignature,
+    addTransaction,
+    updateTransactionStatus,
+    addNotification,
   ])
 
   return {

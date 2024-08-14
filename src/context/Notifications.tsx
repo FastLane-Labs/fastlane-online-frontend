@@ -6,7 +6,7 @@ import dayjs from 'dayjs'
 import 'react-toastify/dist/ReactToastify.min.css'
 import '@/assets/notifications.css'
 import { StatusIcon } from '@/components/Notifications/Alert'
-import { useNotificationStore } from '@/store/useAppStore'
+import { useNotificationStore, useTransactionStore } from '@/store/useAppStore'
 import { TransactionHistoryStore, TransactionParams, TransactionStatus, AppNotification } from '@/types'
 
 interface NotificationContext {
@@ -31,7 +31,8 @@ export const useNotifications = () => {
 
 export function NotificationProvider({ children }: PropsWithChildren) {
   const { address } = useAccount()
-  const store = useNotificationStore()
+  const notificationStore = useNotificationStore()
+  const transactionStore = useTransactionStore()
 
   const addNotification = useCallback(
     (message: string, options?: Partial<Omit<AppNotification, 'message'>>) => {
@@ -42,20 +43,20 @@ export function NotificationProvider({ children }: PropsWithChildren) {
         from: options?.from || address,
         ...options,
       }
-      store.addNotification(notification)
+      notificationStore.addNotification(notification)
       toast(message, { type: notification.type as any, icon: <StatusIcon type={notification.type} /> })
     },
-    [address, store]
+    [address, notificationStore]
   )
 
   const contextValue: NotificationContext = {
     addNotification,
-    clearNotifications: store.clearNotifications,
-    notifications: store.notifications,
-    addTransaction: store.addTransaction,
-    updateTransactionStatus: store.updateTransactionStatus,
-    clearTransactions: store.clearTransactions,
-    transactions: store.transactions,
+    clearNotifications: notificationStore.clearNotifications,
+    notifications: notificationStore.notifications,
+    addTransaction: transactionStore.addTransaction,
+    updateTransactionStatus: transactionStore.updateTransactionStatus,
+    clearTransactions: transactionStore.clearTransactions,
+    transactions: transactionStore.transactions,
   }
 
   return (

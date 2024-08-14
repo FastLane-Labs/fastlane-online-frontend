@@ -1,8 +1,9 @@
 import { useEffect } from 'react'
-import { useNotifications } from '@/context/Notifications'
+import { useNotificationStore } from '@/store/useAppStore'
+import { AppNotification } from '@/types'
 
 export const useErrorNotification = (error: Error | null) => {
-  const { addNotification } = useNotifications()
+  const { addNotification } = useNotificationStore()
 
   // List of errors we want to create notifications for
   const validErrorList = [
@@ -19,8 +20,14 @@ export const useErrorNotification = (error: Error | null) => {
 
       if (isValidError) {
         // create notification
-        addNotification(error.message, { type: 'error' })
+        console.log(error.message)
+        // const notification: AppNotification = {
+        //   type: 'error',
+        //   message: error.message,
+        //   timestamp: Date.now(),
+        // }
+        // addNotification(notification)
       }
     }
-  }, [error, addNotification, validErrorList])
+  }, [error, addNotification])
 }

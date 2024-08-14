@@ -14,11 +14,16 @@ export interface AppConfigState {
   config: AppConfig
 }
 
+// Separate interface for NotificationStore
 interface NotificationStore {
   notifications: AppNotification[]
-  transactions: TransactionHistoryStore
   addNotification: (notification: AppNotification) => void
   clearNotifications: () => void
+}
+
+// Separate interface for TransactionStore
+interface TransactionStore {
+  transactions: TransactionHistoryStore
   addTransaction: (transaction: TransactionParams) => void
   updateTransactionStatus: (txHash: string, status: TransactionStatus) => void
   clearTransactions: () => void
@@ -38,12 +43,12 @@ export const useAppStore = create<AppConfigState & { updateConfig: (newConfig: P
         })),
     }),
     {
-      name: 'app-config-storage',
+      name: 'app.config.storage',
+      version: 1,
     }
   )
 )
 
-// The rest of your store definitions remain unchanged
 export interface AppRouter {
   history: {
     route: AppRoute
@@ -64,15 +69,25 @@ export const useAppRouterStore = create<AppRouter>((_) => ({
   ],
 }))
 
-// Notifications store
-export const useNotificationStore = create<NotificationStore>()(
+// Non-persisted Notification store
+export const useNotificationStore = create<NotificationStore>((set) => ({
+  notifications: [],
+  addNotification: (notification) =>
+    set((state) => ({
+      notifications: [...state.notifications, notification],
+    })),
+  clearNotifications: () => set({ notifications: [] }),
+}))
+
+// Persisted Transaction store
+export const useTransactionStore = create<TransactionStore>()(
   persist(
     (set) => ({
-      notifications: [],
       transactions: [],
-      addNotification: (notification) => set((state) => ({ notifications: [...state.notifications, notification] })),
-      clearNotifications: () => set({ notifications: [] }),
-      addTransaction: (transaction) => set((state) => ({ transactions: [...state.transactions, transaction] })),
+      addTransaction: (transaction) =>
+        set((state) => ({
+          transactions: [...state.transactions, transaction],
+        })),
       updateTransactionStatus: (txHash, status) =>
         set((state) => ({
           transactions: state.transactions.map((t) => (t.txHash === txHash ? { ...t, status } : t)),
@@ -80,7 +95,8 @@ export const useNotificationStore = create<NotificationStore>()(
       clearTransactions: () => set({ transactions: [] }),
     }),
     {
-      name: 'atlas.notification.store',
+      name: 'app.transaction.store',
+      version: 1,
       storage: createJSONStorage(() => localStorage),
     }
   )
