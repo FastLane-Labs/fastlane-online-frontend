@@ -3,7 +3,7 @@ import ModalWrapper from '@/components/Wrappers/ModalWrapper'
 import SwapStep from '@/components/Swap/SwapStep'
 import { useSwapStateContext } from '@/context/SwapStateContext'
 import { getBlockExplorerUrl } from '@/utils/getBlockExploer'
-import { useErrorNotification } from '@/hooks/useErrorNotification'
+// import { useErrorNotification } from '@/hooks/useErrorNotification'
 
 interface SwapModalProps {
   isVisible: boolean
@@ -31,7 +31,7 @@ const SwapModal: React.FC<SwapModalProps> = ({ isVisible, onClose, onSwap, onApp
   } = useSwapStateContext()
 
   // error notifications
-  useErrorNotification(error)
+  // useErrorNotification(error)
 
   useEffect(() => {
     if (swapResult?.transaction?.txHash) {
