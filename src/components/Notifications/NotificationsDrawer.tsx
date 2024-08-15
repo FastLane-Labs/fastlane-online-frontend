@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useMemo } from 'react'
 import { ChevronRightIcon } from '@heroicons/react/24/solid'
 import { useTransactionStore } from '@/store/useAppStore'
 import { ActivityItem } from './ActivityItem'
@@ -17,6 +17,15 @@ export function NotificationsDrawer() {
   const onClose = () => {
     document.getElementById('my-drawer')?.click()
   }
+
+  // Sort transactions from newest to oldest
+  const sortedTransactions = useMemo(() => {
+    return [...transactions].sort((a, b) => {
+      const timestampA = a.timestamp || 0
+      const timestampB = b.timestamp || 0
+      return timestampB - timestampA
+    })
+  }, [transactions])
 
   if (!isClient) {
     return null // Or a loading spinner
@@ -42,11 +51,11 @@ export function NotificationsDrawer() {
           </header>
 
           <main className='flex-grow overflow-y-auto p-4'>
-            {transactions.length === 0 ? (
+            {sortedTransactions.length === 0 ? (
               <p className='text-sm text-gray-400'>No activity</p>
             ) : (
               <ul className='space-y-2 list-none p-0 m-0'>
-                {transactions.map((transaction: TransactionParams, index: number) => (
+                {sortedTransactions.map((transaction: TransactionParams, index: number) => (
                   <li key={`transaction_${index}_${transaction.txHash}`}>
                     <ActivityItem transaction={transaction} />
                   </li>
@@ -55,7 +64,7 @@ export function NotificationsDrawer() {
             )}
           </main>
 
-          {transactions.length > 0 && (
+          {sortedTransactions.length > 0 && (
             <footer className='p-4 flex justify-end border-t border-gray-800'>
               <button className='btn btn-sm btn-ghost text-gray-200 hover:bg-gray-800' onClick={clearTransactions}>
                 Clear activity
