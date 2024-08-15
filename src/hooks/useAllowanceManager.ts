@@ -105,6 +105,11 @@ export const useAllowanceManager = () => {
             transactionHash: error.transaction.hash,
             transactionStatus: 'failed',
           })
+        } else {
+          console.error(error)
+          sendNotification(`Approval for ${token.symbol} Failed`, {
+            type: 'error',
+          })
         }
         return false
       }
