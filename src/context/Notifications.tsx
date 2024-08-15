@@ -67,15 +67,16 @@ export function NotificationProvider({ children }: PropsWithChildren) {
             }
             if (closeToast) closeToast()
           }}
-          className='flex items-center cursor-pointer'>
+          className='flex items-center cursor-pointer w-full'>
           <StatusIcon type={notification.type} />
-          <span className='ml-2'>{message}</span>
+          <span className='ml-2 flex-grow'>{message}</span>
         </div>
       )
 
       // Send toast
       toast(ToastContent, {
         type: notification.type as any,
+        icon: false, // Disable the default icon
         onClick: () => {
           if (notification.href) {
             window.open(notification.href, '_blank')
@@ -112,8 +113,8 @@ export function NotificationProvider({ children }: PropsWithChildren) {
         limit={5}
         theme='dark'
         position='bottom-center'
-        toastClassName={() => 'flex relative bg-secondary-content rounded-xl justify-between overflow-hidden p-2 mb-2'}
-        bodyClassName={() => 'flex text-sm gap-2 px-4 py-2'}
+        toastClassName={() => 'bg-secondary-content rounded-xl overflow-hidden p-2 mb-2'}
+        bodyClassName={() => 'p-0 m-0'} // Remove padding from body
       />
     </NotificationContext.Provider>
   )
