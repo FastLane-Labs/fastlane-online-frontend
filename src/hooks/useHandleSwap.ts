@@ -12,7 +12,7 @@ import { ethers } from 'ethers'
 import { FastlaneOnlineAbi } from '@/abis'
 import { Token, TransactionParams, TransactionStatus } from '@/types'
 import { useNotifications } from '@/context/Notifications'
-import { getBlockExplorerUrl } from '@/utils/getBlockExploer'
+import { getBlockExplorerUrl } from '@/utils/getBlockExplorerUrl'
 import { TokenProvider } from '@/providers'
 import { useErrorNotification } from './useErrorNotification'
 
@@ -35,7 +35,7 @@ export const useHandleSwap = () => {
   const { atlasAddress, dappAddress, atlasVerificationAddress } = useFastLaneAddresses()
   const { sendNotification } = useNotifications()
   const [error, setError] = useState(null)
-  useErrorNotification(error)
+  const { handleError } = useErrorNotification()
 
   const handleSignature = useCallback(async () => {
     if (!swapData?.userOperation || !signer || !chainId) {
@@ -162,7 +162,7 @@ export const useHandleSwap = () => {
           transactionStatus: 'failed',
         })
       } else {
-        setError(error)
+        handleError(error)
       }
 
       return false
@@ -184,6 +184,7 @@ export const useHandleSwap = () => {
     setSwapResult,
     hasUserOperationSignature,
     sendNotification,
+    handleError,
   ])
 
   return {

@@ -4,7 +4,7 @@ import { TransactionParams } from '@/types'
 import { CheckCircleIcon, XCircleIcon, ClockIcon } from '@heroicons/react/24/solid'
 import { shortFormat } from '@/utils/format'
 import dayjs from 'dayjs'
-import { getBlockExplorerUrl } from '@/utils/getBlockExploer'
+import { getBlockExplorerUrl } from '@/utils/getBlockExplorerUrl'
 
 interface ActivityItemProps {
   transaction: TransactionParams

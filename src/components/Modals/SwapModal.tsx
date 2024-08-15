@@ -2,7 +2,7 @@ import React, { useState, useCallback, useEffect } from 'react'
 import ModalWrapper from '@/components/Wrappers/ModalWrapper'
 import SwapStep from '@/components/Swap/SwapStep'
 import { useSwapStateContext } from '@/context/SwapStateContext'
-import { getBlockExplorerUrl } from '@/utils/getBlockExploer'
+import { getBlockExplorerUrl } from '@/utils/getBlockExplorerUrl'
 // import { useErrorNotification } from '@/hooks/useErrorNotification'
 
 interface SwapModalProps {

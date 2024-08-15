@@ -9,7 +9,7 @@ import { ethers } from 'ethers'
 import { keys } from '@/core/queries/query-keys'
 import { useAccount } from 'wagmi'
 import { useNotifications } from '@/context/Notifications'
-import { getBlockExplorerUrl } from '@/utils/getBlockExploer'
+import { getBlockExplorerUrl } from '@/utils/getBlockExplorerUrl'
 import { useErrorNotification } from './useErrorNotification'
 
 export const useAllowanceManager = () => {
@@ -17,8 +17,7 @@ export const useAllowanceManager = () => {
   const { address: userAddress, chainId } = useAccount()
   const [allowanceUpdateTrigger, setAllowanceUpdateTrigger] = useState(0)
   const { sendNotification } = useNotifications()
-  const [error, setError] = useState(null)
-  useErrorNotification(error)
+  const { handleError } = useErrorNotification()
   const queryClient = useQueryClient()
 
   const checkAllowance = useCallback(
@@ -109,12 +108,12 @@ export const useAllowanceManager = () => {
             transactionStatus: 'failed',
           })
         } else {
-          setError(error)
+          handleError(error)
         }
         return false
       }
     },
-    [signer, queryClient, userAddress, chainId, sendNotification]
+    [signer, queryClient, userAddress, chainId, sendNotification, handleError]
   )
 
   const isSufficientAllowance = useCallback(

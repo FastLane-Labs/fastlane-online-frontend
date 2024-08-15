@@ -1,62 +1,54 @@
-import { useEffect, useMemo } from 'react'
+import { useCallback } from 'react'
 import { useNotifications } from '@/context/Notifications'
 
-export const useErrorNotification = (error: any | null) => {
+export const useErrorNotification = () => {
   const { sendNotification } = useNotifications()
 
-  // List of errors we want to create notifications for
-  const validErrorList = useMemo(() => {
-    return [
-      { type: 'approve', message: 'approve failed' },
-      { type: 'sign', message: 'sign failed' },
-      { type: 'swap', message: 'swap failed' },
-      // Add more error types as needed
-    ]
-  }, [])
+  const handleError = useCallback(
+    (error: any) => {
+      let notificationMessage = error?.message || 'An error occurred'
+      let notificationType: 'error' | 'warning' = 'error'
 
-  useEffect(() => {
-    if (error) {
-      const errorMessage = error.message.toLowerCase()
-
-      // Check if error is one we want to create a notification for
-      const matchedError = validErrorList.find((validError) => errorMessage.includes(validError.message.toLowerCase()))
-
-      if (matchedError) {
-        let notificationMessage = error.message
-        let notificationType: 'error' | 'warning' = 'error'
-
-        // Customize notification based on error type
-        switch (matchedError.type) {
-          case 'approve':
-            notificationMessage = `Approval for failed: ${error.message}`
-            break
-          case 'sign':
-            notificationMessage = `Signature failed: ${error.message}`
-            break
-          case 'swap':
-            notificationMessage = `Swap failed: ${error.message}`
-            break
-          // Add more cases as needed
-        }
-
-        // Check for user rejection
-        if (error.code === 4001 && errorMessage.includes('user denied transaction signature')) {
+      // Check for specific error codes
+      switch (error.code) {
+        case 4001: // UserRejectedRequest
           notificationMessage = `Transaction cancelled: User denied signature`
           notificationType = 'warning'
-        }
-
-        // Send notification
-        sendNotification(notificationMessage, {
-          type: notificationType,
-        })
-
-        // Log error for debugging
-        console.error('Error occurred:', error)
+          break
+        case 4100: // Unauthorized
+          notificationMessage = `Unauthorized: Please check your wallet connection`
+          break
+        case 4200: // UnsupportedMethod
+          notificationMessage = `Unsupported method: This action is not supported`
+          break
+        case 4900: // Disconnected
+        case 4901: // ChainDisconnected
+          notificationMessage = `Disconnected: Please reconnect your wallet`
+          break
+        default:
+          // Handle other specific errors
+          if (error.message?.toLowerCase().includes('approve failed')) {
+            notificationMessage = `Approval failed: ${error.message}`
+          } else if (error.message?.toLowerCase().includes('sign failed')) {
+            notificationMessage = `Signature failed: ${error.message}`
+          } else if (error.message?.toLowerCase().includes('swap failed')) {
+            notificationMessage = `Swap failed: ${error.message}`
+          }
       }
-    }
-  }, [error, sendNotification, validErrorList])
+
+      // Send notification
+      sendNotification(notificationMessage, {
+        type: notificationType,
+      })
+
+      // Log error for debugging
+      console.error('Error occurred:', error)
+    },
+    [sendNotification]
+  )
 
   return {
+    handleError,
     sendNotification,
   }
 }
