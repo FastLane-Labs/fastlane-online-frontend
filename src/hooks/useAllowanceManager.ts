@@ -17,7 +17,7 @@ export const useAllowanceManager = () => {
   const { address: userAddress, chainId } = useAccount()
   const [allowanceUpdateTrigger, setAllowanceUpdateTrigger] = useState(0)
   const { sendNotification } = useNotifications()
-  const { handleError } = useErrorNotification()
+  const { handleProviderError } = useErrorNotification()
   const queryClient = useQueryClient()
 
   const checkAllowance = useCallback(
@@ -108,12 +108,12 @@ export const useAllowanceManager = () => {
             transactionStatus: 'failed',
           })
         } else {
-          handleError(error)
+          handleProviderError(error)
         }
         return false
       }
     },
-    [signer, queryClient, userAddress, chainId, sendNotification, handleError]
+    [signer, queryClient, userAddress, chainId, sendNotification, handleProviderError]
   )
 
   const isSufficientAllowance = useCallback(

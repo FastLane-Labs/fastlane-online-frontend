@@ -34,8 +34,7 @@ export const useHandleSwap = () => {
   const { config } = useAppStore()
   const { atlasAddress, dappAddress, atlasVerificationAddress } = useFastLaneAddresses()
   const { sendNotification } = useNotifications()
-  const [error, setError] = useState(null)
-  const { handleError } = useErrorNotification()
+  const { handleProviderError } = useErrorNotification()
 
   const handleSignature = useCallback(async () => {
     if (!swapData?.userOperation || !signer || !chainId) {
@@ -49,13 +48,13 @@ export const useHandleSwap = () => {
       setSwapDataSigned(true)
       return true
     } catch (error: any) {
-      setError(error)
+      handleProviderError(error)
       setSwapDataSigned(false)
       return false
     } finally {
       setIsSigning(false)
     }
-  }, [swapData?.userOperation, signer, chainId, setIsSigning, setSwapDataSigned])
+  }, [swapData?.userOperation, signer, chainId, setIsSigning, setSwapDataSigned, handleProviderError])
 
   const handleSwap = useCallback(async () => {
     // Check if all required data is available
@@ -162,7 +161,7 @@ export const useHandleSwap = () => {
           transactionStatus: 'failed',
         })
       } else {
-        handleError(error)
+        handleProviderError(error)
       }
 
       return false
@@ -184,7 +183,7 @@ export const useHandleSwap = () => {
     setSwapResult,
     hasUserOperationSignature,
     sendNotification,
-    handleError,
+    handleProviderError,
   ])
 
   return {
