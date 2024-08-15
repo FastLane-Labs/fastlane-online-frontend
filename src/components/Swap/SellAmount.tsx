@@ -48,7 +48,6 @@ const SellAmount: React.FC<SellAmountProps> = ({
         onChange={handleChange}
         className='bg-theme text-neutral-content p-2 rounded-2xl flex-grow text-4xl w-full focus:outline-none'
         placeholder='0'
-        // disabled
       />
       {sellToken && parseFloat(currentBalance) > 0 && (
         <button className='max-button btn-outline text-primary outline-none' onClick={handleSetMax}>
