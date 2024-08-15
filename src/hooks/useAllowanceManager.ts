@@ -57,6 +57,7 @@ export const useAllowanceManager = () => {
           routeType: 'approval',
           fromToken: fromToken,
           chainId: token.chainId,
+          fromAmount: amount.toString(),
           txHash: tx.hash,
           status: 'pending',
           fromAddress: userAddress,

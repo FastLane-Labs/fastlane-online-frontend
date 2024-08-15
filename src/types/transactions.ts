@@ -7,7 +7,7 @@ export interface TransactionParams {
   routeType: RouteType
   chainId: number
   fromToken: Token
-  fromAmount?: string
+  fromAmount: string
   toToken?: Token
   toAmount?: string
   nonce?: number
