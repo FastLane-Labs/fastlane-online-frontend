@@ -55,7 +55,7 @@ export interface SwapState {
   setIsSigning: (isSigning: boolean) => void
   setHasUserOperationSignature: (hasUserOperationSignature: boolean) => void
   setSwapDataSigned: (isSigned: boolean) => void
-
+  resetSwapData: () => void
   // Actions
   swapTokens: () => void
   resetSelections: () => void
@@ -144,6 +144,15 @@ export const useSwapState = (): SwapState => {
     setSwapData(null)
   }, [defaultToken])
 
+  const resetSwapData = useCallback(() => {
+    setQuote(null)
+    setIsQuoteing(false)
+    setSwapResult(null)
+    setIsSwapping(false)
+    setIsSigning(false)
+    setHasUserOperationSignature(false)
+  }, [])
+
   useEffect(() => {
     if (chainId && tokens.length > 0) {
       resetSelections()
@@ -231,7 +240,7 @@ export const useSwapState = (): SwapState => {
     setIsSigning,
     setIsSwapping,
     setIsApproving,
-
+    resetSwapData,
     // Actions
     swapTokens: handleSwapTokens,
     resetSelections,

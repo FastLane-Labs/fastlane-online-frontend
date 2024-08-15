@@ -85,6 +85,7 @@ const TokenSelectModal: React.FC<TokenSelectModalProps> = ({
       if (token.address === toToken?.address) {
         setToToken(null)
         setToAmount('')
+        resetSwapData()
       }
       if (fromToken && fromAmount && fromAmount !== '') {
         const adjustedAmount = adjustAmount(fromAmount, fromToken.decimals, token.decimals)
@@ -94,6 +95,8 @@ const TokenSelectModal: React.FC<TokenSelectModalProps> = ({
       if (token.address === fromToken?.address) {
         setFromToken(null)
         setFromAmount('')
+        setToAmount('')
+        resetSwapData()
       }
       if (toToken && toAmount && toAmount !== '') {
         const adjustedAmount = adjustAmount(toAmount, toToken.decimals, token.decimals)
@@ -189,3 +192,6 @@ const TokenSelectModal: React.FC<TokenSelectModalProps> = ({
 }
 
 export default TokenSelectModal
+function resetSwapData() {
+  throw new Error('Function not implemented.')
+}
