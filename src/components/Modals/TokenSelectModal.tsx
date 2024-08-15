@@ -62,7 +62,12 @@ const TokenSelectModal: React.FC<TokenSelectModalProps> = ({
     )
   })
 
-  const sortedTokensWithBalances = filteredTokensWithBalances.sort((a, b) => Number(b.balance) - Number(a.balance))
+  // Sort tokens by balance
+  const sortedTokensWithBalances = filteredTokensWithBalances.sort((a, b) => {
+    const balanceA = BigInt(a.balance)
+    const balanceB = BigInt(b.balance)
+    return balanceB > balanceA ? 1 : balanceB < balanceA ? -1 : 0
+  })
 
   const popularTokens = tokensWithBalances.filter((token) => token.tags?.includes('popular'))
   const tokensWithUserBalances = sortedTokensWithBalances.filter((token) => BigInt(token.balance) > 0n)
