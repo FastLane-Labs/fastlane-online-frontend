@@ -53,36 +53,21 @@ export function ActivityItem({ transaction }: ActivityItemProps) {
     <img src={transaction.fromToken.logoURI} alt={transaction.fromToken.symbol} className='w-6 h-6 rounded-full' />
   )
 
-  const renderApproval = () => (
-    <div className='flex items-center space-x-3 p-2 bg-base-200 rounded-lg'>
-      <div className='flex-shrink-0'>
-        <SingleTokenIcon />
-      </div>
-      <div className='flex-1 min-w-0'>
-        <p className='text-sm font-medium text-base-content'>{getStatusText()}</p>
-        <p className='text-sm text-base-content/70'>{transaction.fromToken.symbol}</p>
-      </div>
-      <div className='flex-shrink-0'>{getStatusIcon()}</div>
-    </div>
-  )
-
   const renderSwap = () => (
-    <div className='flex items-center space-x-3 p-2 bg-base-200 rounded-lg'>
+    <div className='flex items-center space-x-3 p-2 bg-[#0f0f0f] rounded-lg border border-gray-800'>
       <div className='flex-shrink-0'>
         <CombinedTokenIcon />
       </div>
       <div className='flex-1 min-w-0'>
         <div className='flex justify-between items-center'>
-          <p className='text-sm font-medium text-base-content'>{getStatusText()}</p>
-          <p className='text-xs text-base-content/50'>
+          <p className='text-sm font-medium text-gray-200'>{getStatusText()}</p>
+          <p className='text-xs text-gray-400'>
             {transaction.timestamp
               ? new Date(transaction.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
               : ''}
           </p>
         </div>
-        <p className='text-xs text-base-content/70 mt-1'>
-          {' '}
-          {/* Changed from text-sm to text-xs */}
+        <p className='text-xs text-gray-400 mt-1'>
           {shortFormat(BigInt(transaction.fromAmount), transaction.fromToken.decimals, 4)}{' '}
           {transaction.fromToken.symbol}
           {transaction.toToken && transaction.toAmount && (
@@ -92,6 +77,19 @@ export function ActivityItem({ transaction }: ActivityItemProps) {
             </>
           )}
         </p>
+      </div>
+      <div className='flex-shrink-0'>{getStatusIcon()}</div>
+    </div>
+  )
+
+  const renderApproval = () => (
+    <div className='flex items-center space-x-3 p-2 bg-[#0f0f0f] rounded-lg border border-gray-800'>
+      <div className='flex-shrink-0'>
+        <SingleTokenIcon />
+      </div>
+      <div className='flex-1 min-w-0'>
+        <p className='text-sm font-medium text-gray-200'>{getStatusText()}</p>
+        <p className='text-xs text-gray-400'>{transaction.fromToken.symbol}</p>
       </div>
       <div className='flex-shrink-0'>{getStatusIcon()}</div>
     </div>
