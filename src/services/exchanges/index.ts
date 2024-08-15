@@ -3,6 +3,7 @@ import { Address } from 'viem'
 import { Exchange } from './base'
 import { UniswapV2 } from './uniswapV2'
 import { UniswapV3 } from './uniswapV3'
+import { NativeWrapper } from './nativeWrapper'
 
 /**
  * Get an exchange class from the exchange name
@@ -15,6 +16,8 @@ export function getExchange(exchange: ExchangeName): typeof Exchange {
       return UniswapV3
     case ExchangeName.UNISWAPV2:
       return UniswapV2
+    case ExchangeName.NativeWrapper:
+      return NativeWrapper
     default:
       throw new Error('Exchange not supported')
   }
