@@ -23,7 +23,7 @@ const SwapView: React.FC = () => {
         <div className='gradient-bg relative max-w-md mx-auto p-4 rounded-3xl border border-accent'>
           <div className='flex justify-between items-center mb-2'>
             <div>
-              <button className='btn btn-btn'>Swap</button>
+              <button className='btn btn-menu'>Swap</button>
             </div>
             <SettingsButton setIsSettingsModalVisible={setIsSettingsModalVisible} />
           </div>
