@@ -1,3 +1,4 @@
+'use client'
 import React from 'react'
 import { TransactionParams } from '@/types'
 import { CheckCircleIcon, XCircleIcon, ClockIcon } from '@heroicons/react/24/solid'
