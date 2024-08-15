@@ -1,16 +1,17 @@
-import { useEffect } from 'react'
-import { useNotificationStore } from '@/store/useAppStore'
-import { AppNotification } from '@/types'
+import { useEffect, useMemo } from 'react'
+import { useNotifications } from '@/context/Notifications'
 
 export const useErrorNotification = (error: Error | null) => {
-  const { addNotification } = useNotificationStore()
+  const { sendNotification } = useNotifications()
 
   // List of errors we want to create notifications for
-  const validErrorList = [
-    'approve failed', // token approval failed
-    'sign failed', // user operation signing failed
-    'swap failed', // tx swap failed
-  ]
+  const validErrorList = useMemo(() => {
+    return [
+      'approve failed', // token approval failed
+      'sign failed', // user operation signing failed
+      'swap failed', // tx swap failed
+    ]
+  }, [])
 
   useEffect(() => {
     if (error) {
@@ -29,5 +30,5 @@ export const useErrorNotification = (error: Error | null) => {
         // addNotification(notification)
       }
     }
-  }, [error, addNotification])
+  }, [error, sendNotification, validErrorList])
 }

@@ -1,4 +1,5 @@
 'use client'
+
 import React, { createContext, PropsWithChildren, useContext, useCallback } from 'react'
 import { toast, ToastContainer } from 'react-toastify'
 import { useAccount } from 'wagmi'
@@ -6,15 +7,18 @@ import dayjs from 'dayjs'
 import 'react-toastify/dist/ReactToastify.min.css'
 import '@/assets/notifications.css'
 import { StatusIcon } from '@/components/Notifications/Alert'
-import { useNotificationStore, useTransactionStore } from '@/store/useAppStore'
+import { useTransactionStore } from '@/store/useAppStore'
 import { TransactionHistoryStore, TransactionParams, TransactionStatus, AppNotification } from '@/types'
 
 interface NotificationContext {
-  addNotification: (message: string, options?: Partial<Omit<AppNotification, 'message'>>) => void
-  clearNotifications: () => void
-  notifications: AppNotification[]
-  addTransaction: (transaction: TransactionParams) => void
-  updateTransactionStatus: (txHash: string, status: TransactionStatus) => void
+  sendNotification: (
+    message: string,
+    options?: Partial<Omit<AppNotification, 'message'>> & {
+      transactionParams?: TransactionParams
+      transactionHash?: string
+      transactionStatus?: TransactionStatus
+    }
+  ) => void
   clearTransactions: () => void
   transactions: TransactionHistoryStore
 }
@@ -31,11 +35,20 @@ export const useNotifications = () => {
 
 export function NotificationProvider({ children }: PropsWithChildren) {
   const { address } = useAccount()
-  const notificationStore = useNotificationStore()
   const transactionStore = useTransactionStore()
 
-  const addNotification = useCallback(
-    (message: string, options?: Partial<Omit<AppNotification, 'message'>>) => {
+  const sendNotification = useCallback(
+    (
+      message: string,
+      options?: Partial<Omit<AppNotification, 'message'>> & {
+        transactionParams?: TransactionParams
+        transactionHash?: string
+        transactionStatus?: TransactionStatus
+      }
+    ) => {
+      const timestamp = dayjs().valueOf()
+
+      // Create and add notification
       const notification: AppNotification = {
         message,
         type: options?.type || 'info',
@@ -43,18 +56,28 @@ export function NotificationProvider({ children }: PropsWithChildren) {
         from: options?.from || address,
         ...options,
       }
-      notificationStore.addNotification(notification)
+
+      // Send toast
       toast(message, { type: notification.type as any, icon: <StatusIcon type={notification.type} /> })
+
+      // Handle transaction creation if transactionParams is present
+      if (options?.transactionParams) {
+        transactionStore.addTransaction({
+          ...options.transactionParams,
+          timestamp,
+        })
+      }
+
+      // Handle transaction update if transactionHash is present
+      if (options?.transactionHash && options?.transactionStatus) {
+        transactionStore.updateTransactionStatus(options.transactionHash, options.transactionStatus)
+      }
     },
-    [address, notificationStore]
+    [address, transactionStore]
   )
 
   const contextValue: NotificationContext = {
-    addNotification,
-    clearNotifications: notificationStore.clearNotifications,
-    notifications: notificationStore.notifications,
-    addTransaction: transactionStore.addTransaction,
-    updateTransactionStatus: transactionStore.updateTransactionStatus,
+    sendNotification,
     clearTransactions: transactionStore.clearTransactions,
     transactions: transactionStore.transactions,
   }

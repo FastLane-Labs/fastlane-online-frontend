@@ -15,7 +15,7 @@ export const useAllowanceManager = () => {
   const { provider, signer } = useEthersProviderContext()
   const { address: userAddress, chainId } = useAccount()
   const [allowanceUpdateTrigger, setAllowanceUpdateTrigger] = useState(0)
-  const { addTransaction, updateTransactionStatus, addNotification } = useNotifications()
+  const { sendNotification } = useNotifications()
   const queryClient = useQueryClient()
 
   const checkAllowance = useCallback(
@@ -48,35 +48,35 @@ export const useAllowanceManager = () => {
         // Start the approval process
         const tx = await approveErc20Token(signer, token.address, spenderAddress, amount, true)
 
-        const fromToken: Omit<TokenWithBalance, 'balance' | 'formattedBalance'> = {
-          ...token,
-        }
-
-        // Add the transaction with the actual hash
-        addTransaction({
-          routeType: 'approval',
-          fromToken: fromToken,
-          chainId: token.chainId,
-          fromAmount: amount.toString(),
-          txHash: tx.hash,
-          status: 'pending',
-          fromAddress: userAddress,
-        })
-
         const baseUrl = getBlockExplorerUrl(chainId)
 
-        addNotification(`Approving ${token.symbol} for trading`, {
+        // Send notification for pending approval
+        sendNotification(`Approving ${token.symbol} for trading`, {
           type: 'info',
           href: `${baseUrl}tx/${tx.hash}`,
+          transactionParams: {
+            routeType: 'approval',
+            fromToken: token,
+            chainId: token.chainId,
+            fromAmount: amount.toString(),
+            txHash: tx.hash,
+            status: 'pending',
+            fromAddress: userAddress,
+          },
         })
 
         // Wait for the transaction to be mined
         const receipt = await tx.wait()
-        console.log('receipt', receipt)
 
         // Update the transaction status based on the receipt
         if (receipt?.status === 1) {
-          updateTransactionStatus(tx.hash, 'confirmed')
+          // Send notification for successful approval
+          sendNotification(`Approval for ${token.symbol} Successful`, {
+            type: 'success',
+            href: `${baseUrl}tx/${tx.hash}`,
+            transactionHash: tx.hash,
+            transactionStatus: 'confirmed',
+          })
 
           // Invalidate the query to trigger a refetch
           await queryClient.invalidateQueries({
@@ -88,19 +88,28 @@ export const useAllowanceManager = () => {
 
           return true
         } else {
-          updateTransactionStatus(tx.hash, 'failed')
+          // Send notification for failed approval
+          sendNotification(`Approval for ${token.symbol} Failed`, {
+            type: 'error',
+            href: `${baseUrl}tx/${tx.hash}`,
+            transactionHash: tx.hash,
+            transactionStatus: 'failed',
+          })
           return false
         }
       } catch (error: any) {
-        console.error('Error updating allowance:', error)
         // If we have a transaction hash, update its status to failed
         if (error.transaction?.hash) {
-          updateTransactionStatus(error.transaction.hash, 'failed')
+          sendNotification(`Approval for ${token.symbol} Failed`, {
+            type: 'error',
+            transactionHash: error.transaction.hash,
+            transactionStatus: 'failed',
+          })
         }
         return false
       }
     },
-    [signer, queryClient, userAddress, addTransaction, updateTransactionStatus]
+    [signer, queryClient, userAddress, chainId, sendNotification]
   )
 
   const isSufficientAllowance = useCallback(

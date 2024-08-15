@@ -69,16 +69,6 @@ export const useAppRouterStore = create<AppRouter>((_) => ({
   ],
 }))
 
-// Non-persisted Notification store
-export const useNotificationStore = create<NotificationStore>((set) => ({
-  notifications: [],
-  addNotification: (notification) =>
-    set((state) => ({
-      notifications: [...state.notifications, notification],
-    })),
-  clearNotifications: () => set({ notifications: [] }),
-}))
-
 // Persisted Transaction store
 export const useTransactionStore = create<TransactionStore>()(
   persist(

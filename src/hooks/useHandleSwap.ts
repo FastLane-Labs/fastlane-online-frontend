@@ -30,7 +30,7 @@ export const useHandleSwap = () => {
   } = useSwapStateContext()
   const { config } = useAppStore()
   const { atlasAddress, dappAddress, atlasVerificationAddress } = useFastLaneAddresses()
-  const { addTransaction, updateTransactionStatus, addNotification } = useNotifications()
+  const { sendNotification } = useNotifications()
 
   const handleSignature = useCallback(async () => {
     if (!swapData?.userOperation || !signer || !chainId) {
@@ -71,18 +71,17 @@ export const useHandleSwap = () => {
 
     setIsSwapping(true)
     let transactionParams: TransactionParams | null = null
+    const { isFromNative, swapSteps } = quote.swapRoute
+    const fromToken = swapSteps[0].tokenIn
+    const toToken = swapSteps[swapSteps.length - 1].tokenOut
     try {
       const feeData = await getFeeData(provider)
       if (!feeData.maxFeePerGas || !feeData.gasPrice) {
         console.error('Missing required data for swap')
         console.log('feeData', feeData)
-        addNotification('Swap failed: Missing fee data', { type: 'error' })
+        sendNotification('Swap failed: Missing fee data', { type: 'error' })
         return false
       }
-
-      const { isFromNative, swapSteps } = quote.swapRoute
-      const fromToken = swapSteps[0].tokenIn
-      const toToken = swapSteps[swapSteps.length - 1].tokenOut
 
       const value = isFromNative ? quote.amountIn : 0n
 
@@ -112,8 +111,10 @@ export const useHandleSwap = () => {
       // Update transaction with actual hash
       transactionParams.txHash = tx.hash
 
-      addTransaction(transactionParams)
-      addNotification(`Swap submitted: ${tx.hash}`, { type: 'info' })
+      sendNotification(`Swapping ${fromToken.symbol} to ${toToken.symbol}`, {
+        type: 'info',
+        transactionParams: transactionParams,
+      })
 
       setSwapResult({ transaction: transactionParams })
 
@@ -122,8 +123,11 @@ export const useHandleSwap = () => {
       console.log('Swap transaction confirmed')
 
       // Update transaction status to 'confirmed'
-      updateTransactionStatus(tx.hash, 'confirmed')
-      addNotification('Swap transaction confirmed', { type: 'success' })
+      sendNotification(`Swap ${fromToken.symbol} to ${toToken.symbol} successful`, {
+        type: 'success',
+        transactionHash: tx.hash,
+        transactionStatus: 'confirmed',
+      })
 
       const updatedTransactionParams: TransactionParams = {
         ...transactionParams,
@@ -137,11 +141,14 @@ export const useHandleSwap = () => {
 
       if (transactionParams?.txHash) {
         // If we have a transaction hash, update its status to failed
-        updateTransactionStatus(transactionParams.txHash, 'failed')
-        addNotification(`Swap failed: ${error.message || 'Unknown error occurred'}`, { type: 'error' })
+        sendNotification(`Swap ${fromToken.symbol} to ${toToken.symbol} failed`, {
+          type: 'error',
+          transactionHash: transactionParams.txHash,
+          transactionStatus: 'failed',
+        })
       } else {
         // If we don't have a transaction hash, just show an error notification
-        addNotification('Swap failed to submit', { type: 'error' })
+        sendNotification('Swap failed to submit', { type: 'error' })
       }
 
       return false
@@ -162,9 +169,7 @@ export const useHandleSwap = () => {
     setIsSwapping,
     setSwapResult,
     hasUserOperationSignature,
-    addTransaction,
-    updateTransactionStatus,
-    addNotification,
+    sendNotification,
   ])
 
   return {

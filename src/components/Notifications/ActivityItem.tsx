@@ -2,12 +2,24 @@ import React from 'react'
 import { TransactionParams } from '@/types'
 import { CheckCircleIcon, XCircleIcon, ClockIcon } from '@heroicons/react/24/solid'
 import { shortFormat } from '@/utils/format'
+import dayjs from 'dayjs'
 
 interface ActivityItemProps {
   transaction: TransactionParams
 }
 
 export function ActivityItem({ transaction }: ActivityItemProps) {
+  const formatRelativeTime = (timestamp: number) => {
+    const now = dayjs()
+    const transactionTime = dayjs(timestamp)
+
+    if (now.diff(transactionTime, 'day') >= 7) {
+      return transactionTime.format('MMM D')
+    } else {
+      return transactionTime.fromNow(true)
+    }
+  }
+
   const getStatusIcon = () => {
     switch (transaction.status) {
       case 'confirmed':
@@ -63,7 +75,7 @@ export function ActivityItem({ transaction }: ActivityItemProps) {
           <span className='text-sm font-medium text-gray-200'>{getStatusText()}</span>
           {transaction.timestamp && (
             <time className='text-xs text-gray-400' suppressHydrationWarning>
-              {new Date(transaction.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+              {formatRelativeTime(transaction.timestamp)}
             </time>
           )}
         </div>
