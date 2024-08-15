@@ -28,8 +28,17 @@ const TokenSelectModal: React.FC<TokenSelectModalProps> = ({
   const { tokens, loading, error } = useCurrentTokenList()
   const [searchTerm, setSearchTerm] = useState('')
   const { address } = useAccount()
-  const { fromToken, toToken, fromAmount, toAmount, setFromAmount, setToAmount, setFromToken, setToToken } =
-    useSwapStateContext()
+  const {
+    fromToken,
+    toToken,
+    fromAmount,
+    toAmount,
+    setFromAmount,
+    setToAmount,
+    setFromToken,
+    setToToken,
+    resetSwapData,
+  } = useSwapStateContext()
 
   const balancesQuery = useBalances({
     tokens: tokens,
@@ -81,9 +90,12 @@ const TokenSelectModal: React.FC<TokenSelectModalProps> = ({
   }, [isOpen])
 
   const handleSelect = (token: Token) => {
+    console.log('handleSelect', token)
+    console.log('direction', direction)
     if (direction === 'sell') {
       if (token.address === toToken?.address) {
         setToToken(null)
+        setToAmount('')
         setToAmount('')
         resetSwapData()
       }
@@ -92,6 +104,7 @@ const TokenSelectModal: React.FC<TokenSelectModalProps> = ({
         setFromAmount(adjustedAmount)
       }
     } else if (direction === 'buy') {
+      console.log('buy')
       if (token.address === fromToken?.address) {
         setFromToken(null)
         setFromAmount('')
@@ -192,6 +205,3 @@ const TokenSelectModal: React.FC<TokenSelectModalProps> = ({
 }
 
 export default TokenSelectModal
-function resetSwapData() {
-  throw new Error('Function not implemented.')
-}
