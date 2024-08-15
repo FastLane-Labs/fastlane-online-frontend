@@ -17,6 +17,7 @@ export const useSwapCallData = (
   debouncedAmount: string,
   quoteResult: QuoteResult | null | undefined,
   isReadyForCallDataGeneration: boolean,
+  executionEnvironment: Address | null,
   provider: any,
   atlasAddress: string,
   dappAddress: string,
@@ -42,12 +43,15 @@ export const useSwapCallData = (
           !atlasAddress ||
           !dappAddress ||
           !address ||
-          !atlasVerificationAddress
+          !atlasVerificationAddress ||
+          !executionEnvironment
         ) {
           return null
         }
+        console.log('quoteResult', quoteResult)
 
         const swapIntent = BaseSwapService.getInstance().getSwapIntent(quoteResult, config.slippage)
+<<<<<<< HEAD
         const executionEnvironment = await getExecutionEnvironment(
           atlasAddress as Address,
           address as Address,
@@ -56,6 +60,9 @@ export const useSwapCallData = (
         )
         // TODO: support reverse direction
         quoteResult.amountOutMin = swapIntent.minAmountUserBuys
+=======
+
+>>>>>>> 32598af (refactor: cache execution environment)
         const { isFromNative } = quoteResult.swapRoute
         const baselineCall = await buildBaselineCallData(quoteResult, executionEnvironment, config.slippage)
 

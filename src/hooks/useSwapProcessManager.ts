@@ -8,6 +8,8 @@ import { useFastLaneAddresses } from './useFastLaneAddresses'
 import { useAppStore } from '@/store/useAppStore'
 import { useBaselineQuote } from './useBaselineQuote'
 import { useSwapCallData } from './useSwapCallData'
+import { useExecutionEnvironment } from './useExecutionEnvironment'
+import { Address } from 'viem'
 
 export const useSwapProcessManager = () => {
   const {
@@ -29,6 +31,11 @@ export const useSwapProcessManager = () => {
   const { provider } = useEthersProviderContext()
   const { atlasAddress, dappAddress, atlasVerificationAddress } = useFastLaneAddresses()
   const { config } = useAppStore()
+  const { data: executionEnvironment } = useExecutionEnvironment({
+    atlasAddress: atlasAddress as Address,
+    userAddress: address as Address,
+    dAppControlAddress: dappAddress as Address,
+  })
 
   const debouncedAmount = useDebounce(swapDirection === 'sell' ? fromAmount : toAmount, 500)
 
@@ -59,6 +66,7 @@ export const useSwapProcessManager = () => {
     debouncedAmount,
     quoteResult,
     isReadyForCallDataGeneration,
+    executionEnvironment as Address,
     provider,
     atlasAddress,
     dappAddress,

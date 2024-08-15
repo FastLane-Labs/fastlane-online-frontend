@@ -33,4 +33,11 @@ export const keys = ({ address }: { address?: string }) => ({
     spenderAddress,
   ],
   tokenPrice: (token: Token) => [...keys({ address }).all, 'tokenPrice', token.address],
+  executionEnvironment: (atlasAddress: string, userAddress: string, dAppControlAddress: string) => [
+    ...keys({ address }).all,
+    'executionEnvironment',
+    atlasAddress,
+    userAddress,
+    dAppControlAddress,
+  ],
 })
