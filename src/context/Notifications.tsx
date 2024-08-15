@@ -94,7 +94,7 @@ export function NotificationProvider({ children }: PropsWithChildren) {
 
       // Handle transaction update if transactionHash is present
       if (options?.transactionHash && options?.transactionStatus) {
-        transactionStore.updateTransactionStatus(options.transactionHash, options.transactionStatus)
+        transactionStore.updateTransactionStatus(options.transactionHash, options.transactionStatus, timestamp)
       }
     },
     [address, transactionStore]

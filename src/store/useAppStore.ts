@@ -25,7 +25,7 @@ interface NotificationStore {
 interface TransactionStore {
   transactions: TransactionHistoryStore
   addTransaction: (transaction: TransactionParams) => void
-  updateTransactionStatus: (txHash: string, status: TransactionStatus) => void
+  updateTransactionStatus: (txHash: string, status: TransactionStatus, timestamp: number) => void
   clearTransactions: () => void
 }
 
@@ -74,13 +74,13 @@ export const useTransactionStore = create<TransactionStore>()(
   persist(
     (set) => ({
       transactions: [],
-      addTransaction: (transaction) =>
+      addTransaction: (transaction: TransactionParams) =>
         set((state) => ({
           transactions: [...state.transactions, transaction],
         })),
-      updateTransactionStatus: (txHash, status) =>
+      updateTransactionStatus: (txHash: string, status: TransactionStatus, timestamp: number) =>
         set((state) => ({
-          transactions: state.transactions.map((t) => (t.txHash === txHash ? { ...t, status } : t)),
+          transactions: state.transactions.map((t) => (t.txHash === txHash ? { ...t, status, timestamp } : t)),
         })),
       clearTransactions: () => set({ transactions: [] }),
     }),
