@@ -4,14 +4,16 @@ import { useEthersProviderContext } from '@/context/EthersProviderContext'
 import { useSwapStateContext } from '@/context/SwapStateContext'
 import { useFastLaneAddresses } from './useFastLaneAddresses'
 import { useAppStore } from '@/store/useAppStore'
-import { SOLVER_GAS_ESTIMATE, SWAP_GAS_ESTIMATE } from '@/constants'
+import { nativeEvmTokenAddress, SOLVER_GAS_ESTIMATE, SWAP_GAS_ESTIMATE } from '@/constants'
 import { signUserOperation } from '@/core/atlas'
 import { getEip712Domain } from '@/utils/getContractAddress'
 import { getAtlasGasSurcharge, getFeeData } from '@/utils/gasFee'
 import { ethers } from 'ethers'
 import { FastlaneOnlineAbi } from '@/abis'
-import { TransactionParams, TransactionStatus } from '@/types'
+import { Token, TransactionParams, TransactionStatus } from '@/types'
 import { useNotifications } from '@/context/Notifications'
+import { getBlockExplorerUrl } from '@/utils/getBlockExploer'
+import { TokenProvider } from '@/providers'
 
 export const useHandleSwap = () => {
   const { signer, provider } = useEthersProviderContext()
@@ -71,9 +73,18 @@ export const useHandleSwap = () => {
 
     setIsSwapping(true)
     let transactionParams: TransactionParams | null = null
-    const { isFromNative, swapSteps } = quote.swapRoute
-    const fromToken = swapSteps[0].tokenIn
-    const toToken = swapSteps[swapSteps.length - 1].tokenOut
+    const { isFromNative, isToNative, swapSteps } = quote.swapRoute
+    const nativeToken = (await TokenProvider.getTokensByChainId(chainId)).find(
+      (token: Token) => token.address === nativeEvmTokenAddress
+    )
+
+    // Update the from and to tokens if we have a native token only used for notifications
+    const fromToken = isFromNative ? nativeToken || swapSteps[0].tokenIn : swapSteps[0].tokenIn
+    const toToken = isToNative
+      ? nativeToken || swapSteps[swapSteps.length - 1].tokenOut
+      : swapSteps[swapSteps.length - 1].tokenOut
+
+    const baseUrl = getBlockExplorerUrl(chainId)
     try {
       const feeData = await getFeeData(provider)
       if (!feeData.maxFeePerGas || !feeData.gasPrice) {
@@ -111,8 +122,9 @@ export const useHandleSwap = () => {
       // Update transaction with actual hash
       transactionParams.txHash = tx.hash
 
-      sendNotification(`Swapping ${fromToken.symbol} to ${toToken.symbol}`, {
+      sendNotification(`Submitting Swap from ${fromToken.symbol} to ${toToken.symbol}`, {
         type: 'info',
+        href: `${baseUrl}tx/${tx.hash}`,
         transactionParams: transactionParams,
       })
 
@@ -125,6 +137,7 @@ export const useHandleSwap = () => {
       // Update transaction status to 'confirmed'
       sendNotification(`Swap ${fromToken.symbol} to ${toToken.symbol} successful`, {
         type: 'success',
+        href: `${baseUrl}tx/${tx.hash}`,
         transactionHash: tx.hash,
         transactionStatus: 'confirmed',
       })
@@ -143,6 +156,7 @@ export const useHandleSwap = () => {
         // If we have a transaction hash, update its status to failed
         sendNotification(`Swap ${fromToken.symbol} to ${toToken.symbol} failed`, {
           type: 'error',
+          href: `${baseUrl}tx/${transactionParams.txHash}`,
           transactionHash: transactionParams.txHash,
           transactionStatus: 'failed',
         })

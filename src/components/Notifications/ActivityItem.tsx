@@ -3,6 +3,7 @@ import { TransactionParams } from '@/types'
 import { CheckCircleIcon, XCircleIcon, ClockIcon } from '@heroicons/react/24/solid'
 import { shortFormat } from '@/utils/format'
 import dayjs from 'dayjs'
+import { getBlockExplorerUrl } from '@/utils/getBlockExploer'
 
 interface ActivityItemProps {
   transaction: TransactionParams
@@ -44,8 +45,24 @@ export function ActivityItem({ transaction }: ActivityItemProps) {
     }
   }
 
+  const getTransactionUrl = () => {
+    if (transaction.txHash && transaction.chainId) {
+      const baseUrl = getBlockExplorerUrl(transaction.chainId)
+      return `${baseUrl}tx/${transaction.txHash}`
+    }
+    return null
+  }
+
+  const transactionUrl = getTransactionUrl()
+
   return (
-    <article className='flex items-center space-x-3 p-2 bg-[#0f0f0f] rounded-lg border border-gray-800'>
+    <article
+      className='flex items-center space-x-3 p-2 bg-[#0f0f0f] rounded-lg border border-gray-800 cursor-pointer hover:bg-gray-900 transition-colors'
+      onClick={() => {
+        if (transactionUrl) {
+          window.open(transactionUrl, '_blank')
+        }
+      }}>
       <div className='flex-shrink-0'>
         {transaction.routeType === 'approval' ? (
           <img
@@ -84,12 +101,12 @@ export function ActivityItem({ transaction }: ActivityItemProps) {
             transaction.fromToken.symbol
           ) : (
             <>
-              {shortFormat(BigInt(transaction.fromAmount), transaction.fromToken.decimals, 4)}{' '}
+              {shortFormat(BigInt(transaction.fromAmount), transaction.fromToken.decimals, 2)}{' '}
               {transaction.fromToken.symbol}
               {transaction.toToken && transaction.toAmount && (
                 <>
                   {' to '}
-                  {shortFormat(BigInt(transaction.toAmount), transaction.toToken.decimals, 4)}{' '}
+                  {shortFormat(BigInt(transaction.toAmount), transaction.toToken.decimals, 2)}{' '}
                   {transaction.toToken.symbol}
                 </>
               )}

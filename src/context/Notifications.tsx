@@ -52,13 +52,36 @@ export function NotificationProvider({ children }: PropsWithChildren) {
       const notification: AppNotification = {
         message,
         type: options?.type || 'info',
-        timestamp: options?.timestamp || dayjs().valueOf(),
+        timestamp: options?.timestamp || timestamp,
         from: options?.from || address,
+        href: options?.href,
         ...options,
       }
 
+      // Create a custom toast content
+      const ToastContent = ({ closeToast }: { closeToast?: () => void }) => (
+        <div
+          onClick={() => {
+            if (notification.href) {
+              window.open(notification.href, '_blank')
+            }
+            if (closeToast) closeToast()
+          }}
+          className='flex items-center cursor-pointer'>
+          <StatusIcon type={notification.type} />
+          <span className='ml-2'>{message}</span>
+        </div>
+      )
+
       // Send toast
-      toast(message, { type: notification.type as any, icon: <StatusIcon type={notification.type} /> })
+      toast(ToastContent, {
+        type: notification.type as any,
+        onClick: () => {
+          if (notification.href) {
+            window.open(notification.href, '_blank')
+          }
+        },
+      })
 
       // Handle transaction creation if transactionParams is present
       if (options?.transactionParams) {
