@@ -28,7 +28,8 @@ const TokenSelectModal: React.FC<TokenSelectModalProps> = ({
   const { tokens, loading, error } = useCurrentTokenList()
   const [searchTerm, setSearchTerm] = useState('')
   const { address } = useAccount()
-  const { fromToken, toToken, fromAmount, toAmount, setFromAmount, setToAmount } = useSwapStateContext()
+  const { fromToken, toToken, fromAmount, toAmount, setFromAmount, setToAmount, setFromToken, setToToken } =
+    useSwapStateContext()
 
   const balancesQuery = useBalances({
     tokens: tokens,
@@ -49,18 +50,11 @@ const TokenSelectModal: React.FC<TokenSelectModalProps> = ({
       balancesQuery.data && balancesQuery.data.length > 0 ? getFormattedBalance(balancesQuery.data[index], token) : '0',
   }))
 
-  const filteredTokensWithBalances = tokensWithBalances.filter((token) => {
-    if (direction === 'sell' && toToken && token.address.toLowerCase() === toToken.address.toLowerCase()) {
-      return false
-    }
-    if (direction === 'buy' && fromToken && token.address.toLowerCase() === fromToken.address.toLowerCase()) {
-      return false
-    }
-    return (
+  const filteredTokensWithBalances = tokensWithBalances.filter(
+    (token) =>
       token.symbol.toLowerCase().includes(searchTerm.toLowerCase()) ||
       token.name.toLowerCase().includes(searchTerm.toLowerCase())
-    )
-  })
+  )
 
   // Sort tokens by balance
   const sortedTokensWithBalances = filteredTokensWithBalances.sort((a, b) => {
@@ -76,7 +70,7 @@ const TokenSelectModal: React.FC<TokenSelectModalProps> = ({
   useEffect(() => {
     if ((balancesQuery.error || balancesQuery.data === undefined) && !hasAttemptedRefetch) {
       balancesQuery.refetch({ cancelRefetch: true })
-      setHasAttemptedRefetch(true) // Mark refetch attempt
+      setHasAttemptedRefetch(true)
     }
   }, [balancesQuery, balancesQuery.error, balancesQuery.data, hasAttemptedRefetch])
 
@@ -88,11 +82,19 @@ const TokenSelectModal: React.FC<TokenSelectModalProps> = ({
 
   const handleSelect = (token: Token) => {
     if (direction === 'sell') {
+      if (token.address === toToken?.address) {
+        setToToken(null)
+        setToAmount('')
+      }
       if (fromToken && fromAmount && fromAmount !== '') {
         const adjustedAmount = adjustAmount(fromAmount, fromToken.decimals, token.decimals)
         setFromAmount(adjustedAmount)
       }
     } else if (direction === 'buy') {
+      if (token.address === fromToken?.address) {
+        setFromToken(null)
+        setFromAmount('')
+      }
       if (toToken && toAmount && toAmount !== '') {
         const adjustedAmount = adjustAmount(toAmount, toToken.decimals, token.decimals)
         setToAmount(adjustedAmount)
