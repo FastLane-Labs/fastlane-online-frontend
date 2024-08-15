@@ -639,4 +639,38 @@ describe('path', () => {
     expect(tokenCmp(swapRoutes[2].swapSteps[0].tokenOut, POLYGON_WMATIC)).toBe(true)
     expect(swapRoutes[2].swapSteps[0].extra?.fee).toBe(10000)
   })
+
+  test('get swap routes - native to wrapped native token', async () => {
+    const swapRoutes = await swapPathService.getSwapRoutes(POLYGON_MATIC, POLYGON_WMATIC, chainId, Exchange.UNISWAPV3)
+
+    // Should return only 1 route for NativeWrapper
+    expect(swapRoutes).toHaveLength(1)
+
+    const route = swapRoutes[0]
+    expect(route.isFromNative).toBe(true)
+    expect(route.isToNative).toBe(false)
+    expect(route.exchange).toBe(Exchange.NativeWrapper)
+
+    expect(route.swapSteps).toHaveLength(1)
+    const step = route.swapSteps[0]
+    expect(tokenCmp(step.tokenIn, POLYGON_MATIC)).toBe(true)
+    expect(tokenCmp(step.tokenOut, POLYGON_WMATIC)).toBe(true)
+  })
+
+  test('get swap routes - wrapped native to native token', async () => {
+    const swapRoutes = await swapPathService.getSwapRoutes(POLYGON_WMATIC, POLYGON_MATIC, chainId, Exchange.UNISWAPV3)
+
+    // Should return only 1 route for NativeWrapper
+    expect(swapRoutes).toHaveLength(1)
+
+    const route = swapRoutes[0]
+    expect(route.isFromNative).toBe(false)
+    expect(route.isToNative).toBe(true)
+    expect(route.exchange).toBe(Exchange.NativeWrapper)
+
+    expect(route.swapSteps).toHaveLength(1)
+    const step = route.swapSteps[0]
+    expect(tokenCmp(step.tokenIn, POLYGON_WMATIC)).toBe(true)
+    expect(tokenCmp(step.tokenOut, POLYGON_MATIC)).toBe(true)
+  })
 })

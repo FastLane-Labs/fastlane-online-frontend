@@ -10,6 +10,7 @@ export enum ChainId {
 export enum Exchange {
   UNISWAPV3 = 'UNISWAPV3',
   UNISWAPV2 = 'UNISWAPV2',
+  NativeWrapper = 'NativeWrapper',
 }
 
 export enum SwapType {

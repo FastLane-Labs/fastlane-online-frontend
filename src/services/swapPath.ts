@@ -78,14 +78,17 @@ export class SwapPathService implements ISwapPathService {
 
     const isFromNative = tokenCmp(from, nativeToken)
     const isToNative = tokenCmp(to, nativeToken)
+    const isFromWrappedNative = tokenCmp(from, wrappedNativeToken)
+    const isToWrappedNative = tokenCmp(to, wrappedNativeToken)
 
-    if (isFromNative) {
-      from = wrappedNativeToken
+    // Handle the special case for native and wrapped native token pairs
+    if ((isFromNative && isToWrappedNative) || (isFromWrappedNative && isToNative)) {
+      return [this.createWrapSwapRoute(chainId, from, to, isFromNative, isToNative)]
     }
 
-    if (isToNative) {
-      to = wrappedNativeToken
-    }
+    // Adjust tokens if native is involved
+    if (isFromNative) from = wrappedNativeToken
+    if (isToNative) to = wrappedNativeToken
 
     if (!this.tokens.get(chainId)!.has(from.address)) {
       throw new Error('getSwapRoutes: token not found: ' + from.address)
@@ -140,6 +143,22 @@ export class SwapPathService implements ISwapPathService {
     }
 
     return swapRoutes
+  }
+
+  protected createWrapSwapRoute(chainId: ChainId, from: Token, to: Token, isFromNative: boolean, isToNative: boolean) {
+    const wrapStep: SwapStep = {
+      tokenIn: from,
+      tokenOut: to,
+      extra: {},
+    }
+
+    return {
+      chainId,
+      exchange: Exchange.NativeWrapper,
+      swapSteps: [wrapStep],
+      isFromNative: isFromNative,
+      isToNative: isToNative,
+    }
   }
 
   /**
