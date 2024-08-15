@@ -21,7 +21,10 @@ const SwapView: React.FC = () => {
         className='relative rounded-3xl bg-base-200/30'
         style={{ boxShadow: 'rgba(241, 32, 116, .2) 0px 5px 90px 4px' }}>
         <div className='gradient-bg relative max-w-md mx-auto p-4 rounded-3xl border border-accent'>
-          <div className='flex justify-end items-center mb-2'>
+          <div className='flex justify-between items-center mb-2'>
+            <div>
+              <button className='btn btn-btn'>Swap</button>
+            </div>
             <SettingsButton setIsSettingsModalVisible={setIsSettingsModalVisible} />
           </div>
           <SellComponent />

@@ -56,7 +56,7 @@ export async function buildUserOperation(
   const fastlaneOnline = new ethers.Contract(fastlaneOnlineAddress, FastlaneOnlineAbi, provider)
 
   const userOp = await fastlaneOnline
-    .getUserOperation(swapper, swapIntent, baselineCall, deadline, gas, maxFeePerGas)
+    .getUserOperation(swapper, swapIntent, baselineCall, deadline, gas, maxFeePerGas, baselineCall.value)
     .catch((error) => {
       console.error('Error getting user operation:', error)
       throw error
