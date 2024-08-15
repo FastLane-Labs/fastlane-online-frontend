@@ -14,6 +14,7 @@ import { Token, TransactionParams, TransactionStatus } from '@/types'
 import { useNotifications } from '@/context/Notifications'
 import { getBlockExplorerUrl } from '@/utils/getBlockExploer'
 import { TokenProvider } from '@/providers'
+import { useErrorNotification } from './useErrorNotification'
 
 export const useHandleSwap = () => {
   const { signer, provider } = useEthersProviderContext()
@@ -33,6 +34,8 @@ export const useHandleSwap = () => {
   const { config } = useAppStore()
   const { atlasAddress, dappAddress, atlasVerificationAddress } = useFastLaneAddresses()
   const { sendNotification } = useNotifications()
+  const [error, setError] = useState(null)
+  useErrorNotification(error)
 
   const handleSignature = useCallback(async () => {
     if (!swapData?.userOperation || !signer || !chainId) {
@@ -45,8 +48,8 @@ export const useHandleSwap = () => {
       await signUserOperation(swapData.userOperation, signer, getEip712Domain(chainId))
       setSwapDataSigned(true)
       return true
-    } catch (error) {
-      console.error('Signature generation failed', error)
+    } catch (error: any) {
+      setError(error)
       setSwapDataSigned(false)
       return false
     } finally {
@@ -150,8 +153,6 @@ export const useHandleSwap = () => {
 
       return true
     } catch (error: any) {
-      console.error('Swap failed', error)
-
       if (transactionParams?.txHash) {
         // If we have a transaction hash, update its status to failed
         sendNotification(`Swap ${fromToken.symbol} to ${toToken.symbol} failed`, {
@@ -161,8 +162,7 @@ export const useHandleSwap = () => {
           transactionStatus: 'failed',
         })
       } else {
-        // If we don't have a transaction hash, just show an error notification
-        sendNotification('Swap failed to submit', { type: 'error' })
+        setError(error)
       }
 
       return false

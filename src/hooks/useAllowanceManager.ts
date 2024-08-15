@@ -10,12 +10,15 @@ import { keys } from '@/core/queries/query-keys'
 import { useAccount } from 'wagmi'
 import { useNotifications } from '@/context/Notifications'
 import { getBlockExplorerUrl } from '@/utils/getBlockExploer'
+import { useErrorNotification } from './useErrorNotification'
 
 export const useAllowanceManager = () => {
   const { provider, signer } = useEthersProviderContext()
   const { address: userAddress, chainId } = useAccount()
   const [allowanceUpdateTrigger, setAllowanceUpdateTrigger] = useState(0)
   const { sendNotification } = useNotifications()
+  const [error, setError] = useState(null)
+  useErrorNotification(error)
   const queryClient = useQueryClient()
 
   const checkAllowance = useCallback(
@@ -98,7 +101,7 @@ export const useAllowanceManager = () => {
           return false
         }
       } catch (error: any) {
-        // If we have a transaction hash, update its status to failed
+        // For other errors, proceed with existing error handling
         if (error.transaction?.hash) {
           sendNotification(`Approval for ${token.symbol} Failed`, {
             type: 'error',
@@ -106,10 +109,7 @@ export const useAllowanceManager = () => {
             transactionStatus: 'failed',
           })
         } else {
-          console.error(error)
-          sendNotification(`Approval for ${token.symbol} Failed`, {
-            type: 'error',
-          })
+          setError(error)
         }
         return false
       }
