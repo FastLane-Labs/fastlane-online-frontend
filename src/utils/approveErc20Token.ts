@@ -8,12 +8,11 @@ export const approveErc20Token = async (
   amount: bigint,
   infiniteApproval: boolean = true,
   overrides: ethers.Overrides = {}
-): Promise<boolean> => {
+): Promise<ethers.TransactionResponse> => {
   const contract = new ethers.Contract(tokenAddress, ierc20Abi, signer)
   const amountToApprove = infiniteApproval ? ethers.MaxUint256 : amount
 
   const approveTx = await contract.approve(spenderAddress, amountToApprove, overrides)
 
-  await approveTx.wait()
-  return true
+  return approveTx
 }

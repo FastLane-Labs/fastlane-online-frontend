@@ -3,16 +3,21 @@ import { useQueryClient } from '@tanstack/react-query'
 import { useEthersProviderContext } from '@/context/EthersProviderContext'
 import { fetchErc20Allowance } from '@/utils/fetchErc20Allowance'
 import { approveErc20Token } from '@/utils/approveErc20Token'
-import { Token } from '@/types'
+import { Token, TokenWithBalance } from '@/types'
 import { nativeEvmTokenAddress } from '@/constants'
 import { ethers } from 'ethers'
 import { keys } from '@/core/queries/query-keys'
 import { useAccount } from 'wagmi'
+import { useNotifications } from '@/context/Notifications'
+import { getBlockExplorerUrl } from '@/utils/getBlockExplorerUrl'
+import { useErrorNotification } from './useErrorNotification'
 
 export const useAllowanceManager = () => {
   const { provider, signer } = useEthersProviderContext()
-  const { address: userAddress } = useAccount()
+  const { address: userAddress, chainId } = useAccount()
   const [allowanceUpdateTrigger, setAllowanceUpdateTrigger] = useState(0)
+  const { sendNotification } = useNotifications()
+  const { handleProviderError } = useErrorNotification()
   const queryClient = useQueryClient()
 
   const checkAllowance = useCallback(
@@ -37,28 +42,78 @@ export const useAllowanceManager = () => {
 
   const updateAllowance = useCallback(
     async (token: Token, spenderAddress: string, amount: bigint): Promise<boolean> => {
-      if (!signer || !userAddress || token.address.toLowerCase() === nativeEvmTokenAddress.toLowerCase()) {
+      if (!signer || !userAddress || token.address.toLowerCase() === nativeEvmTokenAddress.toLowerCase() || !chainId) {
         return false
       }
 
       try {
-        await approveErc20Token(signer, token.address, spenderAddress, amount, true)
+        // Start the approval process
+        const tx = await approveErc20Token(signer, token.address, spenderAddress, amount, true)
 
-        // Invalidate the query to trigger a refetch
-        await queryClient.invalidateQueries({
-          queryKey: keys({ address: userAddress }).allowance(token.address, userAddress, spenderAddress),
+        const baseUrl = getBlockExplorerUrl(chainId)
+
+        // Send notification for pending approval
+        sendNotification(`Approving ${token.symbol} for trading`, {
+          type: 'info',
+          href: `${baseUrl}tx/${tx.hash}`,
+          transactionParams: {
+            routeType: 'approval',
+            fromToken: token,
+            chainId: token.chainId,
+            fromAmount: amount.toString(),
+            txHash: tx.hash,
+            status: 'pending',
+            fromAddress: userAddress,
+          },
         })
 
-        // Trigger a re-check
-        setAllowanceUpdateTrigger((prev) => prev + 1)
+        // Wait for the transaction to be mined
+        const receipt = await tx.wait()
 
-        return true
-      } catch (error) {
-        console.error('Error updating allowance:', error)
+        // Update the transaction status based on the receipt
+        if (receipt?.status === 1) {
+          // Send notification for successful approval
+          sendNotification(`Approval for ${token.symbol} Successful`, {
+            type: 'success',
+            href: `${baseUrl}tx/${tx.hash}`,
+            transactionHash: tx.hash,
+            transactionStatus: 'confirmed',
+          })
+
+          // Invalidate the query to trigger a refetch
+          await queryClient.invalidateQueries({
+            queryKey: keys({ address: userAddress }).allowance(token.address, userAddress, spenderAddress),
+          })
+
+          // Trigger a re-check
+          setAllowanceUpdateTrigger((prev) => prev + 1)
+
+          return true
+        } else {
+          // Send notification for failed approval
+          sendNotification(`Approval for ${token.symbol} Failed`, {
+            type: 'error',
+            href: `${baseUrl}tx/${tx.hash}`,
+            transactionHash: tx.hash,
+            transactionStatus: 'failed',
+          })
+          return false
+        }
+      } catch (error: any) {
+        // For other errors, proceed with existing error handling
+        if (error.transaction?.hash) {
+          sendNotification(`Approval for ${token.symbol} Failed`, {
+            type: 'error',
+            transactionHash: error.transaction.hash,
+            transactionStatus: 'failed',
+          })
+        } else {
+          handleProviderError(error)
+        }
         return false
       }
     },
-    [signer, queryClient, userAddress]
+    [signer, queryClient, userAddress, chainId, sendNotification, handleProviderError]
   )
 
   const isSufficientAllowance = useCallback(

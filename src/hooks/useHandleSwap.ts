@@ -1,16 +1,20 @@
-import { useCallback } from 'react'
+import { useCallback, useState } from 'react'
 import { useAccount } from 'wagmi'
 import { useEthersProviderContext } from '@/context/EthersProviderContext'
 import { useSwapStateContext } from '@/context/SwapStateContext'
 import { useFastLaneAddresses } from './useFastLaneAddresses'
 import { useAppStore } from '@/store/useAppStore'
-import { SOLVER_GAS_ESTIMATE, SWAP_GAS_ESTIMATE } from '@/constants'
+import { nativeEvmTokenAddress, SOLVER_GAS_ESTIMATE, SWAP_GAS_ESTIMATE } from '@/constants'
 import { signUserOperation } from '@/core/atlas'
 import { getEip712Domain } from '@/utils/getContractAddress'
 import { getAtlasGasSurcharge, getFeeData } from '@/utils/gasFee'
 import { ethers } from 'ethers'
 import { FastlaneOnlineAbi } from '@/abis'
-import { TransactionParams, TransactionStatus } from '@/types'
+import { Token, TransactionParams, TransactionStatus } from '@/types'
+import { useNotifications } from '@/context/Notifications'
+import { getBlockExplorerUrl } from '@/utils/getBlockExplorerUrl'
+import { TokenProvider } from '@/providers'
+import { useErrorNotification } from './useErrorNotification'
 
 export const useHandleSwap = () => {
   const { signer, provider } = useEthersProviderContext()
@@ -29,6 +33,8 @@ export const useHandleSwap = () => {
   } = useSwapStateContext()
   const { config } = useAppStore()
   const { atlasAddress, dappAddress, atlasVerificationAddress } = useFastLaneAddresses()
+  const { sendNotification } = useNotifications()
+  const { handleProviderError } = useErrorNotification()
 
   const handleSignature = useCallback(async () => {
     if (!swapData?.userOperation || !signer || !chainId) {
@@ -41,14 +47,14 @@ export const useHandleSwap = () => {
       await signUserOperation(swapData.userOperation, signer, getEip712Domain(chainId))
       setSwapDataSigned(true)
       return true
-    } catch (error) {
-      console.error('Signature generation failed', error)
+    } catch (error: any) {
+      handleProviderError(error)
       setSwapDataSigned(false)
       return false
     } finally {
       setIsSigning(false)
     }
-  }, [swapData?.userOperation, signer, chainId, setIsSigning, setSwapDataSigned])
+  }, [swapData?.userOperation, signer, chainId, setIsSigning, setSwapDataSigned, handleProviderError])
 
   const handleSwap = useCallback(async () => {
     // Check if all required data is available
@@ -68,19 +74,46 @@ export const useHandleSwap = () => {
     }
 
     setIsSwapping(true)
+    let transactionParams: TransactionParams | null = null
+    const { isFromNative, isToNative, swapSteps } = quote.swapRoute
+    const nativeToken = (await TokenProvider.getTokensByChainId(chainId)).find(
+      (token: Token) => token.address === nativeEvmTokenAddress
+    )
+
+    // Update the from and to tokens if we have a native token only used for notifications
+    const fromToken = isFromNative ? nativeToken || swapSteps[0].tokenIn : swapSteps[0].tokenIn
+    const toToken = isToNative
+      ? nativeToken || swapSteps[swapSteps.length - 1].tokenOut
+      : swapSteps[swapSteps.length - 1].tokenOut
+
+    const baseUrl = getBlockExplorerUrl(chainId)
     try {
       const feeData = await getFeeData(provider)
       if (!feeData.maxFeePerGas || !feeData.gasPrice) {
         console.error('Missing required data for swap')
         console.log('feeData', feeData)
+        sendNotification('Swap failed: Missing fee data', { type: 'error' })
         return false
       }
 
-      const { isFromNative } = quote.swapRoute
       const value = isFromNative ? quote.amountIn : 0n
 
       const maxFeePerGas = feeData.maxFeePerGas
       const gas = SWAP_GAS_ESTIMATE + SOLVER_GAS_ESTIMATE
+
+      // Create transaction parameters before sending the transaction
+      transactionParams = {
+        routeType: 'swap',
+        chainId: chainId,
+        txHash: '', // Will be updated with actual hash
+        fromToken: fromToken,
+        toToken: toToken,
+        fromAmount: quote.amountIn.toString(),
+        toAmount: quote.amountOut.toString(),
+        timestamp: Date.now(),
+        status: 'pending' as TransactionStatus,
+        fromAddress: address,
+      }
 
       const contract = new ethers.Contract(dappAddress, FastlaneOnlineAbi, signer)
       const tx = await contract.fastOnlineSwap(swapData.userOperation.toStruct(), {
@@ -88,14 +121,14 @@ export const useHandleSwap = () => {
         value: value + getAtlasGasSurcharge(gas * maxFeePerGas),
       })
 
-      const transactionParams: TransactionParams = {
-        routeType: 'swap', // Assuming this is a swap transaction
-        chainId: chainId,
-        txHash: tx.hash,
-        timestamp: Date.now(),
-        status: 'pending' as TransactionStatus,
-        fromAddress: address,
-      }
+      // Update transaction with actual hash
+      transactionParams.txHash = tx.hash
+
+      sendNotification(`Submitting Swap from ${fromToken.symbol} to ${toToken.symbol}`, {
+        type: 'info',
+        href: `${baseUrl}tx/${tx.hash}`,
+        transactionParams: transactionParams,
+      })
 
       setSwapResult({ transaction: transactionParams })
 
@@ -103,16 +136,34 @@ export const useHandleSwap = () => {
       await tx.wait()
       console.log('Swap transaction confirmed')
 
-      // Update transaction status to 'success'
+      // Update transaction status to 'confirmed'
+      sendNotification(`Swap ${fromToken.symbol} to ${toToken.symbol} successful`, {
+        type: 'success',
+        href: `${baseUrl}tx/${tx.hash}`,
+        transactionHash: tx.hash,
+        transactionStatus: 'confirmed',
+      })
+
       const updatedTransactionParams: TransactionParams = {
         ...transactionParams,
-        status: 'success' as TransactionStatus,
+        status: 'confirmed' as TransactionStatus,
       }
       setSwapResult({ transaction: updatedTransactionParams })
 
       return true
-    } catch (error) {
-      console.error('Swap failed', error)
+    } catch (error: any) {
+      if (transactionParams?.txHash) {
+        // If we have a transaction hash, update its status to failed
+        sendNotification(`Swap ${fromToken.symbol} to ${toToken.symbol} failed`, {
+          type: 'error',
+          href: `${baseUrl}tx/${transactionParams.txHash}`,
+          transactionHash: transactionParams.txHash,
+          transactionStatus: 'failed',
+        })
+      } else {
+        handleProviderError(error)
+      }
+
       return false
     } finally {
       setIsSwapping(false)
@@ -131,6 +182,8 @@ export const useHandleSwap = () => {
     setIsSwapping,
     setSwapResult,
     hasUserOperationSignature,
+    sendNotification,
+    handleProviderError,
   ])
 
   return {

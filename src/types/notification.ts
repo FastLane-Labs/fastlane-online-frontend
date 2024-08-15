@@ -6,7 +6,7 @@ export interface State<T> {
 
 export type NotificationType = 'info' | 'success' | 'warning' | 'error'
 
-export interface Notification {
+export interface AppNotification {
   type: NotificationType
   message: string
   timestamp: number

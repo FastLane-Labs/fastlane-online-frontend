@@ -1,26 +1,42 @@
-import { useEffect } from 'react'
+import { useCallback } from 'react'
+import { ErrorCode } from 'ethers'
 import { useNotifications } from '@/context/Notifications'
 
-export const useErrorNotification = (error: Error | null) => {
-  const { Add } = useNotifications()
+export const useErrorNotification = () => {
+  const { sendNotification } = useNotifications()
 
-  // List of errors we want to create notifications for
-  const validErrorList = [
-    'approve failed', // token approval failed
-    'sign failed', // user operation signing failed
-    'swap failed', // tx swap failed
-  ]
-
-  useEffect(() => {
-    if (error) {
-      const errorMessage = error.message.toLowerCase()
-      // check if error is one we want to create a notification for
-      const isValidError = validErrorList.some((validError) => errorMessage.includes(validError.toLowerCase()))
-
-      if (isValidError) {
-        // create notification
-        Add(error.message, { type: 'error' })
+  const handleProviderError = useCallback(
+    (error: any) => {
+      let notificationMessage = error?.message || 'An error occurred'
+      let notificationType: 'error' | 'warning' = 'error'
+      let skipNotification = false
+      // Check for specific error codes
+      switch (error.code) {
+        case 'ACTION_REJECTED' as ErrorCode:
+          notificationMessage = `Transaction cancelled: User denied signature`
+          notificationType = 'warning'
+          skipNotification = true
+          break
+        default:
+          // Handle other specific errors
+          notificationMessage = `Unknown error code: ${error.code}`
+          break
       }
-    }
-  }, [error])
+
+      // Send notification if not skipped
+      if (!skipNotification) {
+        sendNotification(notificationMessage, {
+          type: notificationType,
+        })
+      }
+
+      // Log error for debugging
+      console.error('Error occurred:', error.code, error.message)
+    },
+    [sendNotification]
+  )
+
+  return {
+    handleProviderError,
+  }
 }
