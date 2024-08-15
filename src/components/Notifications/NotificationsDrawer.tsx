@@ -15,7 +15,7 @@ export function NotificationsDrawer() {
   }, [])
 
   const onClose = () => {
-    document.getElementById('my-drawer')?.click()
+    document.getElementById('notification-drawer')?.click()
   }
 
   // Sort transactions from newest to oldest
@@ -33,15 +33,15 @@ export function NotificationsDrawer() {
 
   return (
     <div className='drawer drawer-end'>
-      <input id='my-drawer' type='checkbox' className='drawer-toggle' />
+      <input id='notification-drawer' type='checkbox' className='drawer-toggle' />
       <div className='drawer-content'>
-        <label htmlFor='my-drawer' className='btn btn-navbar btn-ghost btn-sm drawer-button'>
+        <label htmlFor='notification-drawer' className='btn btn-navbar btn-ghost btn-sm drawer-button'>
           <ChevronRightIcon className='h-5 w-5' />
         </label>
       </div>
 
       <div className='drawer-side z-[1]'>
-        <label htmlFor='my-drawer' className='drawer-overlay'></label>
+        <label htmlFor='notification-drawer' className='drawer-overlay'></label>
         <aside className='w-full md:w-80 min-h-full bg-[#0f0f0f] text-gray-200 flex flex-col'>
           <header className='p-4 flex items-center justify-between border-b border-gray-800'>
             <h2 className='text-lg font-semibold'>Activity</h2>
