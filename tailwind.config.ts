@@ -31,7 +31,8 @@ const config: Config = {
             background: '#0D0935',
           },
           '.gray-text': {
-            color: '#a1a1aa',
+            // zinc-300
+            color: '#d4d4d8',
           },
         },
       },
