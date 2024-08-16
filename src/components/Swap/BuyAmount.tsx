@@ -1,6 +1,6 @@
 import React from 'react'
 import { SwapDirection, Token } from '@/types'
-import TokenInputField from './TokenInputField'
+import TokenInputComponent from './TokenInputComponent'
 
 interface BuyAmountProps {
   buyToken: Token | null
@@ -10,6 +10,7 @@ interface BuyAmountProps {
   quoteLoading: boolean
   setSwapDirection: (direction: SwapDirection) => void
   disabled: boolean
+  currentBalance?: string
 }
 
 const BuyAmount: React.FC<BuyAmountProps> = ({
@@ -22,7 +23,7 @@ const BuyAmount: React.FC<BuyAmountProps> = ({
   disabled = true,
 }) => {
   return (
-    <TokenInputField
+    <TokenInputComponent
       token={buyToken}
       setToken={setBuyToken}
       amount={buyAmount}
