@@ -48,7 +48,6 @@ export const useSwapCallData = (
         ) {
           return null
         }
-        console.log('quoteResult', quoteResult)
 
         const swapIntent = BaseSwapService.getInstance().getSwapIntent(quoteResult, config.slippage)
 <<<<<<< HEAD

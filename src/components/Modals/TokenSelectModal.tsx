@@ -90,32 +90,38 @@ const TokenSelectModal: React.FC<TokenSelectModalProps> = ({
   }, [isOpen])
 
   const handleSelect = (token: Token) => {
-    console.log('handleSelect', token)
-    console.log('direction', direction)
     if (direction === 'sell') {
       if (token.address === toToken?.address) {
+        // If selected sell token is the same as current buy token
         setToToken(null)
         setToAmount('')
-        setToAmount('')
+        setFromAmount('')
         resetSwapData()
-      }
-      if (fromToken && fromAmount && fromAmount !== '') {
-        const adjustedAmount = adjustAmount(fromAmount, fromToken.decimals, token.decimals)
-        setFromAmount(adjustedAmount)
+      } else {
+        if (fromToken && fromAmount && fromAmount !== '') {
+          // Adjust amount if there's an existing fromAmount
+          const adjustedAmount = adjustAmount(fromAmount, fromToken.decimals, token.decimals)
+          setFromAmount(adjustedAmount)
+        }
+        setFromToken(token)
       }
     } else if (direction === 'buy') {
-      console.log('buy')
       if (token.address === fromToken?.address) {
+        // If selected buy token is the same as current sell token
         setFromToken(null)
         setFromAmount('')
         setToAmount('')
         resetSwapData()
-      }
-      if (toToken && toAmount && toAmount !== '') {
-        const adjustedAmount = adjustAmount(toAmount, toToken.decimals, token.decimals)
-        setToAmount(adjustedAmount)
+      } else {
+        if (toToken && toAmount && toAmount !== '') {
+          // Adjust amount if there's an existing toAmount
+          const adjustedAmount = adjustAmount(toAmount, toToken.decimals, token.decimals)
+          setToAmount(adjustedAmount)
+        }
+        setToToken(token)
       }
     }
+
     onSelectToken(token)
     setIsOpen(false)
   }

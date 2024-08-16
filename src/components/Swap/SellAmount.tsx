@@ -1,15 +1,14 @@
-import React, { ChangeEvent, useEffect, useState, useRef, useCallback } from 'react'
+import React, { ChangeEvent, useRef, useEffect } from 'react'
 import TokenSelectModal from '../Modals/TokenSelectModal'
 import { SwapDirection, Token } from '@/types'
 
 interface SellAmountProps {
   sellToken: Token | null
-  setSellToken: (token: Token) => void
+  setSellToken: (token: Token | null) => void
   sellAmount: string
   setSellAmount: (amount: string) => void
+  quoteLoading: boolean
   setSwapDirection: (direction: SwapDirection) => void
-  address?: `0x${string}`
-  balance: string
 }
 
 const SellAmount: React.FC<SellAmountProps> = ({
@@ -17,70 +16,41 @@ const SellAmount: React.FC<SellAmountProps> = ({
   setSellToken,
   sellAmount,
   setSellAmount,
-  balance,
+  quoteLoading,
   setSwapDirection,
 }) => {
-  const [currentBalance, setCurrentBalance] = useState<string>(balance)
   const inputRef = useRef<HTMLInputElement>(null)
-  const lastUserInputRef = useRef<string>('')
+
+  const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value
+    if (/^\d*\.?\d*$/.test(value)) {
+      setSellAmount(value)
+      setSwapDirection('sell')
+    }
+  }
 
   useEffect(() => {
-    setCurrentBalance(balance)
-  }, [balance, sellToken])
-
-  useEffect(() => {
-    if (inputRef.current && sellAmount !== lastUserInputRef.current) {
+    if (inputRef.current) {
       inputRef.current.value = sellAmount
     }
   }, [sellAmount])
 
-  const handleChange = useCallback(
-    (e: ChangeEvent<HTMLInputElement>) => {
-      const value = e.target.value
-      // Ensure the input is valid (numbers and one decimal point)
-      if (/^\d*\.?\d*$/.test(value)) {
-        setSellAmount(value)
-        lastUserInputRef.current = value
-        console.log('User input detected, setting swap direction to sell')
-        setSwapDirection('sell')
-      }
-    },
-    [setSellAmount, setSwapDirection]
-  )
-
-  const handleSetMax = useCallback(() => {
-    setSellAmount(currentBalance)
-    lastUserInputRef.current = currentBalance
-    console.log('Max button clicked, setting swap direction to sell')
-    setSwapDirection('sell')
-  }, [currentBalance, setSellAmount, setSwapDirection])
-
-  const handleTokenSelect = useCallback(
-    (token: Token) => {
-      console.log('Token selected:', token)
-      setSellToken(token)
-    },
-    [setSellToken]
-  )
-
   return (
     <div className='flex items-center space-x-2'>
-      <input
-        ref={inputRef}
-        type='text'
-        defaultValue={sellAmount}
-        onChange={handleChange}
-        className='bg-theme text-neutral-content p-2 rounded-2xl flex-grow text-4xl w-full focus:outline-none'
-        placeholder='0'
-      />
-      {sellToken && parseFloat(currentBalance) > 0 && (
-        <button className='max-button btn-outline text-primary outline-none' onClick={handleSetMax}>
-          MAX
-        </button>
-      )}
+      <div className='flex items-center space-x-2 relative'>
+        <input
+          ref={inputRef}
+          type='text'
+          value={sellAmount}
+          onChange={handleChange}
+          className='bg-theme text-neutral-content p-2 rounded-xl flex-grow text-4xl w-full focus:outline-none'
+          placeholder='0'
+        />
+        {quoteLoading && <span className='absolute right-4 loading loading-spinner loading-sm'></span>}
+      </div>
       <TokenSelectModal
         selectedToken={sellToken}
-        onSelectToken={handleTokenSelect}
+        onSelectToken={setSellToken}
         defaultLabel='Select a token'
         direction='sell'
       />

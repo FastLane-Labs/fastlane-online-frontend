@@ -4,7 +4,7 @@ import { SwapDirection, Token } from '@/types'
 
 interface BuyAmountProps {
   buyToken: Token | null
-  setBuyToken: (token: Token) => void
+  setBuyToken: (token: Token | null) => void
   buyAmount: string
   setBuyAmount: (amount: string) => void
   quoteLoading: boolean
@@ -22,19 +22,17 @@ const BuyAmount: React.FC<BuyAmountProps> = ({
   disabled = true,
 }) => {
   const inputRef = useRef<HTMLInputElement>(null)
-  const lastUserInputRef = useRef<string>('')
 
   const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value
     if (/^\d*\.?\d*$/.test(value)) {
       setBuyAmount(value)
-      lastUserInputRef.current = value
       setSwapDirection('buy')
     }
   }
 
   useEffect(() => {
-    if (inputRef.current && buyAmount !== lastUserInputRef.current) {
+    if (inputRef.current) {
       inputRef.current.value = buyAmount
     }
   }, [buyAmount])
@@ -44,8 +42,8 @@ const BuyAmount: React.FC<BuyAmountProps> = ({
       <div className='flex items-center space-x-2 relative'>
         <input
           ref={inputRef}
-          type='number'
-          defaultValue={buyAmount}
+          type='text'
+          value={buyAmount}
           onChange={handleChange}
           className={`bg-theme text-neutral-content p-2 rounded-xl flex-grow text-4xl w-full focus:outline-none ${
             disabled ? 'opacity-50 cursor-not-allowed' : ''
