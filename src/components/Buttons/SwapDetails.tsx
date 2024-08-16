@@ -1,3 +1,5 @@
+'use client'
+
 import { useState, useMemo } from 'react'
 import { useSwapStateContext } from '@/context/SwapStateContext'
 import { ChevronDownIcon } from '@heroicons/react/20/solid'
@@ -7,7 +9,6 @@ import { useEstimatedSwapFees } from '@/hooks/useEstimatedSwapFees'
 import { formatUnits } from 'ethers'
 import { useTokenUsdPrice } from '@/hooks/useTokenUsdPrice'
 import { formatBalanceToFixedDecimal, shortFormat } from '@/utils/format'
-import Tooltip from '@/components/Tooltip/Tooltip'
 
 const SwapDetails = () => {
   const { fromToken, toToken, fromAmount, toAmount, quote } = useSwapStateContext()
@@ -87,9 +88,9 @@ const SwapDetails = () => {
         <div className='flex w-full items-center justify-between'>
           <h3 className='gray-text'>Network cost</h3>
           <div
-            className='tooltip tooltip-right'
-            data-tip='You may get a refund on gas in some of your swaps when a solver picks up your order.'>
-            <div className='flex items-center justify-start gap-1 gray-text'>
+            className='custom-tooltip tooltip tooltip-right'
+            data-tip='Network cost is paid in MATIC on the POLYGON network in order to transact. If decentralized solvers provide a better price, some amount of network costs are refunded.'>
+            <div className='flex items-center justify-start gap-1 gray-text cursor-pointer' onClick={toggleFeeDisplay}>
               <svg className='w-4 h-4' fill='none' height='24' viewBox='0 0 24 24' xmlns='http://www.w3.org/2000/svg'>
                 <path
                   clipRule='evenodd'
@@ -98,32 +99,36 @@ const SwapDetails = () => {
                   fillRule='evenodd'
                 />
               </svg>
-              <span className='text-end gray-text'>{`<.01%`}</span>
+              <span className='text-end'>{formattedNetworkCost}</span>
             </div>
           </div>
         </div>
 
         <div className='flex w-full items-center justify-between'>
           <h3 className='gray-text'>Price impact</h3>
-          <Tooltip content='The impact your trade has on the market price of this pool.'>
+          <div
+            className='custom-tooltip tooltip tooltip-right'
+            data-tip='The impact your trade has on the market price of this pool.'>
             <span className='text-end text-neutral-content'>{`${priceImpact?.toFixed(2)}%`}</span>
-          </Tooltip>
+          </div>
         </div>
 
         <div className='flex w-full items-center justify-between'>
           <h3 className='gray-text'>Receive at least</h3>
           <div
-            className='tooltip tooltip-right'
-            data-tip='Your swaps are gossipped permissionlessly to searchers who compete to give you the best price in the form of Rocketboost rebates.'>
+            className='custom-tooltip tooltip tooltip-right'
+            data-tip={`If the price moves so that you will receive less than ${minimumReceived}, your transaction will revert.`}>
             <span className='text-end text-neutral-content'>{minimumReceived}</span>
           </div>
         </div>
 
         <div className='flex w-full items-center justify-between'>
           <h3 className='gray-text'>Slippage</h3>
-          <Tooltip content='The maximum price movement before your transaction will revert.'>
+          <div
+            className='custom-tooltip tooltip tooltip-right'
+            data-tip='The maximum price movement before your transaction will revert.'>
             <span className='text-end text-neutral-content'>{`${config.slippage / 100}%`}</span>
-          </Tooltip>
+          </div>
         </div>
       </div>
 
