@@ -8,13 +8,14 @@ import { nativeEvmTokenAddress, SOLVER_GAS_ESTIMATE, SWAP_GAS_ESTIMATE } from '@
 import { signUserOperation } from '@/core/atlas'
 import { getEip712Domain } from '@/utils/getContractAddress'
 import { getAtlasGasSurcharge, getFeeData } from '@/utils/gasFee'
-import { ethers } from 'ethers'
+import { ethers, formatUnits } from 'ethers'
 import { FastlaneOnlineAbi } from '@/abis'
 import { Token, TransactionParams, TransactionStatus } from '@/types'
 import { useNotifications } from '@/context/Notifications'
 import { getBlockExplorerUrl } from '@/utils/getBlockExplorerUrl'
 import { TokenProvider } from '@/providers'
 import { useErrorNotification } from './useErrorNotification'
+import { parseTransactionReceipt, logParsedReceipt } from '@/utils/parseTransactionReceipt'
 
 export const useHandleSwap = () => {
   const { signer, provider } = useEthersProviderContext()
@@ -31,7 +32,7 @@ export const useHandleSwap = () => {
     setSwapDataSigned,
     setSwapResult,
   } = useSwapStateContext()
-  const { config } = useAppStore()
+
   const { atlasAddress, dappAddress, atlasVerificationAddress } = useFastLaneAddresses()
   const { sendNotification } = useNotifications()
   const { handleProviderError } = useErrorNotification()
@@ -91,7 +92,6 @@ export const useHandleSwap = () => {
       const feeData = await getFeeData(provider)
       if (!feeData.maxFeePerGas || !feeData.gasPrice) {
         console.error('Missing required data for swap')
-        console.log('feeData', feeData)
         sendNotification('Swap failed: Missing fee data', { type: 'error' })
         return false
       }
@@ -113,6 +113,7 @@ export const useHandleSwap = () => {
         timestamp: Date.now(),
         status: 'pending' as TransactionStatus,
         fromAddress: address,
+        boosted: false,
       }
 
       const contract = new ethers.Contract(dappAddress, FastlaneOnlineAbi, signer)
@@ -132,21 +133,47 @@ export const useHandleSwap = () => {
 
       setSwapResult({ transaction: transactionParams })
 
-      console.log('Swap transaction submitted:', tx.hash)
-      await tx.wait()
-      console.log('Swap transaction confirmed')
+      const receipt = await tx.wait()
+      const parsedReceipt = parseTransactionReceipt(receipt, address)
 
-      // Update transaction status to 'confirmed'
-      sendNotification(`Swap ${fromToken.symbol} to ${toToken.symbol} successful`, {
-        type: 'success',
-        href: `${baseUrl}tx/${tx.hash}`,
-        transactionHash: tx.hash,
-        transactionStatus: 'confirmed',
-      })
+      const receivedAmount = parsedReceipt.userReceivedAmount?.toString() || quote.amountOut
+
+      const isBoosted = parsedReceipt.isSolverTxSuccessful && BigInt(receivedAmount) > BigInt(quote.amountOut)
+
+      if (isBoosted) {
+        sendNotification(
+          `Swap ${fromToken.symbol} to ${toToken.symbol} Boosted successful. Received: ${receivedAmount} ${toToken.symbol}`,
+          {
+            type: 'success',
+            href: `${baseUrl}tx/${tx.hash}`,
+            transactionHash: tx.hash,
+            transactionStatus: 'confirmed',
+            boosted: true,
+            receivedAmount: receivedAmount.toString(),
+          }
+        )
+      } else {
+        sendNotification(
+          `Swap ${fromToken.symbol} to ${toToken.symbol} successful. Received: ${formatUnits(
+            receivedAmount,
+            toToken.decimals
+          )} ${toToken.symbol}`,
+          {
+            type: 'success',
+            href: `${baseUrl}tx/${tx.hash}`,
+            transactionHash: tx.hash,
+            transactionStatus: 'confirmed',
+            boosted: false,
+            receivedAmount: receivedAmount.toString(),
+          }
+        )
+      }
 
       const updatedTransactionParams: TransactionParams = {
         ...transactionParams,
         status: 'confirmed' as TransactionStatus,
+        toAmount: receivedAmount.toString(),
+        boosted: isBoosted,
       }
       setSwapResult({ transaction: updatedTransactionParams })
 

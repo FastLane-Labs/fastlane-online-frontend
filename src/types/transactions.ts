@@ -17,6 +17,7 @@ export interface TransactionParams {
   error?: TransactionErrorWithMessage
   fromAddress?: string
   statusResponse?: any
+  boosted: boolean // Keep this to indicate if the swap was boosted
 }
 
 export type TransactionStatus = 'pending' | 'confirmed' | 'failed'

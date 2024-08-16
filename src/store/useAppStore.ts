@@ -1,7 +1,7 @@
 import { create } from 'zustand'
 import { persist, createJSONStorage } from 'zustand/middleware'
 import type { AppRoute } from '@/core/routes'
-import type { TransactionHistoryStore, TransactionParams, TransactionStatus } from '@/types'
+import type { TransactionHistoryStore, TransactionParams, TransactionStatus } from '@/types/transactions'
 import { defaultValues } from '@/constants'
 import { AppConfig } from '@/types/config'
 import { AppNotification } from '@/types/notification'
@@ -21,11 +21,18 @@ interface NotificationStore {
   clearNotifications: () => void
 }
 
-// Separate interface for TransactionStore
+// Updated TransactionStore interface
 interface TransactionStore {
   transactions: TransactionHistoryStore
   addTransaction: (transaction: TransactionParams) => void
-  updateTransactionStatus: (txHash: string, status: TransactionStatus, timestamp: number) => void
+  updateTransaction: (
+    txHash: string,
+    updates: {
+      status?: TransactionStatus
+      toAmount?: string
+      boosted?: boolean
+    }
+  ) => void
   clearTransactions: () => void
 }
 
@@ -78,9 +85,11 @@ export const useTransactionStore = create<TransactionStore>()(
         set((state) => ({
           transactions: [...state.transactions, transaction],
         })),
-      updateTransactionStatus: (txHash: string, status: TransactionStatus, timestamp: number) =>
+      updateTransaction: (txHash: string, updates) =>
         set((state) => ({
-          transactions: state.transactions.map((t) => (t.txHash === txHash ? { ...t, status, timestamp } : t)),
+          transactions: state.transactions.map((t) =>
+            t.txHash === txHash ? { ...t, ...updates, timestamp: Date.now() } : t
+          ),
         })),
       clearTransactions: () => set({ transactions: [] }),
     }),

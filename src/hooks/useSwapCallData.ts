@@ -76,7 +76,6 @@ export const useSwapCallData = (
         )
 
         if (isFromNative) {
-          // If the user is swapping from ETH, no need to send ETH
           userOperation.setField('value', swapIntent.amountUserSells)
         }
 

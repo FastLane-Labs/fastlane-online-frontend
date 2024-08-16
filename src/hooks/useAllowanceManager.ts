@@ -64,6 +64,7 @@ export const useAllowanceManager = () => {
             txHash: tx.hash,
             status: 'pending',
             fromAddress: userAddress,
+            boosted: false,
           },
         })
 

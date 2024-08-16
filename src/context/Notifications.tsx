@@ -8,7 +8,9 @@ import 'react-toastify/dist/ReactToastify.min.css'
 import '@/assets/notifications.css'
 import { StatusIcon } from '@/components/Notifications/Alert'
 import { useTransactionStore } from '@/store/useAppStore'
-import { TransactionHistoryStore, TransactionParams, TransactionStatus, AppNotification } from '@/types'
+import { TransactionParams, TransactionStatus, TransactionHistoryStore } from '@/types/transactions'
+import { AppNotification } from '@/types/notification'
+import Image from 'next/image'
 
 interface NotificationContext {
   sendNotification: (
@@ -17,6 +19,8 @@ interface NotificationContext {
       transactionParams?: TransactionParams
       transactionHash?: string
       transactionStatus?: TransactionStatus
+      boosted?: boolean
+      receivedAmount?: string
     }
   ) => void
   clearTransactions: () => void
@@ -44,6 +48,8 @@ export function NotificationProvider({ children }: PropsWithChildren) {
         transactionParams?: TransactionParams
         transactionHash?: string
         transactionStatus?: TransactionStatus
+        boosted?: boolean
+        receivedAmount?: string
       }
     ) => {
       const timestamp = dayjs().valueOf()
@@ -70,6 +76,18 @@ export function NotificationProvider({ children }: PropsWithChildren) {
           className='flex items-center cursor-pointer w-full'>
           <StatusIcon type={notification.type} />
           <span className='ml-2 flex-grow'>{message}</span>
+          {options?.boosted && (
+            <div className='flex items-center ml-2'>
+              <span className='text-xs text-gray-400 mr-1'>Boosted</span>
+              <Image
+                src='/rocketboost-logo-extracted.png'
+                alt='Boosted'
+                width={12}
+                height={12}
+                className='opacity-70'
+              />
+            </div>
+          )}
         </div>
       )
 
@@ -89,12 +107,18 @@ export function NotificationProvider({ children }: PropsWithChildren) {
         transactionStore.addTransaction({
           ...options.transactionParams,
           timestamp,
+          boosted: options.boosted || false,
+          toAmount: options.receivedAmount! || options.transactionParams.toAmount!,
         })
       }
 
       // Handle transaction update if transactionHash is present
-      if (options?.transactionHash && options?.transactionStatus) {
-        transactionStore.updateTransactionStatus(options.transactionHash, options.transactionStatus, timestamp)
+      if (options?.transactionHash) {
+        transactionStore.updateTransaction(options.transactionHash, {
+          status: options.transactionStatus,
+          toAmount: options.receivedAmount,
+          boosted: options.boosted,
+        })
       }
     },
     [address, transactionStore]

@@ -5,6 +5,7 @@ import { CheckCircleIcon, XCircleIcon, ClockIcon } from '@heroicons/react/24/sol
 import { shortFormat } from '@/utils/format'
 import dayjs from 'dayjs'
 import { getBlockExplorerUrl } from '@/utils/getBlockExplorerUrl'
+import Image from 'next/image'
 
 interface ActivityItemProps {
   transaction: TransactionParams
@@ -91,6 +92,18 @@ export function ActivityItem({ transaction }: ActivityItemProps) {
       <div className='flex-1 min-w-0'>
         <div className='flex justify-between items-center'>
           <span className='text-sm font-medium text-gray-200'>{getStatusText()}</span>
+          {transaction.boosted && (
+            <div className='flex items-center space-x-1'>
+              <span className='text-xs text-gray-400'>Boosted</span>
+              <Image
+                src='/rocketboost-logo-extracted.png'
+                alt='Boosted'
+                width={12}
+                height={12}
+                className='opacity-70'
+              />
+            </div>
+          )}
         </div>
         <p className='text-xs text-gray-400 mt-1'>
           {transaction.routeType === 'approval' ? (
@@ -110,7 +123,7 @@ export function ActivityItem({ transaction }: ActivityItemProps) {
           )}
         </p>
       </div>
-      <div>
+      <div className='flex flex-col items-end'>
         <div className='flex-shrink-0 flex justify-end items-end'>{getStatusIcon()}</div>
         {transaction.timestamp && (
           <time className='text-xs text-gray-400' suppressHydrationWarning>
