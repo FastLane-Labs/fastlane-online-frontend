@@ -52,7 +52,7 @@ const ModalWrapper: React.FC<ModalWrapperProps> = ({ isVisible, onClose, childre
       {/* modal box */}
       <div
         ref={modalRef}
-        className='modal-box relative mx-auto flex flex-col bg-base-300 border-accent border text-neutral-content rounded-3xl pt-4 px-5 pb-0 shadow-lg overflow-hidden'
+        className='modal-box relative mx-auto flex flex-col bg-base-300 border-accent border text-neutral-content rounded-3xl pt-4 px-5 pb-0 shadow-lg overflow-y-clip'
         style={style}>
         {/* close modal button */}
         <button className='btn-outline absolute top-3 right-3 text-neutral-content' onClick={onClose}>
