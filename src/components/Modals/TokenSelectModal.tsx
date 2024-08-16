@@ -38,6 +38,7 @@ const TokenSelectModal: React.FC<TokenSelectModalProps> = ({
     setFromToken,
     setToToken,
     resetSwapData,
+    setDiscardNextQuoteUpdate,
   } = useSwapStateContext()
 
   const balancesQuery = useBalances({
@@ -121,7 +122,7 @@ const TokenSelectModal: React.FC<TokenSelectModalProps> = ({
         setToToken(token)
       }
     }
-
+    setDiscardNextQuoteUpdate(true)
     onSelectToken(token)
     setIsOpen(false)
   }

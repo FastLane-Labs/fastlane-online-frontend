@@ -11,15 +11,21 @@ const FlipButton: React.FC = () => {
     toAmount: buyAmount,
     setToAmount: setBuyAmount,
     isQuoteing,
+    setDiscardNextQuoteUpdate,
     resetSwapData,
+    setAllowQuoteUpdate, // Add this
   } = useSwapStateContext()
 
   const handleSwapArrow = async () => {
+    setAllowQuoteUpdate(false) // Prevent quoting
     setSellToken(buyToken)
     setSellAmount(buyAmount)
     setBuyToken(sellToken)
     setBuyAmount('')
     resetSwapData()
+    setDiscardNextQuoteUpdate(true)
+    // Re-enable quoting after a short delay
+    setTimeout(() => setAllowQuoteUpdate(true), 100)
   }
 
   return (

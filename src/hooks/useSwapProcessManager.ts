@@ -26,6 +26,8 @@ export const useSwapProcessManager = () => {
     isSwapping,
     isSigning,
     allowQuoteUpdate,
+    discardNextQuoteUpdate,
+    setDiscardNextQuoteUpdate,
   } = useSwapStateContext()
   const { address, chainId } = useAccount()
   const { provider } = useEthersProviderContext()
@@ -81,24 +83,51 @@ export const useSwapProcessManager = () => {
 
   const updateQuoteResult = useCallback(() => {
     if (quoteResult && fromToken && toToken) {
-      setQuote(quoteResult)
-      if (swapDirection === 'sell') {
-        setToAmount(formatBalance(quoteResult.amountOut, toToken.decimals))
+      if (discardNextQuoteUpdate) {
+        // Discard this update and reset the flag
+        setDiscardNextQuoteUpdate(false)
+        // Reset quote and amounts
+        setQuote(null)
+        if (swapDirection === 'sell') {
+          setToAmount('')
+        } else {
+          setFromAmount('')
+        }
       } else {
-        setFromAmount(formatBalance(quoteResult.amountIn, fromToken.decimals))
+        // Process the quote normally
+        setQuote(quoteResult)
+        if (swapDirection === 'sell') {
+          setToAmount(formatBalance(quoteResult.amountOut, toToken.decimals))
+        } else {
+          setFromAmount(formatBalance(quoteResult.amountIn, fromToken.decimals))
+        }
       }
     } else if (quoteError) {
       console.error('Error fetching quote:', quoteError)
       setIsQuoteing(false)
+      setQuote(null)
       if (fromToken && toToken) {
         if (swapDirection === 'sell') {
-          setToAmount(formatBalance(0n, toToken.decimals))
+          setToAmount('')
         } else {
-          setFromAmount(formatBalance(0n, fromToken.decimals))
+          setFromAmount('')
         }
       }
     }
-  }, [quoteResult, quoteError, fromToken, toToken, swapDirection, setToAmount, setFromAmount, setIsQuoteing, setQuote])
+    // We don't reset discardNextQuoteUpdate here, as it's only reset when actually discarding a quote
+  }, [
+    quoteResult,
+    quoteError,
+    fromToken,
+    toToken,
+    swapDirection,
+    setToAmount,
+    setFromAmount,
+    setIsQuoteing,
+    setQuote,
+    discardNextQuoteUpdate,
+    setDiscardNextQuoteUpdate,
+  ])
 
   const updateSwapData = useCallback(() => {
     if (swapCallData) {

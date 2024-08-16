@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback, useMemo } from 'react'
-import { QuoteResult, QuoteResultWithPriceImpact, SwapCallData, SwapDirection, SwapResult, Token } from '@/types'
+import { QuoteResultWithPriceImpact, SwapCallData, SwapDirection, SwapResult, Token } from '@/types'
 import { useCurrentTokenList } from './useTokenList'
 import { useAccount } from 'wagmi'
 import { toBigInt } from '@/utils/format'
@@ -25,6 +25,9 @@ export interface SwapState {
   quote: QuoteResultWithPriceImpact | null
   isQuoteing: boolean
   allowQuoteUpdate: boolean
+
+  // New property
+  discardNextQuoteUpdate: boolean
 
   // Swap Data
   swapData: SwapCallData | null
@@ -56,6 +59,9 @@ export interface SwapState {
   setHasUserOperationSignature: (hasUserOperationSignature: boolean) => void
   setSwapDataSigned: (isSigned: boolean) => void
   resetSwapData: () => void
+  // New setter
+  setDiscardNextQuoteUpdate: (discard: boolean) => void
+
   // Actions
   swapTokens: () => void
   resetSelections: () => void
@@ -95,6 +101,9 @@ export const useSwapState = (): SwapState => {
   const [quote, setQuote] = useState<QuoteResultWithPriceImpact | null>(null)
   const [isQuoteing, setIsQuoteing] = useState<boolean>(false)
   const [allowQuoteUpdate, setAllowQuoteUpdate] = useState<boolean>(true)
+
+  // New state for discarding next quote update
+  const [discardNextQuoteUpdate, setDiscardNextQuoteUpdate] = useState<boolean>(false)
 
   // Swap data and result
   const [swapData, setSwapData] = useState<SwapCallData | null>(null)
@@ -209,7 +218,7 @@ export const useSwapState = (): SwapState => {
     quote,
     isQuoteing,
     allowQuoteUpdate,
-
+    discardNextQuoteUpdate,
     // Approve State
     isApproving,
 
@@ -241,6 +250,7 @@ export const useSwapState = (): SwapState => {
     setIsSwapping,
     setIsApproving,
     resetSwapData,
+    setDiscardNextQuoteUpdate,
     // Actions
     swapTokens: handleSwapTokens,
     resetSelections,
