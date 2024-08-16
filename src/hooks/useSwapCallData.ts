@@ -54,7 +54,8 @@ export const useSwapCallData = (
           dappAddress as Address,
           provider
         )
-
+        // TODO: support reverse direction
+        quoteResult.amountOutMin = swapIntent.minAmountUserBuys
         const { isFromNative } = quoteResult.swapRoute
         const baselineCall = await buildBaselineCallData(quoteResult, executionEnvironment, config.slippage)
 

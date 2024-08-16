@@ -3,11 +3,19 @@ import { useSwapStateContext } from '@/context/SwapStateContext'
 import { ChevronDownIcon } from '@heroicons/react/20/solid'
 import { calculateExchangeRate } from '@/utils/exchangeRate'
 import { useAppStore } from '@/store/useAppStore'
+import { useEstimatedSwapFees } from '@/hooks/useEstimatedSwapFees'
+import { formatUnits } from 'ethers'
+import { useTokenUsdPrice } from '@/hooks/useTokenUsdPrice'
+import { formatBalanceToFixedDecimal, shortFormat } from '@/utils/format'
+import Tooltip from '@/components/Tooltip/Tooltip'
 
 const SwapDetails = () => {
   const { fromToken, toToken, fromAmount, toAmount, quote } = useSwapStateContext()
   const { config } = useAppStore()
   const [isExpanded, setIsExpanded] = useState(false)
+  const [showFeeInUsd, setShowFeeInUsd] = useState(false)
+  const { data: estimatedFees } = useEstimatedSwapFees()
+  const { data: fromTokenUsdPrice } = useTokenUsdPrice(fromToken)
 
   const exchangeRate = useMemo(() => {
     if (fromToken && toToken && fromAmount && toAmount) {
@@ -18,22 +26,43 @@ const SwapDetails = () => {
 
   const priceImpact = useMemo(() => {
     if (!quote) return null
-    const amount = parseFloat(quote.priceImpact)
-    return amount
+    return parseFloat(quote.priceImpact)
   }, [quote])
 
   const toggleExpand = () => {
     setIsExpanded(!isExpanded)
   }
 
+  const toggleFeeDisplay = () => {
+    setShowFeeInUsd(!showFeeInUsd)
+  }
+
+  const formattedNetworkCost = useMemo(() => {
+    if (exchangeRate === '0') return '0 MATIC'
+    if (!estimatedFees || !fromToken) return 'N/A'
+    const totalFees = formatUnits(estimatedFees.totalFeesInWei, fromToken.decimals)
+    const formattedFees = formatBalanceToFixedDecimal(totalFees, 6)
+    if (showFeeInUsd && fromTokenUsdPrice) {
+      const usdFees = parseFloat(formattedFees) * fromTokenUsdPrice
+      return `$${usdFees.toFixed(4)}`
+    }
+    return `${formattedFees} MATIC`
+  }, [estimatedFees, fromToken, showFeeInUsd, fromTokenUsdPrice, exchangeRate])
+
+  const minimumReceived = useMemo(() => {
+    if (!quote || !toToken) return 'N/A'
+    const amountOut = quote.amountOutMin ?? quote.amountOut
+    return `${shortFormat(amountOut, toToken.decimals, 4)} ${toToken.symbol}`
+  }, [quote, toToken])
+
   return (
     <div className='flex flex-col w-full px-3 justify-start text-sm pt-3 gap-2'>
       <button className='flex justify-between items-center' onClick={toggleExpand}>
-        <span className='text-end text-neutral-content'>
+        <span className={`text-end text-neutral-content ${exchangeRate === '0' ? 'invisible' : 'visible'}`}>
           1 {fromToken?.symbol} = {exchangeRate} {toToken?.symbol}
         </span>
         <div className='flex items-center justify-end gap-2'>
-          {!isExpanded && (
+          {!isExpanded && exchangeRate !== '0' && (
             <div className='flex items-center justify-start gap-1 gray-text'>
               <svg className='w-4 h-4' fill='none' height='24' viewBox='0 0 24 24' xmlns='http://www.w3.org/2000/svg'>
                 <path
@@ -43,7 +72,7 @@ const SwapDetails = () => {
                   fillRule='evenodd'
                 />
               </svg>
-              <span className='text-end gray-text'>{`<.01%`}</span>
+              <span className='text-end gray-text'>{formattedNetworkCost}</span>
             </div>
           )}
           <div className={`transform transition-transform duration-300 ${isExpanded ? 'rotate-180' : 'rotate-0'}`}>
@@ -76,7 +105,9 @@ const SwapDetails = () => {
 
         <div className='flex w-full items-center justify-between'>
           <h3 className='gray-text'>Price impact</h3>
-          <span className='text-end text-neutral-content'>{`${priceImpact?.toFixed(2)}%`}</span>
+          <Tooltip content='The impact your trade has on the market price of this pool.'>
+            <span className='text-end text-neutral-content'>{`${priceImpact?.toFixed(2)}%`}</span>
+          </Tooltip>
         </div>
 
         <div className='flex w-full items-center justify-between'>
@@ -84,13 +115,15 @@ const SwapDetails = () => {
           <div
             className='tooltip tooltip-right'
             data-tip='Your swaps are gossipped permissionlessly to searchers who compete to give you the best price in the form of Rocketboost rebates.'>
-            <span className='text-end text-neutral-content'>{`0.00021 MATIC`}</span>
+            <span className='text-end text-neutral-content'>{minimumReceived}</span>
           </div>
         </div>
 
         <div className='flex w-full items-center justify-between'>
           <h3 className='gray-text'>Slippage</h3>
-          <span className='text-end text-neutral-content'>{`${config.slippage / 100}%`}</span>
+          <Tooltip content='The maximum price movement before your transaction will revert.'>
+            <span className='text-end text-neutral-content'>{`${config.slippage / 100}%`}</span>
+          </Tooltip>
         </div>
       </div>
 
