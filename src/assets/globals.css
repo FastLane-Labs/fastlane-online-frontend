@@ -44,6 +44,11 @@ input[type='number']::-webkit-inner-spin-button {
   @apply hover:bg-transparent hover:text-primary-content !important;
 }
 
+.btn-close-drawer {
+  @apply rounded-bl-2xl rounded-tl-2xl cursor-pointer opacity-60 py-6 pl-3.5 pr-7 h-full bg-transparent z-0 mr-0 text-gray-100
+  hover:bg-slate-400/[0.12] hover:-mr-2 hover:text-gray-300 transition-all duration-300 ease-in-out;
+}
+
 .input {
   @apply rounded-lg;
 }

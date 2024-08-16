@@ -42,35 +42,50 @@ export function NotificationsDrawer() {
 
       <div className='drawer-side z-[1]'>
         <label htmlFor='notification-drawer' className='drawer-overlay'></label>
-        <aside className='w-full md:w-80 min-h-full bg-[#0f0f0f] text-gray-200 flex flex-col'>
-          <header className='p-4 flex items-center justify-between border-b border-gray-800'>
-            <h2 className='text-lg font-semibold'>Activity</h2>
-            <button onClick={onClose} className='bg-transparent border-none cursor-pointer'>
-              <ChevronRightIcon className='h-5 w-5 text-gray-200' />
-            </button>
-          </header>
+        <aside className='w-full md:w-fit min-h-full text-gray-200 flex h-full rounded-bl-2xl rounded-tl-2xl'>
+          {/* close drawer button */}
+          <div className='btn-close-drawer' onClick={onClose}>
+            <svg
+              className='inline w-6 h-6'
+              fill='none'
+              height='24'
+              stroke='currentColor'
+              strokeLinecap='round'
+              strokeLinejoin='round'
+              viewBox='0 0 24 24'
+              xmlns='http://www.w3.org/2000/svg'>
+              <polyline fill='none' points='13 17 18 12 13 7' stroke='currentColor' />
+              <polyline fill='none' points='6 17 11 12 6 7' stroke='currentColor' />
+            </svg>
+          </div>
+          {/* drawer */}
+          <div className='w-full md:w-96 min-h-full bg-[#0f0f0f] flex flex-col z-10'>
+            <header className='pt-4 px-4 flex items-center justify-between'>
+              <h2 className='text-xl font-semibold'>Activity</h2>
+            </header>
 
-          <main className='flex-grow overflow-y-auto p-4'>
-            {sortedTransactions.length === 0 ? (
-              <p className='text-sm text-gray-400'>No activity</p>
-            ) : (
-              <ul className='space-y-2 list-none p-0 m-0'>
-                {sortedTransactions.map((transaction: TransactionParams, index: number) => (
-                  <li key={`transaction_${index}_${transaction.txHash}`}>
-                    <ActivityItem transaction={transaction} />
-                  </li>
-                ))}
-              </ul>
+            <main className='flex-grow overflow-y-auto p-4'>
+              {sortedTransactions.length === 0 ? (
+                <p className='text-sm text-gray-400'>No activity</p>
+              ) : (
+                <ul className='space-y-2 list-none p-0 m-0'>
+                  {sortedTransactions.map((transaction: TransactionParams, index: number) => (
+                    <li key={`transaction_${index}_${transaction.txHash}`}>
+                      <ActivityItem transaction={transaction} />
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </main>
+
+            {sortedTransactions.length > 0 && (
+              <footer className='p-4 flex justify-end border-t border-gray-800'>
+                <button className='btn btn-sm btn-ghost text-gray-200 hover:bg-gray-800' onClick={clearTransactions}>
+                  Clear activity
+                </button>
+              </footer>
             )}
-          </main>
-
-          {sortedTransactions.length > 0 && (
-            <footer className='p-4 flex justify-end border-t border-gray-800'>
-              <button className='btn btn-sm btn-ghost text-gray-200 hover:bg-gray-800' onClick={clearTransactions}>
-                Clear activity
-              </button>
-            </footer>
-          )}
+          </div>
         </aside>
       </div>
     </div>
