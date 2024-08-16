@@ -124,7 +124,7 @@ const TokenSelectModal: React.FC<TokenSelectModalProps> = ({
       <ModalWrapper
         isVisible={isOpen}
         onClose={() => setIsOpen(false)}
-        style={{ maxHeight: '90vh', minHeight: '90vh', paddingBottom: '0px' }}>
+        style={{ maxHeight: '90vh', minHeight: '90vh', paddingBottom: '0px', overflow: 'hidden' }}>
         <div className='h-fit'>
           <h2 className='text-2xl font-bold my-4 text-center'>Select a token</h2>
           <div className='relative w-full mb-4'>
