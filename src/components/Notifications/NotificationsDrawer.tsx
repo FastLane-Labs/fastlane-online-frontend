@@ -1,7 +1,7 @@
 'use client'
 
 import React, { useState, useEffect, useMemo } from 'react'
-import { ChevronRightIcon } from '@heroicons/react/24/solid'
+import { ChevronDoubleRightIcon } from '@heroicons/react/24/solid'
 import { useTransactionStore } from '@/store/useAppStore'
 import { ActivityItem } from './ActivityItem'
 import { TransactionParams } from '@/types'
@@ -36,7 +36,7 @@ export function NotificationsDrawer() {
       <input id='notification-drawer' type='checkbox' className='drawer-toggle' />
       <div className='drawer-content'>
         <label htmlFor='notification-drawer' className='btn btn-navbar btn-ghost btn-sm drawer-button'>
-          <ChevronRightIcon className='h-5 w-5' />
+          <ChevronDoubleRightIcon className='h-5 w-5' />
         </label>
       </div>
 
@@ -45,18 +45,7 @@ export function NotificationsDrawer() {
         <aside className='w-full md:w-fit min-h-full text-gray-200 flex h-full rounded-bl-2xl rounded-tl-2xl'>
           {/* close drawer button */}
           <div className='btn-close-drawer' onClick={onClose}>
-            <svg
-              className='inline w-6 h-6'
-              fill='none'
-              height='24'
-              stroke='currentColor'
-              strokeLinecap='round'
-              strokeLinejoin='round'
-              viewBox='0 0 24 24'
-              xmlns='http://www.w3.org/2000/svg'>
-              <polyline fill='none' points='13 17 18 12 13 7' stroke='currentColor' />
-              <polyline fill='none' points='6 17 11 12 6 7' stroke='currentColor' />
-            </svg>
+            <ChevronDoubleRightIcon className='h-5 w-5' />
           </div>
           {/* drawer */}
           <div className='w-full md:w-96 min-h-full bg-[#0f0f0f] flex flex-col z-10'>

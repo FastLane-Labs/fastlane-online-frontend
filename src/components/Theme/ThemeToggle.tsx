@@ -3,7 +3,6 @@ import React from 'react'
 const ThemeToggle = () => {
   return (
     <div className='drawer drawer-end text-gray-600'>
-      <input id='notification-drawer' type='checkbox' className='drawer-toggle' />
       <div className='drawer-content'>
         <label className='btn btn-navbar btn-ghost btn-sm  drawer-button swap swap-rotate'>
           {/* this hidden checkbox controls the state */}
