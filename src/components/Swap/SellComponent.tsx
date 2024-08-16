@@ -13,6 +13,7 @@ const SellComponent: React.FC = () => {
   const {
     fromToken: sellToken,
     setFromToken: setSellToken,
+    toToken: buyToken,
     fromAmount: sellAmount,
     setFromAmount: setSellAmount,
     setSwapDirection,
@@ -43,11 +44,11 @@ const SellComponent: React.FC = () => {
   useEffect(() => {
     if (chainId && !sellToken && tokens.length > 0) {
       const defaultToken = tokens.find((token) => token.tags?.includes('default'))
-      if (defaultToken && defaultToken.chainId === chainId) {
+      if (defaultToken && defaultToken.chainId === chainId && defaultToken.address !== buyToken?.address) {
         setSellToken(defaultToken)
       }
     }
-  }, [chainId, sellToken, tokens, setSellToken])
+  }, [chainId, sellToken, tokens, setSellToken, buyToken])
 
   const balance = useMemo(() => {
     if (sellToken && !balanceLoading && !balanceError && fetchedBalance !== undefined) {
