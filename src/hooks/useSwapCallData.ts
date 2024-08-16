@@ -116,6 +116,7 @@ export const useSwapCallData = (
       atlasVerificationAddress,
       config,
       chainId,
+      executionEnvironment,
     ]
   )
 

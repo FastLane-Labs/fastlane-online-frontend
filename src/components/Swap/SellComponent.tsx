@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useMemo } from 'react'
+import React, { useEffect, useMemo } from 'react'
 import { TokenBalance } from '@/components/TokenBalance/TokenBalance'
 import SellAmount from './SellAmount'
 import { useSwapStateContext } from '@/context/SwapStateContext'
@@ -16,11 +16,10 @@ const SellComponent: React.FC = () => {
     fromAmount: sellAmount,
     setFromAmount: setSellAmount,
     setSwapDirection,
+    isQuoteing,
   } = useSwapStateContext()
 
   const { address, chainId } = useAccount()
-  const [balance, setBalance] = useState<string>('0')
-
   const { tokens } = useCurrentTokenList()
 
   const {
@@ -50,10 +49,11 @@ const SellComponent: React.FC = () => {
     }
   }, [chainId, sellToken, tokens, setSellToken])
 
-  useEffect(() => {
-    if (sellToken && !balanceLoading && !balanceError) {
-      setBalance(ethers.formatUnits(fetchedBalance ?? 0n, sellToken.decimals))
+  const balance = useMemo(() => {
+    if (sellToken && !balanceLoading && !balanceError && fetchedBalance !== undefined) {
+      return ethers.formatUnits(fetchedBalance, sellToken.decimals)
     }
+    return '0'
   }, [fetchedBalance, sellToken, balanceLoading, balanceError])
 
   return (
@@ -72,8 +72,8 @@ const SellComponent: React.FC = () => {
         setSellToken={setSellToken}
         sellAmount={sellAmount}
         setSellAmount={setSellAmount}
+        quoteLoading={isQuoteing}
         setSwapDirection={setSwapDirection}
-        balance={balance}
       />
       <div className='text-left mt-2 text-sm text-base-content h-5'>
         {usdValue !== null ? `$${usdValue.toFixed(2)}` : '\u00A0'}

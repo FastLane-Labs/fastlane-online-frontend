@@ -50,8 +50,8 @@ const BuyComponent: React.FC = () => {
         disabled={true}
       />
       <div className='text-left mt-2 text-sm text-base-content h-5'>
-        {usdValue !== null ? `$${usdValue.toFixed(2)} ` : '\u000A0'}
-        {priceImpact !== null ? `(${priceImpact.toFixed(4)}%)` : '\u000A0'}
+        {usdValue !== null ? `$${usdValue.toFixed(2)} ` : '\u00A0'}
+        {priceImpact !== null ? `(${priceImpact.toFixed(4)}%)` : '\u00A0'}
       </div>
     </div>
   )
