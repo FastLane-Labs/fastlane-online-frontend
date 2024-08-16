@@ -92,24 +92,6 @@ export function ActivityItem({ transaction }: ActivityItemProps) {
       <div className='flex-1 min-w-0'>
         <div className='flex justify-between items-center'>
           <span className='text-sm font-medium text-gray-200'>{getStatusText()}</span>
-          {transaction.boosted && transaction.toToken && (
-            <div className='flex items-center space-x-1'>
-              <span className='text-xs text-gray-400'>Boosted</span>
-              <Image
-                src='/rocketboost-logo-extracted.png'
-                alt='Boosted'
-                width={12}
-                height={12}
-                className='opacity-70'
-              />
-              <span className='text-xs text-gray-400'>
-                {transaction.boostedAmount
-                  ? shortFormat(BigInt(transaction.boostedAmount), transaction.toToken.decimals, 4)
-                  : '0'}{' '}
-                {transaction.toToken.symbol}
-              </span>
-            </div>
-          )}
         </div>
         <p className='text-xs text-gray-400 mt-1'>
           {transaction.routeType === 'approval' ? (
@@ -130,7 +112,23 @@ export function ActivityItem({ transaction }: ActivityItemProps) {
         </p>
       </div>
       <div className='flex flex-col items-end'>
-        <div className='flex-shrink-0 flex justify-end items-end'>{getStatusIcon()}</div>
+        <div className='flex gap-2'>
+          {transaction.boosted && (
+            <div className='flex items-center space-x-1'>
+              <span className='text-sm bg-gradient-to-br from-primary-content to-secondary bg-clip-text text-transparent mt-px'>
+                Boosted
+              </span>
+              <Image
+                src='/rocketboost-logo-extracted.png'
+                alt='Boosted'
+                width={12}
+                height={12}
+                className='opacity-70'
+              />
+            </div>
+          )}
+          <div className='flex-shrink-0 flex justify-end items-end'>{getStatusIcon()}</div>
+        </div>
         {transaction.timestamp && (
           <time className='text-xs text-gray-400' suppressHydrationWarning>
             {formatRelativeTime(transaction.timestamp)}
