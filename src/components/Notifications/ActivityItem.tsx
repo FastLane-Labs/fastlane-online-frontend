@@ -91,11 +91,6 @@ export function ActivityItem({ transaction }: ActivityItemProps) {
       <div className='flex-1 min-w-0'>
         <div className='flex justify-between items-center'>
           <span className='text-sm font-medium text-gray-200'>{getStatusText()}</span>
-          {transaction.timestamp && (
-            <time className='text-xs text-gray-400' suppressHydrationWarning>
-              {formatRelativeTime(transaction.timestamp)}
-            </time>
-          )}
         </div>
         <p className='text-xs text-gray-400 mt-1'>
           {transaction.routeType === 'approval' ? (
@@ -115,7 +110,14 @@ export function ActivityItem({ transaction }: ActivityItemProps) {
           )}
         </p>
       </div>
-      <div className='flex-shrink-0'>{getStatusIcon()}</div>
+      <div>
+        <div className='flex-shrink-0 flex justify-end items-end'>{getStatusIcon()}</div>
+        {transaction.timestamp && (
+          <time className='text-xs text-gray-400' suppressHydrationWarning>
+            {formatRelativeTime(transaction.timestamp)}
+          </time>
+        )}
+      </div>
     </article>
   )
 }
