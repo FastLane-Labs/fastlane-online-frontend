@@ -113,8 +113,8 @@ export function NotificationProvider({ children }: PropsWithChildren) {
         limit={5}
         theme='dark'
         position='bottom-center'
-        toastClassName={() => 'bg-secondary-content rounded-xl overflow-hidden p-2 mb-2'}
-        bodyClassName={() => 'p-0 m-0'} // Remove padding from body
+        toastClassName={() => 'flex relative bg-secondary-content rounded-xl overflow-hidden justify-between p-2 mb-2'}
+        bodyClassName={() => 'flex text-sm gap-2 px-4 py-2'}
       />
     </NotificationContext.Provider>
   )
