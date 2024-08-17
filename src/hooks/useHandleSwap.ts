@@ -1,4 +1,4 @@
-import { useCallback, useState } from 'react'
+import { useCallback } from 'react'
 import { useAccount } from 'wagmi'
 import { useEthersProviderContext } from '@/context/EthersProviderContext'
 import { useSwapStateContext } from '@/context/SwapStateContext'
@@ -15,6 +15,7 @@ import { getBlockExplorerUrl } from '@/utils/getBlockExplorerUrl'
 import { TokenProvider } from '@/providers'
 import { useErrorNotification } from './useErrorNotification'
 import { parseTransactionReceipt } from '@/utils/parseTransactionReceipt'
+import { shortFormat } from '@/utils/format'
 
 export const useHandleSwap = () => {
   const { signer, provider } = useEthersProviderContext()
@@ -143,7 +144,7 @@ export const useHandleSwap = () => {
       if (isBoosted) {
         const boostedAmount = receivedAmount - baselineAmount
         sendNotification(
-          `Swap ${fromToken.symbol} to ${toToken.symbol} Boosted successful. Received: ${formatUnits(receivedAmount, toToken.decimals)} ${toToken.symbol} (Boosted by ${formatUnits(boostedAmount, toToken.decimals)} ${toToken.symbol})`,
+          `Swap ${fromToken.symbol} to ${toToken.symbol} Boosted successful. Received: ${shortFormat(receivedAmount, toToken.decimals, 4)} ${toToken.symbol} Boosted by ${shortFormat(boostedAmount, toToken.decimals, 4)} ${toToken.symbol}`,
           {
             type: 'success',
             href: `${baseUrl}tx/${tx.hash}`,
@@ -156,7 +157,7 @@ export const useHandleSwap = () => {
         )
       } else {
         sendNotification(
-          `Swap ${fromToken.symbol} to ${toToken.symbol} successful. Received: ${formatUnits(receivedAmount, toToken.decimals)} ${toToken.symbol}`,
+          `Swap ${fromToken.symbol} to ${toToken.symbol} successful. Received: ${shortFormat(receivedAmount, toToken.decimals, 4)} ${toToken.symbol}`,
           {
             type: 'success',
             href: `${baseUrl}tx/${tx.hash}`,
