@@ -6,6 +6,9 @@ import { useEstimatedSwapFees } from '@/hooks/useEstimatedSwapFees'
 import { useSwapStateContext } from '@/context/SwapStateContext'
 import UnknownToken from '@/assets/svg/unknownToken.svg'
 import { ExclamationCircleIcon } from '@heroicons/react/24/outline'
+import Image from 'next/image'
+import Confetti from 'react-confetti'
+import { useWindowSize } from 'react-use'
 
 interface SwapStepProps {
   step: 'approve' | 'sign' | 'swap' | 'success'
@@ -30,6 +33,7 @@ const SwapStep: React.FC<SwapStepProps> = ({ step, onAction, isLoading, error, s
 
   const { data: estimatedFees } = useEstimatedSwapFees()
   const [isExpanded, setIsExpanded] = useState(false)
+  const { width, height } = useWindowSize()
 
   const toggleExpand = () => {
     setIsExpanded(!isExpanded)
@@ -269,13 +273,18 @@ const SwapStep: React.FC<SwapStepProps> = ({ step, onAction, isLoading, error, s
     } else if (step === 'success') {
       return (
         <div className='flex flex-grow flex-col w-full h-full justify-center items-center'>
+          <Confetti width={width} height={height} recycle={false} numberOfPieces={200} gravity={0.1} />
           <div className='text-center mb-2'>
             <div className='w-16 h-16 bg-green-500 rounded-full flex items-center justify-center mx-auto mb-4'>
-              <svg className='w-8 h-8 text-white' fill='none' viewBox='0 0 24 24' stroke='currentColor'>
-                <path strokeLinecap='round' strokeLinejoin='round' strokeWidth={2} d='M5 13l4 4L19 7' />
-              </svg>
+              <Image
+                src='/rocketboost-logo-extracted.png'
+                alt='Boosted'
+                width={40}
+                height={40}
+                className='opacity-70'
+              />
             </div>
-            <h2 className='text-lg font-semibold'>Swap success!</h2>
+            <h2 className='text-lg font-semibold'>Swap successful - Boosted!</h2>
           </div>
           {renderSwapDetailsCompact()}
         </div>
