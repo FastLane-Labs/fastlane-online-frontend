@@ -10,7 +10,7 @@ export const CHAIN_CONFIG: { [chainId: number]: ChainConfig } = {
         address: '0xf61F7B507b21513D51DC2a0dbFc950F4801605a5',
       },
       dappAddress: {
-        address: '0xCf00A98bA4ea1D967f34B07Ff76f61E1A5521B96',
+        address: '0x87f9B954C403Fec2A9964CFFB8AcA9CD7ED55FDf',
       },
       multicall3: {
         address: '0xcA11bde05977b3631167028862bE2a173976CA11',
