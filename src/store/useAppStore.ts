@@ -31,6 +31,7 @@ interface TransactionStore {
       status?: TransactionStatus
       toAmount?: string
       boosted?: boolean
+      boostedAmount?: string
     }
   ) => void
   clearTransactions: () => void

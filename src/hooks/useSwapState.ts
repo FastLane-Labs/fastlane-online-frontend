@@ -188,9 +188,6 @@ export const useSwapState = (): SwapState => {
     const signature = swapData.userOperation.toStruct().signature
     const isValid = signature !== undefined && signature !== '0x'
     setHasUserOperationSignature(isValid)
-    if (isValid) {
-      console.log(signature)
-    }
   }, [swapData])
 
   useEffect(() => {

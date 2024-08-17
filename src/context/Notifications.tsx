@@ -21,6 +21,7 @@ interface NotificationContext {
       transactionStatus?: TransactionStatus
       boosted?: boolean
       receivedAmount?: string
+      boostedAmount?: string
     }
   ) => void
   clearTransactions: () => void
@@ -50,6 +51,7 @@ export function NotificationProvider({ children }: PropsWithChildren) {
         transactionStatus?: TransactionStatus
         boosted?: boolean
         receivedAmount?: string
+        boostedAmount?: string
       }
     ) => {
       const timestamp = dayjs().valueOf()
@@ -118,6 +120,7 @@ export function NotificationProvider({ children }: PropsWithChildren) {
           status: options.transactionStatus,
           toAmount: options.receivedAmount,
           boosted: options.boosted,
+          boostedAmount: options.boostedAmount, // Add this line
         })
       }
     },

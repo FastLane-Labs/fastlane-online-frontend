@@ -92,7 +92,7 @@ export function ActivityItem({ transaction }: ActivityItemProps) {
       <div className='flex-1 min-w-0'>
         <div className='flex justify-between items-center'>
           <span className='text-sm font-medium text-gray-200'>{getStatusText()}</span>
-          {transaction.boosted && (
+          {transaction.boosted && transaction.toToken && (
             <div className='flex items-center space-x-1'>
               <span className='text-xs text-gray-400'>Boosted</span>
               <Image
@@ -102,6 +102,12 @@ export function ActivityItem({ transaction }: ActivityItemProps) {
                 height={12}
                 className='opacity-70'
               />
+              <span className='text-xs text-gray-400'>
+                {transaction.boostedAmount
+                  ? shortFormat(BigInt(transaction.boostedAmount), transaction.toToken.decimals, 4)
+                  : '0'}{' '}
+                {transaction.toToken.symbol}
+              </span>
             </div>
           )}
         </div>

@@ -3,7 +3,6 @@ import { useAccount } from 'wagmi'
 import { useEthersProviderContext } from '@/context/EthersProviderContext'
 import { useSwapStateContext } from '@/context/SwapStateContext'
 import { useFastLaneAddresses } from './useFastLaneAddresses'
-import { useAppStore } from '@/store/useAppStore'
 import { nativeEvmTokenAddress, SOLVER_GAS_ESTIMATE, SWAP_GAS_ESTIMATE } from '@/constants'
 import { signUserOperation } from '@/core/atlas'
 import { getEip712Domain } from '@/utils/getContractAddress'
@@ -15,7 +14,7 @@ import { useNotifications } from '@/context/Notifications'
 import { getBlockExplorerUrl } from '@/utils/getBlockExplorerUrl'
 import { TokenProvider } from '@/providers'
 import { useErrorNotification } from './useErrorNotification'
-import { parseTransactionReceipt, logParsedReceipt } from '@/utils/parseTransactionReceipt'
+import { parseTransactionReceipt } from '@/utils/parseTransactionReceipt'
 
 export const useHandleSwap = () => {
   const { signer, provider } = useEthersProviderContext()
@@ -134,15 +133,17 @@ export const useHandleSwap = () => {
       setSwapResult({ transaction: transactionParams })
 
       const receipt = await tx.wait()
-      const parsedReceipt = parseTransactionReceipt(receipt, address)
+      const parsedReceipt = parseTransactionReceipt(receipt, address, isToNative)
 
-      const receivedAmount = parsedReceipt.userReceivedAmount?.toString() || quote.amountOut
+      const receivedAmount = parsedReceipt.userReceivedAmount || BigInt(quote.amountOut)
+      const baselineAmount = parsedReceipt.baselineAmountOut || BigInt(quote.amountOut)
 
-      const isBoosted = parsedReceipt.isSolverTxSuccessful && BigInt(receivedAmount) > BigInt(quote.amountOut)
+      const isBoosted = parsedReceipt.isSolverTxSuccessful && receivedAmount > baselineAmount
 
       if (isBoosted) {
+        const boostedAmount = receivedAmount - baselineAmount
         sendNotification(
-          `Swap ${fromToken.symbol} to ${toToken.symbol} Boosted successful. Received: ${receivedAmount} ${toToken.symbol}`,
+          `Swap ${fromToken.symbol} to ${toToken.symbol} Boosted successful. Received: ${formatUnits(receivedAmount, toToken.decimals)} ${toToken.symbol} (Boosted by ${formatUnits(boostedAmount, toToken.decimals)} ${toToken.symbol})`,
           {
             type: 'success',
             href: `${baseUrl}tx/${tx.hash}`,
@@ -150,14 +151,12 @@ export const useHandleSwap = () => {
             transactionStatus: 'confirmed',
             boosted: true,
             receivedAmount: receivedAmount.toString(),
+            boostedAmount: boostedAmount.toString(),
           }
         )
       } else {
         sendNotification(
-          `Swap ${fromToken.symbol} to ${toToken.symbol} successful. Received: ${formatUnits(
-            receivedAmount,
-            toToken.decimals
-          )} ${toToken.symbol}`,
+          `Swap ${fromToken.symbol} to ${toToken.symbol} successful. Received: ${formatUnits(receivedAmount, toToken.decimals)} ${toToken.symbol}`,
           {
             type: 'success',
             href: `${baseUrl}tx/${tx.hash}`,
@@ -174,6 +173,7 @@ export const useHandleSwap = () => {
         status: 'confirmed' as TransactionStatus,
         toAmount: receivedAmount.toString(),
         boosted: isBoosted,
+        boostedAmount: isBoosted ? (receivedAmount - baselineAmount).toString() : '0',
       }
       setSwapResult({ transaction: updatedTransactionParams })
 

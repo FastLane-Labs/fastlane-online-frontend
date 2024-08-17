@@ -9,9 +9,11 @@ interface ParsedTransactionReceipt {
   events: ParsedEvent[]
   isSolverTxSuccessful: boolean
   userReceivedAmount: bigint | null
+  baselineAmountOut: bigint | null
+  boostedAmount: bigint | null
 }
 
-const ABI = [
+const CONSOLIDATE_EVENTS_ABI = [
   {
     anonymous: false,
     inputs: [
@@ -31,21 +33,45 @@ const ABI = [
       { indexed: true, name: 'to', type: 'address' },
       { indexed: false, name: 'value', type: 'uint256' },
     ],
-    name: 'Transfer',
+    name: 'Transfer', // ERC20 transfer event
+    type: 'event',
+  },
+  {
+    anonymous: false,
+    inputs: [
+      { indexed: false, internalType: 'uint256', name: 'userMinAmountOut', type: 'uint256' },
+      { indexed: false, internalType: 'uint256', name: 'baselineAmountOut', type: 'uint256' },
+    ],
+    name: 'BaselineEstablished',
+    type: 'event',
+  },
+  {
+    anonymous: false,
+    inputs: [
+      { indexed: true, name: 'src', type: 'address' },
+      { indexed: false, name: 'wad', type: 'uint256' },
+    ],
+    name: 'Withdrawal',
     type: 'event',
   },
 ]
 
-export const parseTransactionReceipt = (receipt: TransactionReceipt, userAddress: string): ParsedTransactionReceipt => {
+export const parseTransactionReceipt = (
+  receipt: TransactionReceipt,
+  userAddress: string,
+  nativeOutput: boolean
+): ParsedTransactionReceipt => {
   const events: ParsedEvent[] = []
-  const iface = new ethers.Interface(ABI)
+  const iface = new ethers.Interface(CONSOLIDATE_EVENTS_ABI)
   let isSolverTxSuccessful = false
-  let userReceivedAmount: bigint | null = null
+  let userReceivedAmount: bigint = 0n
+  let baselineAmountOut: bigint = 0n
+  let boostedAmount: bigint = 0n
 
   receipt.logs.forEach((log: Log) => {
     try {
       const parsedLog = iface.parseLog(log)
-      if (parsedLog && (parsedLog.name === 'SolverTxResult' || parsedLog.name === 'Transfer')) {
+      if (parsedLog) {
         const args: Record<string, unknown> = {}
         for (let i = 0; i < parsedLog.args.length; i++) {
           const input = parsedLog.fragment.inputs[i]
@@ -58,14 +84,25 @@ export const parseTransactionReceipt = (receipt: TransactionReceipt, userAddress
         }
         events.push(parsedEvent)
 
-        // Check for successful SolverTxResult
-        if (parsedEvent.name === 'SolverTxResult' && parsedEvent.args.success === true) {
-          isSolverTxSuccessful = true
-        }
-
-        // Get transfer amount to user
-        if (parsedEvent.name === 'Transfer' && parsedEvent.args.to === userAddress) {
-          userReceivedAmount = BigInt(parsedEvent.args.value as string)
+        switch (parsedEvent.name) {
+          case 'SolverTxResult':
+            if (parsedEvent.args.success === true) {
+              isSolverTxSuccessful = true
+            }
+            break
+          case 'Transfer':
+            if (!nativeOutput && parsedEvent.args.to === userAddress) {
+              userReceivedAmount += BigInt((parsedEvent.args.value as string) || (parsedEvent.args.amount as string))
+            }
+            break
+          case 'Withdrawal':
+            if (nativeOutput && parsedEvent.args.src === userAddress) {
+              userReceivedAmount = BigInt(parsedEvent.args.wad as string)
+            }
+            break
+          case 'BaselineEstablished':
+            baselineAmountOut = BigInt(parsedEvent.args.baselineAmountOut as string)
+            break
         }
       }
     } catch (error) {
@@ -73,7 +110,12 @@ export const parseTransactionReceipt = (receipt: TransactionReceipt, userAddress
     }
   })
 
-  return { events, isSolverTxSuccessful, userReceivedAmount }
+  // Calculate boosted amount
+  if (userReceivedAmount > 0n && baselineAmountOut > 0n) {
+    boostedAmount = userReceivedAmount - baselineAmountOut
+  }
+
+  return { events, isSolverTxSuccessful, userReceivedAmount, baselineAmountOut, boostedAmount }
 }
 
 export const logParsedReceipt = (parsedReceipt: ParsedTransactionReceipt) => {
@@ -81,6 +123,16 @@ export const logParsedReceipt = (parsedReceipt: ParsedTransactionReceipt) => {
     console.log('Swap was successful')
     if (parsedReceipt.userReceivedAmount !== null) {
       console.log('User received amount:', parsedReceipt.userReceivedAmount.toString())
+      if (parsedReceipt.baselineAmountOut !== null) {
+        console.log('Baseline amount:', parsedReceipt.baselineAmountOut.toString())
+        if (parsedReceipt.boostedAmount !== null) {
+          console.log('Boosted amount:', parsedReceipt.boostedAmount.toString())
+        } else {
+          console.warn('Boosted amount could not be calculated')
+        }
+      } else {
+        console.warn('Baseline amount not found in the receipt')
+      }
     } else {
       console.warn('User received amount not found in the receipt')
     }

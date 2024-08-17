@@ -55,12 +55,22 @@ export const FastlaneOnlineAbi = [
   { inputs: [], name: 'OnlyAtlas', type: 'error' },
   { inputs: [], name: 'OnlyGovernance', type: 'error' },
   { inputs: [], name: 'OuterHelpers_NotMadJustDisappointed', type: 'error' },
+  { inputs: [], name: 'SolverGateway_AddSolverOp_BidTooHigh', type: 'error' },
   { inputs: [], name: 'SolverGateway_AddSolverOp_SimulationFail', type: 'error' },
   { inputs: [], name: 'SolverGateway_AddSolverOp_SolverMustBeSender', type: 'error' },
   { inputs: [], name: 'SolverGateway_AddSolverOp_ValueTooLow', type: 'error' },
   { inputs: [], name: 'SolverGateway_RefundCongestionBuyIns_DeadlineNotPassed', type: 'error' },
   { inputs: [], name: 'Unauthorized', type: 'error' },
   { inputs: [], name: 'WrongPhase', type: 'error' },
+  {
+    anonymous: false,
+    inputs: [
+      { indexed: false, internalType: 'uint256', name: 'userMinAmountOut', type: 'uint256' },
+      { indexed: false, internalType: 'uint256', name: 'baselineAmountOut', type: 'uint256' },
+    ],
+    name: 'BaselineEstablished',
+    type: 'event',
+  },
   {
     anonymous: false,
     inputs: [
