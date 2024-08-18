@@ -20,8 +20,8 @@ export class NativeWrapper extends Exchange {
 
     const createQuoteResult = (quoteAmount: bigint): QuoteResult => ({
       swapType,
-      amountIn: swapType === SwapType.EXACT_IN ? quoteAmount : quoteAmount,
-      amountOut: swapType === SwapType.EXACT_OUT ? quoteAmount : quoteAmount,
+      amountIn: quoteAmount,
+      amountOut: quoteAmount,
       swapRoute,
       validUntil: Math.floor(Date.now() / 1000) + 30,
     })
