@@ -6,6 +6,7 @@ import { shortFormat } from '@/utils/format'
 import dayjs from 'dayjs'
 import { getBlockExplorerUrl } from '@/utils/getBlockExplorerUrl'
 import Image from 'next/image'
+import { formatUnits } from 'ethers'
 
 interface ActivityItemProps {
   transaction: TransactionParams
@@ -53,6 +54,14 @@ export function ActivityItem({ transaction }: ActivityItemProps) {
       return `${baseUrl}tx/${transaction.txHash}`
     }
     return null
+  }
+
+  const getBoostedTooltipContent = () => {
+    if (transaction.boosted && transaction.toToken && transaction.boostedAmount) {
+      const boostedAmount = formatUnits(transaction.boostedAmount, transaction.toToken.decimals)
+      return `${boostedAmount}`
+    }
+    return ''
   }
 
   const transactionUrl = getTransactionUrl()
@@ -112,30 +121,30 @@ export function ActivityItem({ transaction }: ActivityItemProps) {
         </p>
       </div>
       <div className='flex flex-col items-end'>
-        <div className='flex gap-2 items-center'>
+        <div className='flex items-center gap-1'>
           {transaction.boosted && transaction.toToken && (
-            <div className='flex items-center space-x-1'>
-              <span className='text-xs text-gray-400'>
-                {transaction.boostedAmount
-                  ? shortFormat(BigInt(transaction.boostedAmount), transaction.toToken.decimals, 4)
-                  : '0'}{' '}
-                {transaction.toToken.symbol}
-              </span>
-              <div className='flex items-center'>
+            <div className='tooltip tooltip-left' data-tip={getBoostedTooltipContent()}>
+              <div className='flex items-center space-x-1'>
+                <span className='text-xs text-gray-400'>
+                  {transaction.boostedAmount
+                    ? shortFormat(BigInt(transaction.boostedAmount), transaction.toToken.decimals, 4)
+                    : '0'}{' '}
+                  {transaction.toToken.symbol}
+                </span>
                 <span className='text-xs bg-gradient-to-br from-primary-content to-secondary bg-clip-text text-transparent'>
                   Boosted
                 </span>
                 <Image
                   src='/rocketboost-logo-extracted.png'
                   alt='Boosted'
-                  width={12}
-                  height={12}
-                  className='opacity-70 ml-1'
+                  width={10}
+                  height={10}
+                  className='opacity-70'
                 />
               </div>
             </div>
           )}
-          <div className='flex-shrink-0 flex justify-end items-center'>{getStatusIcon()}</div>
+          <div className='flex-shrink-0'>{getStatusIcon()}</div>
         </div>
         {transaction.timestamp && (
           <time className='text-xs text-gray-400' suppressHydrationWarning>
