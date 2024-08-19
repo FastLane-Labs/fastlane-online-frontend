@@ -2,7 +2,7 @@ import { Token } from './token'
 
 export type TransactionHistoryStore = TransactionParams[]
 
-export type RouteType = 'swap' | 'approval' | 'wrap'
+export type RouteType = 'swap' | 'approval' | 'wrap' | 'unwrap'
 export interface TransactionParams {
   routeType: RouteType
   chainId: number

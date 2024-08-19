@@ -100,7 +100,8 @@ export const useSwapCallData = (
         }
       },
       enabled: isReadyForCallDataGeneration && !!quoteResult,
-      refetchOnWindowFocus: false,
+      refetchOnMount: true,
+      refetchOnWindowFocus: true,
     }),
     [
       address,

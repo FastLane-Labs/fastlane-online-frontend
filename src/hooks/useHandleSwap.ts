@@ -258,7 +258,7 @@ export const useHandleSwap = () => {
       const gas = SWAP_GAS_ESTIMATE // Adjust this if wrap requires different gas
 
       transactionParams = {
-        routeType: 'wrap',
+        routeType: swapMode,
         chainId: chainId,
         txHash: '',
         fromToken: fromToken,
@@ -280,7 +280,7 @@ export const useHandleSwap = () => {
 
       transactionParams.txHash = tx.hash
 
-      sendNotification(`Submitting ${fromToken.symbol} Token ${swapMode}`, {
+      sendNotification(`Submitting ${fromToken.symbol} Token ${capitalize(swapMode)}`, {
         type: 'info',
         href: `${baseUrl}tx/${tx.hash}`,
         transactionParams: transactionParams,
@@ -291,7 +291,7 @@ export const useHandleSwap = () => {
       await tx.wait()
 
       sendNotification(
-        `${fromToken.symbol} ${swapData.type} successful. Amount: ${shortFormat(quote.amountOut, toToken.decimals, 4)} ${toToken.symbol}`,
+        `${fromToken.symbol} ${swapData.type} successful. Received: ${shortFormat(quote.amountOut, toToken.decimals, 4)} ${toToken.symbol}`,
         {
           type: 'success',
           href: `${baseUrl}tx/${tx.hash}`,
@@ -311,7 +311,7 @@ export const useHandleSwap = () => {
       return true
     } catch (error: any) {
       if (transactionParams?.txHash) {
-        sendNotification(`${fromToken.symbol} ${swapData.type} failed`, {
+        sendNotification(`${fromToken.symbol} ${capitalize(swapMode)} failed`, {
           type: 'error',
           href: `${baseUrl}tx/${transactionParams.txHash}`,
           transactionHash: transactionParams.txHash,

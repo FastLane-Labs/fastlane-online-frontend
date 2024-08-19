@@ -39,12 +39,18 @@ export function ActivityItem({ transaction }: ActivityItemProps) {
   const getStatusText = () => {
     switch (transaction.status) {
       case 'confirmed':
-        return transaction.routeType === 'approval' ? 'Approved' : 'Swapped'
+        if (transaction.routeType === 'approval') return 'Approved'
+        if (transaction.routeType === 'wrap') return 'Wrapped'
+        if (transaction.routeType === 'unwrap') return 'Unwrapped'
+        return 'Swapped'
       case 'failed':
         return 'Failed'
       case 'pending':
       default:
-        return transaction.routeType === 'approval' ? 'Approving' : 'Swapping'
+        if (transaction.routeType === 'approval') return 'Approving'
+        if (transaction.routeType === 'wrap') return 'Wrapping'
+        if (transaction.routeType === 'unwrap') return 'Unwrapping'
+        return 'Swapping'
     }
   }
 
