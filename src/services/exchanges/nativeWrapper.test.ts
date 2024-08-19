@@ -61,7 +61,7 @@ describe('NativeWrapper', () => {
       expect(quoteResults).toBeDefined()
       expect(quoteResults?.regularQuote).toEqual(
         expect.objectContaining({
-          swapType: SwapType.EXACT_IN,
+          swapType: SwapType.WRAP,
           amountIn: 1000000000000000000n,
           amountOut: 1000000000000000000n,
           swapRoute: mockSwapRoute,
@@ -69,7 +69,7 @@ describe('NativeWrapper', () => {
       )
       expect(quoteResults?.smallQuote).toEqual(
         expect.objectContaining({
-          swapType: SwapType.EXACT_IN,
+          swapType: SwapType.WRAP,
           amountIn: 100000000000000000n,
           amountOut: 100000000000000000n,
           swapRoute: mockSwapRoute,
@@ -79,7 +79,7 @@ describe('NativeWrapper', () => {
 
     it('should return correct quote results for EXACT_OUT', async () => {
       const quoteRequest: QuoteRequest = {
-        swapType: SwapType.EXACT_OUT,
+        swapType: SwapType.WRAP,
         amount: 1000000000000000000n, // 1 ETH
         smallAmount: 100000000000000000n, // 0.1 ETH
         swapRoute: mockSwapRoute,
@@ -89,7 +89,7 @@ describe('NativeWrapper', () => {
       expect(quoteResults).toBeDefined()
       expect(quoteResults?.regularQuote).toEqual(
         expect.objectContaining({
-          swapType: SwapType.EXACT_OUT,
+          swapType: SwapType.WRAP,
           amountIn: 1000000000000000000n,
           amountOut: 1000000000000000000n,
           swapRoute: mockSwapRoute,
@@ -97,7 +97,7 @@ describe('NativeWrapper', () => {
       )
       expect(quoteResults?.smallQuote).toEqual(
         expect.objectContaining({
-          swapType: SwapType.EXACT_OUT,
+          swapType: SwapType.WRAP,
           amountIn: 100000000000000000n,
           amountOut: 100000000000000000n,
           swapRoute: mockSwapRoute,
