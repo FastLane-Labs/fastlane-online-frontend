@@ -88,7 +88,7 @@ const SwapDetails = () => {
         <div className='flex w-full items-center justify-between'>
           <h3 className='gray-text'>Network cost</h3>
           <div
-            className='custom-tooltip tooltip tooltip-right'
+            className='custom-tooltip md:tooltip md:tooltip-left lg:tooltip-right'
             data-tip='Network cost is paid in MATIC on the POLYGON network in order to transact. If decentralized solvers provide a better price, some amount of network costs are refunded.'>
             <div className='flex items-center justify-start gap-1 gray-text cursor-pointer' onClick={toggleFeeDisplay}>
               <svg className='w-4 h-4' fill='none' height='24' viewBox='0 0 24 24' xmlns='http://www.w3.org/2000/svg'>
@@ -107,7 +107,7 @@ const SwapDetails = () => {
         <div className='flex w-full items-center justify-between'>
           <h3 className='gray-text'>Price impact</h3>
           <div
-            className='custom-tooltip tooltip tooltip-right'
+            className='custom-tooltip md:tooltip md:tooltip-left lg:tooltip-right'
             data-tip='The impact your trade has on the market price of this pool.'>
             <span className='text-end text-neutral-content'>{`${priceImpact?.toFixed(2)}%`}</span>
           </div>
@@ -116,7 +116,7 @@ const SwapDetails = () => {
         <div className='flex w-full items-center justify-between'>
           <h3 className='gray-text'>Receive at least</h3>
           <div
-            className='custom-tooltip tooltip tooltip-right'
+            className='custom-tooltip md:tooltip md:tooltip-left lg:tooltip-right'
             data-tip={`If the price moves so that you will receive less than ${minimumReceived}, your transaction will revert.`}>
             <span className='text-end text-neutral-content'>{minimumReceived}</span>
           </div>
@@ -125,7 +125,7 @@ const SwapDetails = () => {
         <div className='flex w-full items-center justify-between'>
           <h3 className='gray-text'>Slippage</h3>
           <div
-            className='custom-tooltip tooltip tooltip-right'
+            className='custom-tooltip md:tooltip md:tooltip-left lg:tooltip-right'
             data-tip='The maximum price movement before your transaction will revert.'>
             <span className='text-end text-neutral-content'>{`${config.slippage / 100}%`}</span>
           </div>
