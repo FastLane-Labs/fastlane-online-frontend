@@ -7,7 +7,7 @@ import { nativeEvmTokenAddress, SOLVER_GAS_ESTIMATE, SWAP_GAS_ESTIMATE } from '@
 import { signUserOperation } from '@/core/atlas'
 import { getEip712Domain } from '@/utils/getContractAddress'
 import { getAtlasGasSurcharge, getFeeData } from '@/utils/gasFee'
-import { ethers, formatUnits } from 'ethers'
+import { ethers, formatUnits, parseEther } from 'ethers'
 import { FastlaneOnlineAbi } from '@/abis'
 import { Token, TransactionParams, TransactionStatus } from '@/types'
 import { useNotifications } from '@/context/Notifications'
@@ -27,6 +27,7 @@ export const useHandleSwap = () => {
     isSwapping,
     setIsSwapping,
     isSigning,
+
     hasUserOperationSignature,
     setIsSigning,
     setSwapDataSigned,
@@ -38,7 +39,7 @@ export const useHandleSwap = () => {
   const { handleProviderError } = useErrorNotification()
 
   const handleSignature = useCallback(async () => {
-    if (!swapData?.userOperation || !signer || !chainId) {
+    if (!swapData?.userOperation || !signer || !chainId || swapData.type !== 'swap') {
       console.error('Missing required data for signature')
       return false
     }
@@ -55,14 +56,14 @@ export const useHandleSwap = () => {
     } finally {
       setIsSigning(false)
     }
-  }, [swapData?.userOperation, signer, chainId, setIsSigning, setSwapDataSigned, handleProviderError])
+  }, [swapData?.userOperation, swapData?.type, signer, chainId, setIsSigning, setSwapDataSigned, handleProviderError])
 
-  const handleSwap = useCallback(async () => {
+  const handleDappContractSwap = useCallback(async () => {
     // Check if all required data is available
     const hashMissingContractAddress = !atlasVerificationAddress || !dappAddress || !atlasAddress
     const missingWeb3Provider = !address || !provider || !signer || !chainId
     const missingQuote = !quote || isQuoteing
-    const missingUserOperation = !swapData?.userOperation
+    const missingUserOperation = !swapData?.userOperation || swapData.type !== 'swap'
 
     if (
       hashMissingContractAddress ||
@@ -117,7 +118,7 @@ export const useHandleSwap = () => {
       }
 
       const contract = new ethers.Contract(dappAddress, FastlaneOnlineAbi, signer)
-      const tx = await contract.fastOnlineSwap(swapData.userOperation.toStruct(), {
+      const tx = await contract.fastOnlineSwap(swapData.userOperation?.toStruct(), {
         gasLimit: gas,
         value: value + getAtlasGasSurcharge(gas * maxFeePerGas),
       })
@@ -203,6 +204,7 @@ export const useHandleSwap = () => {
     dappAddress,
     atlasVerificationAddress,
     swapData?.userOperation,
+    swapData?.type,
     atlasAddress,
     chainId,
     signer,
@@ -214,9 +216,150 @@ export const useHandleSwap = () => {
     handleProviderError,
   ])
 
+  const handleWrap = useCallback(async () => {
+    if (
+      !swapData ||
+      swapData.type !== 'wrap' ||
+      !swapData.baselineCall ||
+      !provider ||
+      !signer ||
+      !address ||
+      !chainId ||
+      !quote
+    ) {
+      console.error('Missing required data for wrap')
+      return false
+    }
+
+    setIsSwapping(true)
+    let transactionParams: TransactionParams | null = null
+    const { isFromNative, isToNative, swapSteps } = quote.swapRoute
+    const nativeToken = (await TokenProvider.getTokensByChainId(chainId)).find(
+      (token: Token) => token.address === nativeEvmTokenAddress
+    )
+
+    // Update the from and to tokens if we have a native token only used for notifications
+    const fromToken = isFromNative ? nativeToken || swapSteps[0].tokenIn : swapSteps[0].tokenIn
+    const toToken = isToNative
+      ? nativeToken || swapSteps[swapSteps.length - 1].tokenOut
+      : swapSteps[swapSteps.length - 1].tokenOut
+
+    const baseUrl = getBlockExplorerUrl(chainId)
+    try {
+      const feeData = await getFeeData(provider)
+      if (!feeData.maxFeePerGas || !feeData.gasPrice) {
+        console.error('Missing required fee data for wrap')
+        sendNotification('Wrap failed: Missing fee data', { type: 'error' })
+        return false
+      }
+
+      const value = isFromNative ? quote.amountIn : 0n
+      const gas = SWAP_GAS_ESTIMATE // Adjust this if wrap requires different gas
+
+      transactionParams = {
+        routeType: 'wrap',
+        chainId: chainId,
+        txHash: '',
+        fromToken: fromToken,
+        toToken: toToken,
+        fromAmount: quote.amountIn.toString(),
+        toAmount: quote.amountOut.toString(),
+        timestamp: Date.now(),
+        status: 'pending' as TransactionStatus,
+        fromAddress: address,
+        boosted: false,
+      }
+
+      const tx = await signer.sendTransaction({
+        to: swapData.baselineCall.to,
+        data: swapData.baselineCall.data,
+        value: value,
+        gasLimit: gas,
+      })
+
+      transactionParams.txHash = tx.hash
+
+      sendNotification(`Submitting ${fromToken.symbol} ${swapData.type}`, {
+        type: 'info',
+        href: `${baseUrl}tx/${tx.hash}`,
+        transactionParams: transactionParams,
+      })
+
+      setSwapResult({ transaction: transactionParams })
+
+      await tx.wait()
+
+      sendNotification(
+        `${fromToken.symbol} ${swapData.type} successful. Amount: ${shortFormat(quote.amountOut, toToken.decimals, 4)} ${toToken.symbol}`,
+        {
+          type: 'success',
+          href: `${baseUrl}tx/${tx.hash}`,
+          transactionHash: tx.hash,
+          transactionStatus: 'confirmed',
+          boosted: false,
+          receivedAmount: quote.amountOut.toString(),
+        }
+      )
+
+      const updatedTransactionParams: TransactionParams = {
+        ...transactionParams,
+        status: 'confirmed' as TransactionStatus,
+      }
+      setSwapResult({ transaction: updatedTransactionParams })
+
+      return true
+    } catch (error: any) {
+      if (transactionParams?.txHash) {
+        sendNotification(`${fromToken.symbol} ${swapData.type} failed`, {
+          type: 'error',
+          href: `${baseUrl}tx/${transactionParams.txHash}`,
+          transactionHash: transactionParams.txHash,
+          transactionStatus: 'failed',
+        })
+      } else {
+        handleProviderError(error)
+      }
+      return false
+    } finally {
+      setIsSwapping(false)
+    }
+  }, [
+    swapData,
+    provider,
+    signer,
+    quote,
+    address,
+    chainId,
+    setIsSwapping,
+    setSwapResult,
+    sendNotification,
+    handleProviderError,
+  ])
+
+  const handleSwap = useCallback(async () => {
+    if (!swapData) {
+      console.error('Missing swap data')
+      return false
+    }
+
+    if (swapData.type === 'wrap') {
+      return handleWrap()
+    } else if (swapData.type === 'swap') {
+      if (!hasUserOperationSignature) {
+        console.error('Missing user operation signature for swap')
+        return false
+      }
+      return handleDappContractSwap()
+    } else {
+      console.error('Invalid swap type')
+      return false
+    }
+  }, [handleDappContractSwap, handleWrap, swapData, hasUserOperationSignature])
+
   return {
     handleSignature,
     handleSwap,
+    handleDappContractSwap,
     isSwapping,
     isSigning,
   }

@@ -122,6 +122,10 @@ export class UniswapV3 extends Exchange {
         return quoteRequest.swapRoute.swapSteps.length === 1
           ? QuoteFunctionName.quoteExactOutputSingle
           : QuoteFunctionName.quoteExactOutput
+
+      case SwapType.WRAP:
+      case SwapType.UNWRAP:
+        throw new Error('Unwrap is not supported for Uniswap V3')
     }
   }
 
@@ -141,6 +145,10 @@ export class UniswapV3 extends Exchange {
         return quoteResult.swapRoute.swapSteps.length === 1
           ? SwapFunctionName.exactOutputSingle
           : SwapFunctionName.exactOutput
+
+      case SwapType.WRAP:
+      case SwapType.UNWRAP:
+        throw new Error('Unwrap is not supported for Uniswap V3')
     }
   }
 

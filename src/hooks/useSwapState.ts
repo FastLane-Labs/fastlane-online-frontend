@@ -75,7 +75,7 @@ export const useSwapState = (): SwapState => {
   // External hooks and derived values
   const { chainId, address: userAddress } = useAccount()
   const { tokens } = useCurrentTokenList()
-  const { atlasAddress: spenderAddress } = useFastLaneAddresses()
+  const { atlasAddress } = useFastLaneAddresses()
   const allowanceManager = useAllowanceManager()
 
   // Derived token values
@@ -120,13 +120,28 @@ export const useSwapState = (): SwapState => {
 
   useEffect(() => {
     const checkAllowance = async () => {
-      if (!fromToken || !userAddress || !spenderAddress || !debouncedFromAmount) {
+      if (!fromToken || !userAddress || !atlasAddress || !debouncedFromAmount || !quote) {
         setHasSufficientAllowance(false)
         return
       }
-      const requiredAmount = toBigInt(debouncedFromAmount, fromToken.decimals)
+
+      let spenderAddress: string
+      let tokenToCheck: Token
+
+      if (quote.swapType === 'WRAP') {
+        spenderAddress = quote.swapRoute.swapSteps[0].tokenOut.address
+        tokenToCheck = fromToken
+      } else if (quote.swapType === 'UNWRAP') {
+        spenderAddress = quote.swapRoute.swapSteps[0].tokenIn.address
+        tokenToCheck = toToken!
+      } else {
+        spenderAddress = atlasAddress
+        tokenToCheck = fromToken
+      }
+
+      const requiredAmount = toBigInt(debouncedFromAmount, tokenToCheck.decimals)
       const isAllowanceSufficient = await allowanceManager.isSufficientAllowance(
-        fromToken,
+        tokenToCheck,
         userAddress,
         spenderAddress,
         requiredAmount
@@ -137,8 +152,10 @@ export const useSwapState = (): SwapState => {
     checkAllowance()
   }, [
     fromToken,
+    toToken,
     userAddress,
-    spenderAddress,
+    atlasAddress,
+    quote,
     debouncedFromAmount,
     allowanceManager.isSufficientAllowance,
     allowanceManager.allowanceUpdateTrigger,

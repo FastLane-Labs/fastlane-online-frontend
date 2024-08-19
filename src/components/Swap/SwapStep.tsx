@@ -51,11 +51,11 @@ const SwapStep: React.FC<SwapStepProps> = ({ step, onAction, isLoading, error, s
   }, [fromToken, toToken, fromAmount, toAmount])
 
   const minimumReceived = useMemo(() => {
-    if (swapData && toToken) {
+    if (swapData && swapData.minAmountOut && toToken) {
       return formatUnits(swapData.minAmountOut, toToken.decimals)
     }
     return '0'
-  }, [toAmount, slippage])
+  }, [toToken, swapData])
 
   const priceImpact = useMemo(() => {
     if (!quote) return null

@@ -16,6 +16,8 @@ export enum Exchange {
 export enum SwapType {
   EXACT_IN = 'EXACT_IN',
   EXACT_OUT = 'EXACT_OUT',
+  WRAP = 'WRAP',
+  UNWRAP = 'UNWRAP',
 }
 
 interface ExchangeAddresses {
@@ -86,3 +88,5 @@ export const ATLAS_GAS_SURCHARGE_PERCENTAGE = 12n
 // Constants for gas estimates for swap and solver
 export const SWAP_GAS_ESTIMATE = 350_000n
 export const SOLVER_GAS_ESTIMATE = 2_500_000n
+export const WRAP_GAS_ESTIMATE = 40_000n
+export const UNWRAP_GAS_ESTIMATE = 40_000n

@@ -16,7 +16,16 @@ export class NativeWrapper extends Exchange {
   }
 
   public static async getQuote(quoteRequest: QuoteRequest): Promise<QuoteResults | undefined> {
-    const { swapType, amount, smallAmount, swapRoute } = quoteRequest
+    const { amount, smallAmount, swapRoute } = quoteRequest
+
+    // update the swapType based on the swapRoute
+    const { isFromNative } = swapRoute
+    let swapType
+    if (isFromNative) {
+      swapType = SwapType.WRAP
+    } else {
+      swapType = SwapType.UNWRAP
+    }
 
     const createQuoteResult = (quoteAmount: bigint): QuoteResult => ({
       swapType,
@@ -46,7 +55,7 @@ export class NativeWrapper extends Exchange {
   }
 
   public static getSwapCalldataFromQuoteResult(quoteResult: QuoteResult, recipient: Address, slippage: number): Hex {
-    const { isFromNative, swapSteps } = quoteResult.swapRoute
+    const { isFromNative } = quoteResult.swapRoute
     const amount = quoteResult.amountIn
 
     if (isFromNative) {
