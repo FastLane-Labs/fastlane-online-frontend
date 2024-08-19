@@ -336,7 +336,7 @@ graph TD
     class GP globalProviderText
 ```
 
-## Atlas-RFQ Frontend Service Component Breakdown
+## RocketboostFrontend Service Component Breakdown
 
 ### GlobalProvider
 
