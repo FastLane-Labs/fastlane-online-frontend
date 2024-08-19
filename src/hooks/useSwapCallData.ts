@@ -48,20 +48,9 @@ export const useSwapCallData = (
         ) {
           return null
         }
+        console.log('quoteResult', quoteResult)
 
         const swapIntent = BaseSwapService.getInstance().getSwapIntent(quoteResult, config.slippage)
-<<<<<<< HEAD
-        const executionEnvironment = await getExecutionEnvironment(
-          atlasAddress as Address,
-          address as Address,
-          dappAddress as Address,
-          provider
-        )
-        // TODO: support reverse direction
-        quoteResult.amountOutMin = swapIntent.minAmountUserBuys
-=======
-
->>>>>>> 32598af (refactor: cache execution environment)
         const { isFromNative } = quoteResult.swapRoute
         const baselineCall = await buildBaselineCallData(quoteResult, executionEnvironment, config.slippage)
 
@@ -116,7 +105,6 @@ export const useSwapCallData = (
       atlasVerificationAddress,
       config,
       chainId,
-      executionEnvironment,
     ]
   )
 
