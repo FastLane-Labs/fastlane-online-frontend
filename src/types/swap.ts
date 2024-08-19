@@ -49,6 +49,7 @@ export interface QuoteResultWithPriceImpact extends QuoteResult {
 export interface SwapCallData {
   userOperation: UserOperation
   baselineCallData: BaselineCall
+  minAmountOut: bigint
   gasSurcharge: bigint
   gasLimit: bigint
   isSigned: boolean

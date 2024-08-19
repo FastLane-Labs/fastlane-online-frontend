@@ -1,7 +1,7 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useMemo, useState } from 'react'
 import { Token } from '@/types'
 import { ArrowRightIcon } from '@heroicons/react/24/outline'
-import { formatEther } from 'ethers'
+import { formatEther, formatUnits } from 'ethers'
 import { useEstimatedSwapFees } from '@/hooks/useEstimatedSwapFees'
 import { useSwapStateContext } from '@/context/SwapStateContext'
 import UnknownToken from '@/assets/svg/unknownToken.svg'
@@ -9,6 +9,8 @@ import { ExclamationCircleIcon } from '@heroicons/react/24/outline'
 import Image from 'next/image'
 import Confetti from 'react-confetti'
 import { useWindowSize } from 'react-use'
+import { calculateExchangeRate } from '@/utils/exchangeRate'
+import { useAppStore } from '@/store/useAppStore'
 
 interface SwapStepProps {
   step: 'approve' | 'sign' | 'swap' | 'success'
@@ -29,11 +31,35 @@ const SwapStep: React.FC<SwapStepProps> = ({ step, onAction, isLoading, error, s
     hasSufficientAllowance,
     isSwapping,
     hasUserOperationSignature,
+    swapData,
+    quote,
   } = useSwapStateContext()
 
   const { data: estimatedFees } = useEstimatedSwapFees()
   const [isExpanded, setIsExpanded] = useState(false)
   const { width, height } = useWindowSize()
+
+  const { config } = useAppStore()
+  const slippage = config.slippage
+
+  const exchangeRate = useMemo(() => {
+    if (fromToken && toToken && fromAmount && toAmount) {
+      return calculateExchangeRate(fromToken, toToken, fromAmount, toAmount)
+    }
+    return '0'
+  }, [fromToken, toToken, fromAmount, toAmount])
+
+  const minimumReceived = useMemo(() => {
+    if (swapData && toToken) {
+      return formatUnits(swapData.minAmountOut, toToken.decimals)
+    }
+    return '0'
+  }, [toAmount, slippage])
+
+  const priceImpact = useMemo(() => {
+    if (!quote) return null
+    return parseFloat(quote.priceImpact)
+  }, [quote])
 
   const toggleExpand = () => {
     setIsExpanded(!isExpanded)
@@ -128,13 +154,13 @@ const SwapStep: React.FC<SwapStepProps> = ({ step, onAction, isLoading, error, s
       <div className='flex w-full items-center justify-between'>
         <h3 className='gray-text'>Rate</h3>
         <span className='text-end text-neutral-content'>
-          1 {fromToken?.symbol} = 2.02827 {toToken?.symbol}
+          1 {fromToken?.symbol} = {exchangeRate} {toToken?.symbol}
         </span>
       </div>
 
       <div className='flex w-full items-center justify-between'>
         <h3 className='gray-text'>Slippage</h3>
-        <span className='text-end text-neutral-content'>{`0.5%`}</span>
+        <span className='text-end text-neutral-content'>{`${slippage / 100}%`}</span>
       </div>
 
       <div className='flex w-full items-center justify-between'>
@@ -163,7 +189,7 @@ const SwapStep: React.FC<SwapStepProps> = ({ step, onAction, isLoading, error, s
         className={`expandable-content flex flex-col w-full gap-2 ${isExpanded ? 'expanding expanded' : 'collapsing'}`}>
         <div className='flex w-full items-center justify-between'>
           <h3 className='gray-text'>Price impact</h3>
-          <span className='text-end text-neutral-content'>{`<$0.01`}</span>
+          <span className='text-end text-neutral-content'>{`${priceImpact?.toFixed(3)}%`}</span>
         </div>
 
         <div className='flex w-full items-center justify-between'>
@@ -171,7 +197,7 @@ const SwapStep: React.FC<SwapStepProps> = ({ step, onAction, isLoading, error, s
           <div
             className='tooltip tooltip-right'
             data-tip='Your swaps are gossipped permissionlessly to searchers who compete to give you the best price in the form of Rocketboost rebates.'>
-            <span className='text-end text-neutral-content'>{`0.00021 MATIC`}</span>
+            <span className='text-end text-neutral-content'>{`${minimumReceived} ${toToken?.symbol}`}</span>
           </div>
         </div>
       </div>

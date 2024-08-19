@@ -83,6 +83,7 @@ export const useSwapCallData = (
           baselineCall,
           gasLimit: gas,
           userOperation,
+          minAmountOut: swapIntent.minAmountUserBuys,
           isSigned: false,
           gasSurcharge: getAtlasGasSurcharge(gas * maxFeePerGas),
         }
