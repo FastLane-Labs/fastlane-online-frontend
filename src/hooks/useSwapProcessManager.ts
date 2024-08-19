@@ -140,7 +140,7 @@ export const useSwapProcessManager = () => {
 
   useEffect(() => {
     updateQuoteLoading()
-  }, [updateQuoteLoading])
+  }, [updateQuoteLoading, swapDataLoading])
 
   useEffect(() => {
     updateQuoteResult()

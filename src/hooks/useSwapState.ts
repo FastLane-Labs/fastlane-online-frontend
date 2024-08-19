@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback, useMemo } from 'react'
-import { QuoteResultWithPriceImpact, SwapCallData, SwapDirection, SwapResult, Token } from '@/types'
+import { QuoteResultWithPriceImpact, SwapCallData, SwapDirection, SwapMode, SwapResult, Token } from '@/types'
 import { useCurrentTokenList } from './useTokenList'
 import { useAccount } from 'wagmi'
 import { toBigInt } from '@/utils/format'
@@ -32,6 +32,7 @@ export interface SwapState {
   // Swap Data
   swapData: SwapCallData | null
   swapResult: SwapResult | null
+  swapMode: SwapMode | 'swap'
 
   // Allowance State
   hasSufficientAllowance: boolean
@@ -118,6 +119,15 @@ export const useSwapState = (): SwapState => {
   // Allowance state
   const [hasSufficientAllowance, setHasSufficientAllowance] = useState<boolean>(false)
 
+  const swapMode = useMemo(() => {
+    if (quote?.swapType === 'WRAP') {
+      return 'wrap'
+    } else if (quote?.swapType === 'UNWRAP') {
+      return 'unwrap'
+    }
+    return 'swap'
+  }, [quote?.swapType])
+
   useEffect(() => {
     const checkAllowance = async () => {
       if (!fromToken || !userAddress || !atlasAddress || !debouncedFromAmount || !quote) {
@@ -139,6 +149,12 @@ export const useSwapState = (): SwapState => {
         tokenToCheck = fromToken
       }
 
+      // Skip allowance check for native token
+      if (tokenToCheck.address === nativeEvmTokenAddress) {
+        setHasSufficientAllowance(true)
+        return
+      }
+
       const requiredAmount = toBigInt(debouncedFromAmount, tokenToCheck.decimals)
       const isAllowanceSufficient = await allowanceManager.isSufficientAllowance(
         tokenToCheck,
@@ -157,6 +173,7 @@ export const useSwapState = (): SwapState => {
     atlasAddress,
     quote,
     debouncedFromAmount,
+    allowanceManager,
     allowanceManager.isSufficientAllowance,
     allowanceManager.allowanceUpdateTrigger,
   ])
@@ -243,6 +260,7 @@ export const useSwapState = (): SwapState => {
     swapData,
     hasUserOperationSignature,
     swapResult,
+    swapMode,
 
     // Allowance State
     hasSufficientAllowance,

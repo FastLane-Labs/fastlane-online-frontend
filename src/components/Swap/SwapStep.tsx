@@ -11,6 +11,7 @@ import Confetti from 'react-confetti'
 import { useWindowSize } from 'react-use'
 import { calculateExchangeRate } from '@/utils/exchangeRate'
 import { useAppStore } from '@/store/useAppStore'
+import { capitalize } from '@/utils/helpers/formatTools'
 
 interface SwapStepProps {
   step: 'approve' | 'sign' | 'swap' | 'success'
@@ -34,6 +35,7 @@ const SwapStep: React.FC<SwapStepProps> = ({ step, onAction, isLoading, error, s
     swapData,
     quote,
     swapResult,
+    swapMode,
   } = useSwapStateContext()
 
   const { data: estimatedFees } = useEstimatedSwapFees()
@@ -69,12 +71,14 @@ const SwapStep: React.FC<SwapStepProps> = ({ step, onAction, isLoading, error, s
   useEffect(() => {
     if (!hasSufficientAllowance) {
       setStep('approve')
+    } else if (swapMode === 'wrap' || swapMode === 'unwrap') {
+      setStep('swap')
     } else if (!hasUserOperationSignature) {
       setStep('sign')
     } else {
       setStep('swap')
     }
-  }, [hasSufficientAllowance, hasUserOperationSignature, setStep])
+  }, [hasSufficientAllowance, hasUserOperationSignature, setStep, swapMode])
 
   const renderTokenInfo = (token: Token | null | undefined, amount: string, label: string) => (
     <div className='items-end justify-between flex w-full gap-3'>
@@ -228,7 +232,7 @@ const SwapStep: React.FC<SwapStepProps> = ({ step, onAction, isLoading, error, s
         `Approve ${fromToken?.symbol} for spending`
       )
       action = 'approve'
-    } else if (step === 'sign') {
+    } else if (step === 'sign' && swapMode !== 'wrap') {
       buttonText = isLoading ? (
         <span className='flex items-center justify-center'>
           <svg className='animate-spin h-5 w-5 mr-3' viewBox='0 0 24 24'>
@@ -245,7 +249,7 @@ const SwapStep: React.FC<SwapStepProps> = ({ step, onAction, isLoading, error, s
       )
       action = 'sign'
     } else if (step === 'swap') {
-      buttonText = 'Confirm Swap'
+      buttonText = `Confirm ${capitalize(swapMode)}`
       action = 'swap'
     } else if (step === 'success') {
       buttonText = 'View on Explorer'
@@ -274,7 +278,7 @@ const SwapStep: React.FC<SwapStepProps> = ({ step, onAction, isLoading, error, s
           <div className='flex flex-grow flex-col w-full h-full justify-center items-center'>
             <div className='text-center mb-2'>
               <div className='w-16 h-16 rounded-full border-4 border-gray-300 border-t-pink-500 animate-spin mx-auto mb-4'></div>
-              <h2 className='text-lg font-semibold'>Confirm swap</h2>
+              <h2 className='text-lg font-semibold'>Confirm {capitalize(swapMode)}</h2>
             </div>
             {renderSwapDetailsCompact()}
           </div>
@@ -289,10 +293,18 @@ const SwapStep: React.FC<SwapStepProps> = ({ step, onAction, isLoading, error, s
           </div>
         </>
       )
-    } else if (step === 'sign' || step === 'swap') {
+    } else if (step === 'sign' && swapMode !== 'wrap' && swapMode !== 'unwrap') {
       return (
         <>
-          <h2 className='text-lg font-semibold mb-4 text-center'>{step === 'sign' ? 'Sign Swap' : 'Confirm Swap'}</h2>
+          <h2 className='text-lg font-semibold mb-4 text-center'>Sign Swap</h2>
+          {renderSwapDetails()}
+          {renderShowMore()}
+        </>
+      )
+    } else if (step === 'swap') {
+      return (
+        <>
+          <h2 className='text-lg font-semibold mb-4 text-center'>Confirm {capitalize(swapMode)}</h2>
           {renderSwapDetails()}
           {renderShowMore()}
         </>

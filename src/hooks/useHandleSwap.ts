@@ -16,6 +16,7 @@ import { TokenProvider } from '@/providers'
 import { useErrorNotification } from './useErrorNotification'
 import { parseTransactionReceipt } from '@/utils/parseTransactionReceipt'
 import { shortFormat } from '@/utils/format'
+import { capitalize } from '@/utils/helpers/formatTools'
 
 export const useHandleSwap = () => {
   const { signer, provider } = useEthersProviderContext()
@@ -27,11 +28,11 @@ export const useHandleSwap = () => {
     isSwapping,
     setIsSwapping,
     isSigning,
-
     hasUserOperationSignature,
     setIsSigning,
     setSwapDataSigned,
     setSwapResult,
+    swapMode,
   } = useSwapStateContext()
 
   const { atlasAddress, dappAddress, atlasVerificationAddress } = useFastLaneAddresses()
@@ -249,7 +250,7 @@ export const useHandleSwap = () => {
       const feeData = await getFeeData(provider)
       if (!feeData.maxFeePerGas || !feeData.gasPrice) {
         console.error('Missing required fee data for wrap')
-        sendNotification('Wrap failed: Missing fee data', { type: 'error' })
+        sendNotification(`${capitalize(swapMode)} failed: Missing fee data`, { type: 'error' })
         return false
       }
 
@@ -279,7 +280,7 @@ export const useHandleSwap = () => {
 
       transactionParams.txHash = tx.hash
 
-      sendNotification(`Submitting ${fromToken.symbol} ${swapData.type}`, {
+      sendNotification(`Submitting ${fromToken.symbol} Token ${swapMode}`, {
         type: 'info',
         href: `${baseUrl}tx/${tx.hash}`,
         transactionParams: transactionParams,
@@ -337,24 +338,24 @@ export const useHandleSwap = () => {
   ])
 
   const handleSwap = useCallback(async () => {
-    if (!swapData) {
-      console.error('Missing swap data')
+    if (!swapData || !swapMode) {
+      console.error('Missing swap data or swap mode')
       return false
     }
 
-    if (swapData.type === 'wrap') {
+    if (swapMode === 'wrap' || swapMode === 'unwrap') {
       return handleWrap()
-    } else if (swapData.type === 'swap') {
+    } else if (swapMode === 'swap') {
       if (!hasUserOperationSignature) {
         console.error('Missing user operation signature for swap')
         return false
       }
       return handleDappContractSwap()
     } else {
-      console.error('Invalid swap type')
+      console.error('Invalid swap mode')
       return false
     }
-  }, [handleDappContractSwap, handleWrap, swapData, hasUserOperationSignature])
+  }, [handleDappContractSwap, handleWrap, swapData, swapMode, hasUserOperationSignature])
 
   return {
     handleSignature,

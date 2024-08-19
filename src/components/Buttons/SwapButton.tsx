@@ -1,5 +1,5 @@
 'use client'
-import React, { useState, useEffect, useCallback, useMemo } from 'react'
+import React, { useState, useEffect, useCallback, useMemo, useRef } from 'react'
 import { useChainModal, useConnectModal } from '@rainbow-me/rainbowkit'
 import { useAccount } from 'wagmi'
 import { useBalance } from '@/hooks/useBalance'
@@ -8,10 +8,10 @@ import { toBigInt } from '@/utils/format'
 import { SANCTIONED_ADDRESSES } from '@/constants'
 import SwapModal from '@/components/Modals/SwapModal'
 import { SUPPORTED_CHAIN_IDS } from '@/constants'
-import { useAllowanceManager } from '@/hooks/useAllowanceManager'
 import SwapDetails from '@/components/Buttons/SwapDetails'
 import { useHandleSwap } from '@/hooks/useHandleSwap'
 import { useFastLaneAddresses } from '@/hooks/useFastLaneAddresses'
+import { capitalize } from '@/utils/helpers/formatTools'
 
 interface SwapButtonProps {
   handleSwap: () => Promise<boolean>
@@ -30,9 +30,9 @@ const SwapButton: React.FC<SwapButtonProps> = ({ handleSwap, isLoading }) => {
     setSwapDataSigned,
     swapData,
     setAllowQuoteUpdate,
-    hasSufficientAllowance,
     updateAllowance,
     checkAllowance,
+    swapMode, // Add this line to get the swapMode
   } = useSwapStateContext()
   const { address: userAddress, status, isConnected, chainId } = useAccount()
   const [isSupportedChain, setIsSupportedChain] = useState(false)
@@ -105,7 +105,8 @@ const SwapButton: React.FC<SwapButtonProps> = ({ handleSwap, isLoading }) => {
   }, [fromToken, toToken, fromAmount, hasSufficientBalance])
 
   const isMissingSwapData = useMemo(() => {
-    return swapData === null || swapData === undefined
+    const result = swapData === null || swapData === undefined
+    return result
   }, [swapData])
 
   const isDisabled = useMemo(() => {
@@ -141,8 +142,14 @@ const SwapButton: React.FC<SwapButtonProps> = ({ handleSwap, isLoading }) => {
     if (!fromToken || !toToken) return 'Select Tokens'
     if (!fromAmount) return 'Enter an amount'
     if (!hasSufficientBalance) return `Insufficient ${fromToken.symbol} balance`
-    if (localLoading) return <>{LOADING_SPINNER} Initiating swap</>
-    return 'Swap'
+    if (localLoading)
+      return (
+        <>
+          {LOADING_SPINNER} Initiating {capitalize(swapMode)}
+        </>
+      )
+
+    return capitalize(swapMode)
   }, [
     userBlocked,
     isConnected,
@@ -154,6 +161,7 @@ const SwapButton: React.FC<SwapButtonProps> = ({ handleSwap, isLoading }) => {
     fromAmount,
     hasSufficientBalance,
     localLoading,
+    swapMode,
   ])
 
   const handleButtonClick = useCallback(() => {
@@ -163,7 +171,7 @@ const SwapButton: React.FC<SwapButtonProps> = ({ handleSwap, isLoading }) => {
       openChainModal?.()
     } else if (!isDisabled) {
       setIsSwapModalOpen(true)
-      setAllowQuoteUpdate(false) // disable quote update to prevent fetching new quote
+      setAllowQuoteUpdate(false)
     }
   }, [
     isConnected,
