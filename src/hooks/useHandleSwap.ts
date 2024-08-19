@@ -163,9 +163,8 @@ export const useHandleSwap = () => {
             href: `${baseUrl}tx/${tx.hash}`,
             transactionHash: tx.hash,
             transactionStatus: 'confirmed',
-            boosted: true,
+            boosted: false,
             receivedAmount: receivedAmount.toString(),
-            boostedAmount: '111111111111111',
           }
         )
       }
