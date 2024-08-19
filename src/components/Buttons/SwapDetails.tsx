@@ -59,8 +59,8 @@ const SwapDetails = () => {
   return (
     <div className='flex flex-col w-full px-3 justify-start text-sm pt-3 gap-2'>
       <button className='flex justify-between items-center' onClick={toggleExpand}>
-        <span className={`text-end text-neutral-content ${exchangeRate === '0' ? 'invisible' : 'visible'}`}>
-          1 {fromToken?.symbol} = {exchangeRate} {toToken?.symbol}
+        <span className={`text-neutral-content text-nowrap ${exchangeRate === '0' ? 'invisible' : 'visible'}`}>
+          1 {fromToken?.symbol} = {exchangeRate.slice(0, 12)} {toToken?.symbol}
         </span>
         <div className='flex items-center justify-end gap-2'>
           {!isExpanded && exchangeRate !== '0' && (
@@ -73,7 +73,7 @@ const SwapDetails = () => {
                   fillRule='evenodd'
                 />
               </svg>
-              <span className='text-end gray-text'>{formattedNetworkCost}</span>
+              <span className='text-end gray-text text-nowrap'>{formattedNetworkCost}</span>
             </div>
           )}
           <div className={`transform transition-transform duration-300 ${isExpanded ? 'rotate-180' : 'rotate-0'}`}>
