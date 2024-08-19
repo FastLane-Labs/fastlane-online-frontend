@@ -98,59 +98,62 @@ export function ActivityItem({ transaction }: ActivityItemProps) {
           </div>
         )}
       </div>
-      <div className='flex-1 min-w-0'>
-        <div className='flex justify-between items-center'>
-          <span className='text-sm font-medium text-gray-200'>{getStatusText()}</span>
-        </div>
-        <p className='text-xs text-gray-400 mt-1'>
-          {transaction.routeType === 'approval' ? (
-            transaction.fromToken.symbol
-          ) : (
-            <>
-              {shortFormat(BigInt(transaction.fromAmount), transaction.fromToken.decimals, 2)}{' '}
-              {transaction.fromToken.symbol}
-              {transaction.toToken && transaction.toAmount && (
-                <>
-                  {' to '}
-                  {shortFormat(BigInt(transaction.toAmount), transaction.toToken.decimals, 2)}{' '}
-                  {transaction.toToken.symbol}
-                </>
-              )}
-            </>
-          )}
-        </p>
-      </div>
-      <div className='flex flex-col items-end'>
-        <div className='flex items-center gap-1'>
-          {transaction.boosted && transaction.toToken && (
-            <div className='tooltip tooltip-left' data-tip={getBoostedTooltipContent()}>
-              <div className='flex items-center space-x-1'>
-                <span className='text-xs text-gray-400'>
-                  {transaction.boostedAmount
-                    ? shortFormat(BigInt(transaction.boostedAmount), transaction.toToken.decimals, 4)
-                    : '0'}{' '}
-                  {transaction.toToken.symbol}
-                </span>
-                <span className='text-xs bg-gradient-to-br from-primary-content to-secondary bg-clip-text text-transparent'>
-                  Boosted
-                </span>
-                <Image
-                  src='/rocketboost-logo-extracted.png'
-                  alt='Boosted'
-                  width={10}
-                  height={10}
-                  className='opacity-70'
-                />
+      <div className='flex flex-col gap-1 w-full'>
+        <div className='w-full flex-1 flex justify-between min-w-0'>
+          <div className='flex justify-between items-center'>
+            <span className='text-sm font-medium text-gray-200'>{getStatusText()}</span>
+          </div>
+          <div className='flex items-center gap-1'>
+            {transaction.boosted && transaction.toToken && (
+              <div className='tooltip tooltip-left' data-tip={getBoostedTooltipContent()}>
+                <div className='flex items-center space-x-1'>
+                  <span className='text-xs text-gray-400'>
+                    {transaction.boostedAmount
+                      ? shortFormat(BigInt(transaction.boostedAmount), transaction.toToken.decimals, 4)
+                      : '0'}{' '}
+                    {transaction.toToken.symbol}
+                  </span>
+                  <span className='text-xs bg-gradient-to-br from-primary-content to-secondary bg-clip-text text-transparent'>
+                    Boosted
+                  </span>
+                  <Image
+                    src='/rocketboost-logo-extracted.png'
+                    alt='Boosted'
+                    width={10}
+                    height={10}
+                    className='opacity-70'
+                  />
+                </div>
               </div>
-            </div>
-          )}
-          <div className='flex-shrink-0'>{getStatusIcon()}</div>
+            )}
+            <div className='flex-shrink-0'>{getStatusIcon()}</div>
+          </div>
         </div>
-        {transaction.timestamp && (
-          <time className='text-xs text-gray-400' suppressHydrationWarning>
-            {formatRelativeTime(transaction.timestamp)}
-          </time>
-        )}
+
+        <div className='flex justify-between'>
+          <p className='text-xs text-gray-400 mt-1 text-nowrap md:max-w-60 overflow-x-auto'>
+            {transaction.routeType === 'approval' ? (
+              transaction.fromToken.symbol
+            ) : (
+              <>
+                {shortFormat(BigInt(transaction.fromAmount), transaction.fromToken.decimals, 2)}{' '}
+                {transaction.fromToken.symbol}
+                {transaction.toToken && transaction.toAmount && (
+                  <>
+                    {' to '}
+                    {shortFormat(BigInt(transaction.toAmount), transaction.toToken.decimals, 2)}{' '}
+                    {transaction.toToken.symbol}
+                  </>
+                )}
+              </>
+            )}
+          </p>
+          {transaction.timestamp && (
+            <time className='text-xs text-gray-400' suppressHydrationWarning>
+              {formatRelativeTime(transaction.timestamp)}
+            </time>
+          )}
+        </div>
       </div>
     </article>
   )
