@@ -1,16 +1,16 @@
-# BoomerSwap Frontend Overview
+# Atlas DRFQ and Rocketboost Frontend Overview
 
-BoomerSwap Frontend is an implementation of the first fully decentralised and on-chain intent-based Request for Quote (RFQ) system. Built with React and the Atlas SDK, this frontend leverages the Atlas framework to provide a seamless and efficient token swapping experience on EVM-compatible blockchain networks with a public mempool.
+The Atlas DRFQ module is an implementation of the first on-chain intent-based Request for Quote (RFQ) system, and the Rocketboost frontend (rocketboost.me) is an MIT-open sourced application which provides access to that onchain RFQ. Built with React and the Atlas SDK, this frontend leverages the Atlas Protocol to provide a seamless and efficient token swapping experience on EVM-compatible blockchain networks, starting with Polygon PoS.
 
-## Atlas Framework
+## Atlas Protocol
 
-Atlas is a permissionless and modular smart contract framework for Execution Abstraction. It provides applications and frontends with an auction system in which Solvers compete to provide optimal solutions for user intents or MEV redistribution. A User Operation is collected by the app's frontend via the Atlas SDK and sent to an app-designated bundler, which combines it with Solver Operations into a single transaction.
+Atlas is a permissionless and modular smart contract framework for Execution Abstraction. It provides applications and frontends with an auction system in which Solvers compete to provide optimal solutions for user intents or MEV redistribution. A User Operation is collected by the app's frontend via the Atlas SDK and sent to an app-designated bundler, which combines it with Solver Operations into a single transaction. The Atlas DRFQ is an implementation of an Atlas "module" which encapsulates application-specific auction logic on top of the core Atlas Protocol. To learn more about Atlas, check out the core repository (https://github.com/FastLane-Labs/atlas) and our alpha documenation (https://fastlane-labs.gitbook.io/atlas-draft). The rest of this document will detail how the Atlas DRFQ module and Rocketboost frontend work. 
 
 ## Key Features
 
-1. **Intent-Based Swaps**: Utilizes Atlas's auction system to find optimal solutions for user swap intents.
+1. **Intent-Based Swaps**: Utilizes Atlas's auction system to find optimal solutions for user swap intents, in this case, with zero dependencies on offchain infra.
 
-2. **Solver Competition**: Leverages multiple Solvers to compete in providing the best execution for user operations.
+2. **Solver Competition**: Leverages multiple Solvers that permissionlessly compete in providing the best execution for user intents. 
 
 3. **User-Friendly Interface**: Intuitive design allowing users to easily input swap intents and execute trades.
 
@@ -34,7 +34,7 @@ Atlas is a permissionless and modular smart contract framework for Execution Abs
 - **State Management**: Employs efficient state management techniques to handle complex application states and data flow.
 - **Theming Support**: Includes light and dark mode themes for user comfort in various environments.
 
-Atlas-RFQ Frontend aims to showcase the power of intent-based trading using the Atlas framework, providing a seamless, efficient, and secure token swapping experience that leverages competition among Solvers to achieve optimal execution for users.
+This application aims to showcase the power of intent-based trading using the Atlas framework, providing a seamless, efficient, and secure token swapping experience that leverages competition among Solvers to achieve optimal execution for users.
 
 ## System Components
 
@@ -78,7 +78,7 @@ sequenceDiagram
 
 ```mermaid
 sequenceDiagram
-    title FastLane Online Onchain Flow
+    title Atlas DRFQ Onchain Flow
 
     participant UserEOA
     participant SolverEOA
@@ -90,7 +90,7 @@ sequenceDiagram
     Note over UserEOA,ExEnv: Tx 1: User Permits Atlas
 
     autonumber
-    UserEOA->>+FastLaneControl: permit token to be sold
+    UserEOA->>+Atlas: permit token to be sold
 
     Note over UserEOA,ExEnv: Tx 2: Solver frontruns user to register their solution
     autonumber
