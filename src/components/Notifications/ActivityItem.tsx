@@ -112,22 +112,30 @@ export function ActivityItem({ transaction }: ActivityItemProps) {
         </p>
       </div>
       <div className='flex flex-col items-end'>
-        <div className='flex gap-2'>
-          {transaction.boosted && (
+        <div className='flex gap-2 items-center'>
+          {transaction.boosted && transaction.toToken && (
             <div className='flex items-center space-x-1'>
-              <span className='text-sm bg-gradient-to-br from-primary-content to-secondary bg-clip-text text-transparent mt-px'>
-                Boosted
+              <span className='text-xs text-gray-400'>
+                {transaction.boostedAmount
+                  ? shortFormat(BigInt(transaction.boostedAmount), transaction.toToken.decimals, 4)
+                  : '0'}{' '}
+                {transaction.toToken.symbol}
               </span>
-              <Image
-                src='/rocketboost-logo-extracted.png'
-                alt='Boosted'
-                width={12}
-                height={12}
-                className='opacity-70'
-              />
+              <div className='flex items-center'>
+                <span className='text-xs bg-gradient-to-br from-primary-content to-secondary bg-clip-text text-transparent'>
+                  Boosted
+                </span>
+                <Image
+                  src='/rocketboost-logo-extracted.png'
+                  alt='Boosted'
+                  width={12}
+                  height={12}
+                  className='opacity-70 ml-1'
+                />
+              </div>
             </div>
           )}
-          <div className='flex-shrink-0 flex justify-end items-end'>{getStatusIcon()}</div>
+          <div className='flex-shrink-0 flex justify-end items-center'>{getStatusIcon()}</div>
         </div>
         {transaction.timestamp && (
           <time className='text-xs text-gray-400' suppressHydrationWarning>
