@@ -48,12 +48,12 @@ export function NotificationsDrawer() {
             <ChevronDoubleRightIcon className='h-5 w-5' />
           </div>
           {/* drawer */}
-          <div className='w-full md:w-96 min-h-full bg-[#0f0f0f] flex flex-col z-10'>
+          <div className='w-full md:w-96 h-full bg-[#0f0f0f] flex flex-col z-10'>
             <header className='pt-4 px-4 flex items-center justify-between'>
               <h2 className='text-xl font-semibold'>Activity</h2>
             </header>
 
-            <main className='flex-grow overflow-y-auto p-4'>
+            <main className='flex-grow overflow-y-auto py-4 px-[17px]'>
               {sortedTransactions.length === 0 ? (
                 <>
                   <div className='text-white items-center flex-col flex-wrap justify-center flex w-full h-full'>
