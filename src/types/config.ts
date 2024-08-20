@@ -10,4 +10,5 @@ export interface AppConfig {
   titles?: Record<Routes, string> // Header titles
   favTokens?: Token[]
   defaultTokens?: Token[]
+  tokenApproval: 'exact' | 'max' // Add this line
 }

@@ -73,6 +73,7 @@ export const defaultValues: AppConfigState = {
       warning: 3,
       critical: 5,
     },
+    tokenApproval: 'exact',
   },
 }
 

@@ -11,6 +11,7 @@ import { useAccount } from 'wagmi'
 import { useNotifications } from '@/context/Notifications'
 import { getBlockExplorerUrl } from '@/utils/getBlockExplorerUrl'
 import { useErrorNotification } from './useErrorNotification'
+import { useAppStore } from '@/store/useAppStore'
 
 export const useAllowanceManager = () => {
   const { provider, signer } = useEthersProviderContext()
@@ -18,6 +19,7 @@ export const useAllowanceManager = () => {
   const [allowanceUpdateTrigger, setAllowanceUpdateTrigger] = useState(0)
   const { sendNotification } = useNotifications()
   const { handleProviderError } = useErrorNotification()
+  const { config } = useAppStore()
   const queryClient = useQueryClient()
 
   const checkAllowance = useCallback(
@@ -48,7 +50,8 @@ export const useAllowanceManager = () => {
 
       try {
         // Start the approval process
-        const tx = await approveErc20Token(signer, token.address, spenderAddress, amount, true)
+        const infiniteApproval = config.tokenApproval === 'max'
+        const tx = await approveErc20Token(signer, token.address, spenderAddress, amount, infiniteApproval)
 
         const baseUrl = getBlockExplorerUrl(chainId)
 

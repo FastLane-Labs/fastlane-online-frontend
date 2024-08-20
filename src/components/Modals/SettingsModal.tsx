@@ -13,11 +13,13 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ isVisible, onClose }) => 
   const [localSlippage, setLocalSlippage] = useState<number>(config.slippage)
   const [customSlippage, setCustomSlippage] = useState<string>('')
   const [localDeadline, setLocalDeadline] = useState<number | undefined>(config.deadline)
+  const [localTokenApproval, setLocalTokenApproval] = useState<'exact' | 'max'>(config.tokenApproval)
 
   useEffect(() => {
     setLocalSlippage(config.slippage)
     setLocalDeadline(config.deadline)
     setCustomSlippage('')
+    setLocalTokenApproval(config.tokenApproval)
   }, [config, isVisible])
 
   const handleSlippageChange = useCallback((basisPoints: number) => {
@@ -41,6 +43,10 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ isVisible, onClose }) => 
     const deadline = parseInt(value)
     setLocalDeadline(isNaN(deadline) ? undefined : deadline)
   }, [])
+
+  const handleTokenApprovalChange = () => {
+    setLocalTokenApproval((prev) => (prev === 'exact' ? 'max' : 'exact'))
+  }
 
   const slippagePercent = useMemo(() => {
     if (customSlippage) {
@@ -72,6 +78,7 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ isVisible, onClose }) => 
       updateConfig({
         slippage: localSlippage,
         deadline: localDeadline,
+        tokenApproval: localTokenApproval,
       })
       onClose()
     }
@@ -138,6 +145,32 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ isVisible, onClose }) => 
           <span className='ml-2'>minutes</span>
         </div>
       </div>
+
+      {/* Token Approval */}
+      <div className='mt-4'>
+        <h1 className='mb-2 text-sm'>Token Approval</h1>
+        <div className='flex items-center justify-between'>
+          <span className='text-sm'>Allow Infinite approval</span>
+          <button
+            onClick={handleTokenApprovalChange}
+            className={`relative inline-flex h-5 w-9 items-center rounded-full ${
+              localTokenApproval === 'max' ? 'bg-secondary' : 'bg-gray-700'
+            }`}>
+            <span className='sr-only'>Allow Infinite approval</span>
+            <span
+              className={`inline-block h-3 w-3 transform rounded-full bg-white transition ${
+                localTokenApproval === 'max' ? 'translate-x-5' : 'translate-x-1'
+              }`}
+            />
+          </button>
+        </div>
+        <p className='mt-1 text-xs text-gray-400'>
+          {localTokenApproval === 'max'
+            ? 'Lower gas fees, fewer transactions'
+            : 'Higher security, approve per transaction'}
+        </p>
+      </div>
+
       <button
         onClick={handleSave}
         className={`btn ${isSaveDisabled ? 'btn-disabled opacity-50 cursor-not-allowed' : ''}`}
