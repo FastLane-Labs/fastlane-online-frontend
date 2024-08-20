@@ -6,12 +6,12 @@ import { ChevronDownIcon } from '@heroicons/react/20/solid'
 import { calculateExchangeRate } from '@/utils/exchangeRate'
 import { useAppStore } from '@/store/useAppStore'
 import { useEstimatedSwapFees } from '@/hooks/useEstimatedSwapFees'
-import { formatUnits, formatEther } from 'ethers'
+import { formatEther } from 'ethers'
 import { useTokenUsdPrice } from '@/hooks/useTokenUsdPrice'
-import { formatBalanceToFixedDecimal, shortFormat } from '@/utils/format'
+import { shortFormat } from '@/utils/format'
 
 const SwapDetails = () => {
-  const { fromToken, toToken, fromAmount, toAmount, quote, nativeToken } = useSwapStateContext()
+  const { fromToken, toToken, fromAmount, toAmount, quote } = useSwapStateContext()
   const { config } = useAppStore()
   const [isExpanded, setIsExpanded] = useState(false)
   const [showFeeInUsd, setShowFeeInUsd] = useState(false)
