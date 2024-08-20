@@ -64,7 +64,7 @@ const SwapModal: React.FC<SwapModalProps> = ({ isVisible, onClose, onSwap, onApp
             }
             break
         }
-        if (!success) throw new Error(`${swapMode} failed`)
+        //if (!success) throw new Error(`${swapMode} failed`)
       } catch (err) {
         setError(err instanceof Error ? err : new Error('An unknown error occurred'))
         // error notifications can also be created here instead of in the useEffect
@@ -82,7 +82,10 @@ const SwapModal: React.FC<SwapModalProps> = ({ isVisible, onClose, onSwap, onApp
     if (step === 'success') {
       setStep('approve')
       setSwapData(null)
+      setError(null)
       setHasUserOperationSignature(false)
+    } else {
+      setError(null)
     }
     onClose()
   }, [step, onClose, setSwapData, setHasUserOperationSignature])
