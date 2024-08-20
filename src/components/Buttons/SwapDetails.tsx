@@ -64,7 +64,7 @@ const SwapDetails = () => {
         </span>
         <div className='flex items-center justify-end gap-2'>
           {!isExpanded && exchangeRate !== '0' && (
-            <div className='flex items-center justify-start gap-1 gray-text'>
+            <div className='hidden sm:flex items-center justify-start gap-1 gray-text'>
               <svg className='w-4 h-4' fill='none' height='24' viewBox='0 0 24 24' xmlns='http://www.w3.org/2000/svg'>
                 <path
                   clipRule='evenodd'
