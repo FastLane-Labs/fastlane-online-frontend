@@ -6,12 +6,12 @@ import { ChevronDownIcon } from '@heroicons/react/20/solid'
 import { calculateExchangeRate } from '@/utils/exchangeRate'
 import { useAppStore } from '@/store/useAppStore'
 import { useEstimatedSwapFees } from '@/hooks/useEstimatedSwapFees'
-import { formatUnits } from 'ethers'
+import { formatUnits, formatEther } from 'ethers'
 import { useTokenUsdPrice } from '@/hooks/useTokenUsdPrice'
 import { formatBalanceToFixedDecimal, shortFormat } from '@/utils/format'
 
 const SwapDetails = () => {
-  const { fromToken, toToken, fromAmount, toAmount, quote } = useSwapStateContext()
+  const { fromToken, toToken, fromAmount, toAmount, quote, nativeToken } = useSwapStateContext()
   const { config } = useAppStore()
   const [isExpanded, setIsExpanded] = useState(false)
   const [showFeeInUsd, setShowFeeInUsd] = useState(false)
@@ -39,15 +39,14 @@ const SwapDetails = () => {
   }
 
   const formattedNetworkCost = useMemo(() => {
-    if (exchangeRate === '0') return '0 MATIC'
-    if (!estimatedFees || !fromToken) return 'N/A'
-    const totalFees = formatUnits(estimatedFees.totalFeesInWei, fromToken.decimals)
-    const formattedFees = formatBalanceToFixedDecimal(totalFees, 6)
+    if (exchangeRate === '0') return '0'
+    const totalFees = estimatedFees ? parseFloat(formatEther(estimatedFees.totalFeesInWei)) : 0
+    const formattedNetworkCost = totalFees.toFixed(6)
     if (showFeeInUsd && fromTokenUsdPrice) {
-      const usdFees = parseFloat(formattedFees) * fromTokenUsdPrice
-      return `$${usdFees.toFixed(4)}`
+      const usdFees = totalFees * fromTokenUsdPrice
+      return usdFees.toFixed(4)
     }
-    return `${formattedFees} MATIC`
+    return formattedNetworkCost
   }, [estimatedFees, fromToken, showFeeInUsd, fromTokenUsdPrice, exchangeRate])
 
   const minimumReceived = useMemo(() => {
