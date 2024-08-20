@@ -44,7 +44,7 @@ const SwapDetails = () => {
     const formattedNetworkCost = totalFees.toFixed(6)
     if (showFeeInUsd && nativeTokenUsdPrice) {
       const usdFees = totalFees * nativeTokenUsdPrice
-      return usdFees.toFixed(4)
+      return `$${usdFees.toFixed(4)}`
     }
     return formattedNetworkCost
   }, [estimatedFees, fromToken, showFeeInUsd, nativeTokenUsdPrice, exchangeRate])
