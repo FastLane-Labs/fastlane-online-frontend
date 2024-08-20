@@ -164,7 +164,7 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ isVisible, onClose }) => 
             />
           </button>
         </div>
-        <p className='mt-1 text-xs text-gray-400'>
+        <p className='mt-1 mb-4 text-xs gray-text'>
           {localTokenApproval === 'max'
             ? 'Lower gas fees, fewer transactions'
             : 'Higher security, approve per transaction'}
