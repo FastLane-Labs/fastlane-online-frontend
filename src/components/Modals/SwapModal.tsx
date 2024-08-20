@@ -3,7 +3,8 @@ import ModalWrapper from '@/components/Wrappers/ModalWrapper'
 import SwapStep from '@/components/Swap/SwapStep'
 import { useSwapStateContext } from '@/context/SwapStateContext'
 import { getBlockExplorerUrl } from '@/utils/getBlockExplorerUrl'
-// import { useErrorNotification } from '@/hooks/useErrorNotification'
+import { useErrorNotification } from '@/hooks/useErrorNotification'
+import { capitalize } from '@/utils/helpers/formatTools'
 
 interface SwapModalProps {
   isVisible: boolean
@@ -28,10 +29,8 @@ const SwapModal: React.FC<SwapModalProps> = ({ isVisible, onClose, onSwap, onApp
     swapResult,
     setSwapData,
     setHasUserOperationSignature,
+    swapMode,
   } = useSwapStateContext()
-
-  // error notifications
-  // useErrorNotification(error)
 
   useEffect(() => {
     if (swapResult?.transaction?.txHash) {
@@ -65,7 +64,7 @@ const SwapModal: React.FC<SwapModalProps> = ({ isVisible, onClose, onSwap, onApp
             }
             break
         }
-        if (!success) throw new Error(`${action} failed`)
+        if (!success) throw new Error(`${swapMode} failed`)
       } catch (err) {
         setError(err instanceof Error ? err : new Error('An unknown error occurred'))
         // error notifications can also be created here instead of in the useEffect

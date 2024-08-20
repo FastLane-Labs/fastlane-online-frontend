@@ -40,7 +40,6 @@ const SwapStep: React.FC<SwapStepProps> = ({ step, onAction, isLoading, error, s
 
   const { data: estimatedFees } = useEstimatedSwapFees()
   const [isExpanded, setIsExpanded] = useState(false)
-  const { width, height } = useWindowSize()
 
   const { config } = useAppStore()
   const slippage = config.slippage
