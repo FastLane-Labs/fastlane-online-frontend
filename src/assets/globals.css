@@ -44,7 +44,7 @@ input[type='number']::-webkit-inner-spin-button {
   border: 1px solid !important;
   height: 2.5rem /* 32px */;
   min-height: 2rem /* 32px */;
-  @apply bg-transparent border-accent rounded-xl text-neutral-content hover:shadow-accent-content  !important;
+  @apply bg-transparent border-accent rounded-xl text-white hover:shadow-accent-content  !important;
 }
 
 .max-button {
