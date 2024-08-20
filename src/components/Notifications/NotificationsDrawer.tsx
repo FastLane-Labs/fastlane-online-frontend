@@ -100,7 +100,7 @@ export function NotificationsDrawer() {
             </main>
 
             {sortedTransactions.length > 0 && (
-              <footer className='p-4 flex justify-end'>
+              <footer className='p-[17px] flex justify-end'>
                 <button className='btn btn-menu btn-clear-activity' onClick={clearTransactions}>
                   Clear Activity
                 </button>
