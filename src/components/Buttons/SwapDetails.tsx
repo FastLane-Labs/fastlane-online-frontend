@@ -11,12 +11,12 @@ import { useTokenUsdPrice } from '@/hooks/useTokenUsdPrice'
 import { shortFormat } from '@/utils/format'
 
 const SwapDetails = () => {
-  const { fromToken, toToken, fromAmount, toAmount, quote } = useSwapStateContext()
+  const { fromToken, toToken, fromAmount, toAmount, quote, nativeToken } = useSwapStateContext()
   const { config } = useAppStore()
   const [isExpanded, setIsExpanded] = useState(false)
   const [showFeeInUsd, setShowFeeInUsd] = useState(false)
   const { data: estimatedFees } = useEstimatedSwapFees()
-  const { data: fromTokenUsdPrice } = useTokenUsdPrice(fromToken)
+  const { data: nativeTokenUsdPrice } = useTokenUsdPrice(nativeToken)
 
   const exchangeRate = useMemo(() => {
     if (fromToken && toToken && fromAmount && toAmount) {
@@ -42,12 +42,12 @@ const SwapDetails = () => {
     if (exchangeRate === '0') return '0'
     const totalFees = estimatedFees ? parseFloat(formatEther(estimatedFees.totalFeesInWei)) : 0
     const formattedNetworkCost = totalFees.toFixed(6)
-    if (showFeeInUsd && fromTokenUsdPrice) {
-      const usdFees = totalFees * fromTokenUsdPrice
+    if (showFeeInUsd && nativeTokenUsdPrice) {
+      const usdFees = totalFees * nativeTokenUsdPrice
       return usdFees.toFixed(4)
     }
     return formattedNetworkCost
-  }, [estimatedFees, fromToken, showFeeInUsd, fromTokenUsdPrice, exchangeRate])
+  }, [estimatedFees, fromToken, showFeeInUsd, nativeTokenUsdPrice, exchangeRate])
 
   const minimumReceived = useMemo(() => {
     if (!quote || !toToken) return 'N/A'
