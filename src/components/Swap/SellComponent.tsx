@@ -57,15 +57,23 @@ const SellComponent: React.FC = () => {
     return '0'
   }, [fetchedBalance, sellToken, balanceLoading, balanceError])
 
+  const handleSetMax = () => {
+    if (balance) {
+      setSellAmount(balance)
+      setSwapDirection('sell')
+    }
+  }
+
   return (
     <div className='input-card mb-0'>
       <div className='flex justify-between items-center mb-2 text-sm'>
         <span className='text-base-content'>Sell</span>
-        <div className='flex flex-col items-end'>
-          <h1 className='text-base-content'>
-            <span>Balance: </span>
-            <TokenBalance token={sellToken || undefined} toFixed={3} />
-          </h1>
+        <div className='flex text-base-content gap-0.5 items-center justify-center'>
+          <span>Balance: </span>
+          <TokenBalance token={sellToken || undefined} toFixed={3} />
+          <button className='max-button text-[15px]' onClick={handleSetMax}>
+            MAX
+          </button>
         </div>
       </div>
       <SellAmount
@@ -75,7 +83,6 @@ const SellComponent: React.FC = () => {
         setSellAmount={setSellAmount}
         quoteLoading={isQuoteing}
         setSwapDirection={setSwapDirection}
-        currentBalance={balance}
       />
       <div className='text-left mt-2 text-sm text-base-content h-5'>
         {usdValue !== null ? `$${usdValue.toFixed(2)}` : '\u00A0'}

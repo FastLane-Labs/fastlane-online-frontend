@@ -11,7 +11,6 @@ interface TokenInputComponentProps {
   setSwapDirection: (direction: SwapDirection) => void
   disabled?: boolean
   direction: SwapDirection
-  currentBalance?: string
 }
 
 const TokenInputComponent: React.FC<TokenInputComponentProps> = ({
@@ -23,7 +22,6 @@ const TokenInputComponent: React.FC<TokenInputComponentProps> = ({
   setSwapDirection,
   disabled = false,
   direction,
-  currentBalance,
 }) => {
   const inputRef = useRef<HTMLInputElement>(null)
 
@@ -41,13 +39,6 @@ const TokenInputComponent: React.FC<TokenInputComponentProps> = ({
     }
   }, [amount])
 
-  const handleSetMax = () => {
-    if (currentBalance) {
-      setAmount(currentBalance)
-      setSwapDirection('sell')
-    }
-  }
-
   return (
     <div className='flex items-center space-x-2'>
       <div className='flex items-center space-x-2 relative'>
@@ -63,11 +54,6 @@ const TokenInputComponent: React.FC<TokenInputComponentProps> = ({
           readOnly={disabled}
         />
         {quoteLoading && <span className='absolute right-4 loading loading-spinner loading-sm'></span>}
-        {direction === 'sell' && token && currentBalance && parseFloat(currentBalance) > 0 && (
-          <button className='max-button btn-outline text-primary outline-none right-4' onClick={handleSetMax}>
-            MAX
-          </button>
-        )}
       </div>
       <TokenSelectModal
         selectedToken={token}

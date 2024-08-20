@@ -48,7 +48,8 @@ input[type='number']::-webkit-inner-spin-button {
 }
 
 .max-button {
-  @apply hover:bg-transparent hover:text-primary-content !important;
+  @apply px-[5px] bg-gradient-to-r from-primary-content via-primary-content to-secondary bg-clip-text text-transparent outline-none
+   hover:from-secondary hover:to-primary hover:bg-clip-text;
 }
 
 .btn-close-drawer {

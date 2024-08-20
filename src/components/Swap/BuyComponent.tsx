@@ -33,11 +33,9 @@ const BuyComponent: React.FC = () => {
     <div className='input-card mb-4'>
       <div className='flex justify-between items-center mb-2 text-sm'>
         <span className='text-base-content'>To</span>
-        <div className='flex flex-col items-end'>
-          <h1 className='text-base-content'>
-            <span>Balance: </span>
-            <TokenBalance token={buyToken || undefined} toFixed={3} />
-          </h1>
+        <div className='flex text-base-content gap-0.5 items-center justify-center'>
+          <span>Balance: </span>
+          <TokenBalance token={buyToken || undefined} toFixed={3} />
         </div>
       </div>
       <BuyAmount

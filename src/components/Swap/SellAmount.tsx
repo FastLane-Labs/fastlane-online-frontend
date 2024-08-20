@@ -9,7 +9,6 @@ interface SellAmountProps {
   setSellAmount: (amount: string) => void
   quoteLoading: boolean
   setSwapDirection: (direction: SwapDirection) => void
-  currentBalance: string
 }
 
 const SellAmount: React.FC<SellAmountProps> = ({
@@ -19,7 +18,6 @@ const SellAmount: React.FC<SellAmountProps> = ({
   setSellAmount,
   quoteLoading,
   setSwapDirection,
-  currentBalance,
 }) => {
   return (
     <TokenInputComponent
@@ -30,7 +28,6 @@ const SellAmount: React.FC<SellAmountProps> = ({
       quoteLoading={quoteLoading}
       setSwapDirection={setSwapDirection}
       direction='sell'
-      currentBalance={currentBalance}
     />
   )
 }

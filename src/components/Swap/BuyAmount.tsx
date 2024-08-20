@@ -10,7 +10,6 @@ interface BuyAmountProps {
   quoteLoading: boolean
   setSwapDirection: (direction: SwapDirection) => void
   disabled: boolean
-  currentBalance?: string
 }
 
 const BuyAmount: React.FC<BuyAmountProps> = ({
