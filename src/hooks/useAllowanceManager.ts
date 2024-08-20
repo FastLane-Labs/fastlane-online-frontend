@@ -117,7 +117,7 @@ export const useAllowanceManager = () => {
         return false
       }
     },
-    [signer, queryClient, userAddress, chainId, sendNotification, handleProviderError]
+    [signer, queryClient, userAddress, chainId, sendNotification, handleProviderError, config]
   )
 
   const isSufficientAllowance = useCallback(

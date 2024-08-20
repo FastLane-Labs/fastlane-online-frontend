@@ -331,6 +331,7 @@ export const useHandleSwap = () => {
     quote,
     address,
     chainId,
+    swapMode,
     setIsSwapping,
     setSwapResult,
     sendNotification,
