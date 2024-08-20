@@ -7,7 +7,6 @@ const ThemeToggle = () => {
   useEffect(() => {
     // On initial load, check for a saved theme in localStorage
     const savedTheme = localStorage.getItem('theme')
-    console.log(savedTheme)
     if (savedTheme) {
       document.documentElement.setAttribute('data-theme', savedTheme)
       setIsDarkMode(savedTheme !== 'bumblebee')
