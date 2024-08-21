@@ -170,7 +170,7 @@ const SwapStep: React.FC<SwapStepProps> = ({ step, onAction, isLoading, error, s
       <div className='flex w-full items-center justify-between'>
         <h3 className='gray-text'>Network cost</h3>
         <div
-          className='tooltip tooltip-right'
+          className='md:tooltip md:tooltip-left lg:tooltip-right'
           data-tip='You may get a refund on gas in some of your swaps when a solver picks up your order.'>
           <div className='flex items-center justify-start gap-1 gray-text'>
             <svg className='w-4 h-4' fill='none' height='24' viewBox='0 0 24 24' xmlns='http://www.w3.org/2000/svg'>
@@ -199,7 +199,7 @@ const SwapStep: React.FC<SwapStepProps> = ({ step, onAction, isLoading, error, s
         <div className='flex w-full items-center justify-between'>
           <h3 className='gray-text'>Receive at least</h3>
           <div
-            className='tooltip tooltip-right'
+            className='md:tooltip md:tooltip-left lg:tooltip-right'
             data-tip='Your swaps are gossipped permissionlessly to searchers who compete to give you the best price in the form of Rocketboost rebates.'>
             <span className='text-end text-neutral-content'>{`${minimumReceived} ${toToken?.symbol}`}</span>
           </div>

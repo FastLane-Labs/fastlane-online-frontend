@@ -150,3 +150,16 @@ select {
 .custom-tooltip::after {
   border-color: #706b6b transparent transparent transparent !important;
 }
+
+.logo-margins {
+  @apply mt-4 mb-12
+  md:mt-16 md:mb-12
+  xl:mt-0 xl:mb-5
+  2xl:mt-12 2xl:mb-12;
+}
+/* 2 xl screens */
+@media (min-width: 1300px) and (max-width: 1535px) {
+  .logo-margins {
+    @apply mt-9 mb-9;
+  }
+}
