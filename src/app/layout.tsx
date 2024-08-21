@@ -60,6 +60,14 @@ export default function RootLayout(props: PropsWithChildren) {
         <meta name='author' content='FastLane Labs' />
         <meta name='robots' content='index, follow' />
         <meta name='googlebot' content='index, follow' />
+        <meta name='twitter:card' content='summary_large_image' />
+        <meta name='twitter:site' content='@atlasevm' />
+        <meta name='twitter:title' content='Rocketboost' />
+        <meta
+          name='twitter:description'
+          content='Rocketboost Swaps are powered by the DRFQ Atlas module built by FastLane Labs.'
+        />
+        <meta name='twitter:image' content='https://rocketboost.me/og/rb-beta.png' />
         <link rel='apple-touch-icon' sizes='180x180' href='favicons/apple-touch-icon.png' />
         <link rel='icon' type='image/png' sizes='32x32' href='favicons/favicon-32x32.png' />
         <link rel='icon' type='image/png' sizes='16x16' href='favicons/favicon-16x16.png' />
