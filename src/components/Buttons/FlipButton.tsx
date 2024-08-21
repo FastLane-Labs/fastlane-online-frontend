@@ -18,10 +18,18 @@ const FlipButton: React.FC = () => {
 
   const handleSwapArrow = async () => {
     setAllowQuoteUpdate(false) // Prevent quoting
-    setSellToken(buyToken)
-    setSellAmount(buyAmount)
-    setBuyToken(sellToken)
-    setBuyAmount('')
+    if (buyToken) {
+      // If there's a buy token, perform a full swap
+      setSellToken(buyToken)
+      setSellAmount(buyAmount)
+      setBuyToken(sellToken)
+      setBuyAmount('')
+    } else {
+      // If there's no buytoken, just swap the tokens and clear sellToken
+      setBuyToken(sellToken)
+      setSellToken(null)
+      setSellAmount('')
+    }
     resetSwapData()
     setDiscardNextQuoteUpdate(true)
     // Re-enable quoting after a short delay
@@ -34,7 +42,7 @@ const FlipButton: React.FC = () => {
         onClick={handleSwapArrow}
         className='absolute bg-gradient-to-br from-primary to-secondary from-35% text-white hover:from-secondary hover:to-primary hover:from-[0%]
        border-none p-[0.3rem] rounded-lg -top-3'
-        disabled={!sellToken || !buyToken || isQuoteing}>
+        disabled={(!sellToken && !buyToken) || isQuoteing}>
         <svg
           xmlns='http://www.w3.org/2000/svg'
           className='h-5 w-5'
