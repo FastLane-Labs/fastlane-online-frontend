@@ -1,7 +1,7 @@
 import '@rainbow-me/rainbowkit/styles.css'
 import type { Metadata, Viewport } from 'next'
 import { Fragment, PropsWithChildren } from 'react'
-import { SITE_DESCRIPTION, SITE_EMOJI, SITE_INFO, SITE_NAME, SITE_URL } from '@/utils/siteInfo'
+// import { SITE_DESCRIPTION, SITE_EMOJI, SITE_INFO, SITE_NAME, SITE_URL } from '@/utils/siteInfo'
 import { Layout } from '@/components/Layout'
 import ClientWeb3Provider from '../context/ClientWeb3Provider'
 import { NotificationProvider } from '@/context/Notifications'
@@ -11,36 +11,12 @@ import GeoBlock from '@/components/GeoBlock/GeoBlock'
 import { AppStateProvider } from '@/context/AppStateContext'
 import { TokenPriceProvider } from '@/context/TokenPriceProvider'
 
-export const metadata: Metadata = {
-  applicationName: SITE_NAME,
-  title: {
-    default: `${SITE_NAME}`,
-    template: `${SITE_NAME} · %s`,
-  },
-  metadataBase: new URL(SITE_URL),
-  description: SITE_DESCRIPTION,
-  manifest: '/manifest.json',
-  appleWebApp: {
-    title: SITE_NAME,
-    capable: true,
-    statusBarStyle: 'black-translucent',
-  },
-  openGraph: {
-    type: 'website',
-    title: SITE_NAME,
-    siteName: SITE_NAME,
-    description: SITE_DESCRIPTION,
-    url: SITE_URL,
-    images: '/opengraph-image',
-  },
-}
-
 export const viewport: Viewport = {
   width: 'device-width',
   height: 'device-height',
   initialScale: 1.0,
   viewportFit: 'cover',
-  themeColor: '#000000',
+  themeColor: '#F12379',
 }
 
 export default function RootLayout(props: PropsWithChildren) {
