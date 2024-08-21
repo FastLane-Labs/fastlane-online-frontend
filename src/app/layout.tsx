@@ -14,7 +14,7 @@ import { TokenPriceProvider } from '@/context/TokenPriceProvider'
 export const metadata: Metadata = {
   applicationName: SITE_NAME,
   title: {
-    default: `${SITE_NAME} · ${SITE_INFO}`,
+    default: `${SITE_NAME}`,
     template: `${SITE_NAME} · %s`,
   },
   metadataBase: new URL(SITE_URL),
