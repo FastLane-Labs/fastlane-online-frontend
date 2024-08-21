@@ -3,8 +3,6 @@ import ModalWrapper from '@/components/Wrappers/ModalWrapper'
 import SwapStep from '@/components/Swap/SwapStep'
 import { useSwapStateContext } from '@/context/SwapStateContext'
 import { getBlockExplorerUrl } from '@/utils/getBlockExplorerUrl'
-import { useErrorNotification } from '@/hooks/useErrorNotification'
-import { capitalize } from '@/utils/helpers/formatTools'
 
 interface SwapModalProps {
   isVisible: boolean

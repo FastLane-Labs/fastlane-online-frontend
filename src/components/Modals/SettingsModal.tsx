@@ -1,3 +1,4 @@
+'use client'
 import React, { useState, useCallback, useMemo, useEffect } from 'react'
 import ModalWrapper from '@/components/Wrappers/ModalWrapper'
 import { useAppStore } from '@/store/useAppStore'

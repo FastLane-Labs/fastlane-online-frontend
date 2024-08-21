@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useEffect } from 'react'
 import { useSwapStateContext } from '@/context/SwapStateContext'
 import { ChevronDownIcon } from '@heroicons/react/20/solid'
 import { calculateExchangeRate } from '@/utils/exchangeRate'
@@ -54,6 +54,12 @@ const SwapDetails = () => {
     const amountOut = quote.amountOutMin ?? quote.amountOut
     return `${shortFormat(amountOut, toToken.decimals, 4)} ${toToken.symbol}`
   }, [quote, toToken])
+
+  const [slippageValue, setSlippageValue] = useState('0%')
+
+  useEffect(() => {
+    setSlippageValue(`${config.slippage / 100}%`)
+  }, [config.slippage])
 
   return (
     <div className='flex flex-col w-full px-3 justify-start text-sm pt-3 gap-2'>
@@ -126,7 +132,7 @@ const SwapDetails = () => {
           <div
             className='custom-tooltip md:tooltip md:tooltip-left lg:tooltip-right'
             data-tip='The maximum price movement before your transaction will revert.'>
-            <span className='text-end text-neutral-content'>{`${config.slippage / 100}%`}</span>
+            <span className='text-end text-neutral-content'>{slippageValue}</span>
           </div>
         </div>
       </div>
