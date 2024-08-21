@@ -51,8 +51,15 @@ export default function RootLayout(props: PropsWithChildren) {
     <html lang='en' className='bg-[#0f0f0f]'>
       <head>
         <meta charSet='UTF-8' />
-
         <meta name='viewport' content='width=device-width, initial-scale=1' />
+        <meta
+          name='description'
+          content='Rocketboost Swaps are powered by the DRFQ Atlas module built by FastLane Labs, which hosts a fully onchain request-for-quote auction for your swaps. Atlas is a generalized execution abstraction protocol for the EVM used for building intent and MEV auctions.'
+        />
+        <meta name='keywords' content='Atlas, Swap, DRFQ, MEV, Polygon, FastLane Labs' />
+        <meta name='author' content='FastLane Labs' />
+        <meta name='robots' content='index, follow' />
+        <meta name='googlebot' content='index, follow' />
         <link rel='apple-touch-icon' sizes='180x180' href='favicons/apple-touch-icon.png' />
         <link rel='icon' type='image/png' sizes='32x32' href='favicons/favicon-32x32.png' />
         <link rel='icon' type='image/png' sizes='16x16' href='favicons/favicon-16x16.png' />
