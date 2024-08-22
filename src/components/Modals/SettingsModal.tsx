@@ -93,85 +93,87 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ isVisible, onClose }) => 
 
   return (
     <ModalWrapper isVisible={isVisible} onClose={closeModal} style={{ paddingBottom: '28px' }}>
-      <h3 className='text-lg mt-4 font-semibold text-center'>Transaction Settings</h3>
+      <h3 className='text-lg my-4 font-semibold text-center leading-tight'>Swap Settings</h3>
+      <div className='flex flex-col gap-6 leading-none'>
+        {/* Slippage Tolerance */}
+        <div className='flex flex-col gap-2'>
+          <h1>Slippage tolerance</h1>
+          <div className='flex space-x-2'>
+            {[0.1, 0.5, 1].map((percent) => (
+              <button
+                key={percent}
+                onClick={() => handleSlippageChange(percentToBasisPoints(percent))}
+                className={`btn btn-settings ${
+                  localSlippage === percentToBasisPoints(percent) ? 'bg-secondary' : 'bg-gray-700'
+                }`}>
+                {percent}%
+              </button>
+            ))}
+            <div className='relative flex items-center'>
+              <input
+                type='number'
+                placeholder='0.50'
+                value={customSlippage || slippagePercent || ''}
+                onChange={(e) => handleCustomSlippageChange(e.target.value)}
+                onKeyDown={handleKeyDown}
+                min='0'
+                max='10'
+                step='0.1'
+                className={`input !outline-none bg-neutral text-neutral-content px-3 py-1 rounded-md w-20 pr-6  ${
+                  isHighSlippage ? 'text-yellow-500' : isVeryHighSlippage ? 'text-red-500' : ''
+                }`}
+              />
+              <span className='absolute right-2 text-neutral-content text-lg'>%</span>
+            </div>
+          </div>
+          {slippageWarning && (
+            <p className={`${isVeryHighSlippage ? 'text-red-500' : 'text-yellow-500'}`}>{slippageWarning}</p>
+          )}
+        </div>
 
-      {/* Slippage Tolerance */}
-      <div>
-        <h1 className='mb-2 text-sm'>Slippage tolerance</h1>
-        <div className='flex space-x-2'>
-          {[0.1, 0.5, 1].map((percent) => (
-            <button
-              key={percent}
-              onClick={() => handleSlippageChange(percentToBasisPoints(percent))}
-              className={`btn btn-settings ${
-                localSlippage === percentToBasisPoints(percent) ? 'bg-secondary' : 'bg-gray-700'
-              }`}>
-              {percent}%
-            </button>
-          ))}
-          <div className='relative flex items-center'>
+        {/* Transaction Deadline */}
+        <div className='flex flex-col gap-2'>
+          <h1>Transaction deadline</h1>
+          <div className='flex items-center'>
             <input
               type='number'
-              placeholder='0.50'
-              value={customSlippage || slippagePercent || ''}
-              onChange={(e) => handleCustomSlippageChange(e.target.value)}
+              value={localDeadline || ''}
+              placeholder='10'
+              onChange={(e) => handleDeadlineChange(e.target.value)}
               onKeyDown={handleKeyDown}
-              min='0'
-              max='10'
-              step='0.1'
-              className={`input !outline-none bg-neutral text-neutral-content px-3 py-1 rounded-md w-20 pr-6  ${
-                isHighSlippage ? 'text-yellow-500' : isVeryHighSlippage ? 'text-red-500' : ''
-              }`}
+              className='input bg-neutral !outline-none px-3 py-1 rounded-md w-20'
             />
-            <span className='absolute right-2 text-neutral-content'>%</span>
+            <span className='ml-2 text-lg'>minutes</span>
           </div>
         </div>
-        {slippageWarning && (
-          <p className={`mt-2 text-sm ${isVeryHighSlippage ? 'text-red-500' : 'text-yellow-500'}`}>{slippageWarning}</p>
-        )}
-      </div>
 
-      {/* Transaction Deadline */}
-      <div>
-        <h1 className='mb-2 text-sm'>Transaction deadline</h1>
-        <div className='flex items-center'>
-          <input
-            type='number'
-            value={localDeadline || ''}
-            placeholder='10'
-            onChange={(e) => handleDeadlineChange(e.target.value)}
-            onKeyDown={handleKeyDown}
-            className='input bg-neutral !outline-none px-3 py-1 rounded-md w-20'
-          />
-          <span className='ml-2'>minutes</span>
+        {/* Token Approval */}
+        <div className='flex flex-col gap-2'>
+          <h1>Token Approval</h1>
+          <div className='flex items-center justify-between'>
+            <span>Allow Infinite approval</span>
+            <button
+              onClick={handleTokenApprovalChange}
+              className={`relative inline-flex h-4 w-9 items-center rounded-full ${
+                localTokenApproval === 'max' ? 'bg-secondary' : 'bg-gray-700'
+              }`}>
+              <span className='sr-only'>Allow Infinite approval</span>
+              <span
+                className={`inline-block h-3 w-3 transform rounded-full bg-white transition ${
+                  localTokenApproval === 'max' ? 'translate-x-5' : 'translate-x-1'
+                }`}
+              />
+            </button>
+          </div>
+          <p className='mb-6 -mt-0.5 text-sm gray-text'>
+            {localTokenApproval === 'max'
+              ? 'Lower gas fees, fewer transactions'
+              : 'Higher security, approve per transaction'}
+          </p>
         </div>
       </div>
 
-      {/* Token Approval */}
-      <div className='mt-4'>
-        <h1 className='mb-2 text-sm'>Token Approval</h1>
-        <div className='flex items-center justify-between'>
-          <span className='text-sm'>Allow Infinite approval</span>
-          <button
-            onClick={handleTokenApprovalChange}
-            className={`relative inline-flex h-5 w-9 items-center rounded-full ${
-              localTokenApproval === 'max' ? 'bg-secondary' : 'bg-gray-700'
-            }`}>
-            <span className='sr-only'>Allow Infinite approval</span>
-            <span
-              className={`inline-block h-3 w-3 transform rounded-full bg-white transition ${
-                localTokenApproval === 'max' ? 'translate-x-5' : 'translate-x-1'
-              }`}
-            />
-          </button>
-        </div>
-        <p className='mt-1 mb-4 text-xs gray-text'>
-          {localTokenApproval === 'max'
-            ? 'Lower gas fees, fewer transactions'
-            : 'Higher security, approve per transaction'}
-        </p>
-      </div>
-
+      {/* Save Button */}
       <button
         onClick={handleSave}
         className={`btn ${isSaveDisabled ? 'btn-disabled opacity-50 cursor-not-allowed' : ''}`}
