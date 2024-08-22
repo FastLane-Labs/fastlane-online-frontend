@@ -21,8 +21,8 @@ const GeoBlock: React.FC<GeoBlockProps> = ({ country }) => {
             <h1 className='text-neutral-content text-5xl font-bold'>Access Restricted</h1>
 
             <p className='text-white/[0.6] max-[30rem] mt-7'>
-              Unfortunately, RocketBoost is unavailable in your country:
-              <span> {country}</span>
+              Unfortunately, RocketBoost is unavailable in your country
+              {/* <span> {country}</span> */}
             </p>
           </div>
         </div>
