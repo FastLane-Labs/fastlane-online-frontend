@@ -136,8 +136,8 @@ export function ActivityItem({ transaction }: ActivityItemProps) {
           </div>
         </div>
 
-        <div className='flex justify-between'>
-          <p className='text-xs text-gray-400 mt-0.5 text-nowrap md:max-w-60 overflow-x-auto'>
+        <div className='flex justify-between mt-0.5'>
+          <p className='text-xs text-gray-400 text-nowrap md:max-w-60 overflow-x-auto'>
             {transaction.routeType === 'approval' ? (
               transaction.fromToken.symbol
             ) : (
