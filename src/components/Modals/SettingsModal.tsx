@@ -97,7 +97,7 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ isVisible, onClose }) => 
       <div className='flex flex-col gap-6 leading-none'>
         {/* Slippage Tolerance */}
         <div className='flex flex-col gap-2'>
-          <h1>Slippage tolerance</h1>
+          <h1 className='font-medium'>Slippage tolerance</h1>
           <div className='flex space-x-2'>
             {[0.1, 0.5, 1].map((percent) => (
               <button
@@ -133,7 +133,7 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ isVisible, onClose }) => 
 
         {/* Transaction Deadline */}
         <div className='flex flex-col gap-2'>
-          <h1>Transaction deadline</h1>
+          <h1 className='font-medium'>Transaction deadline</h1>
           <div className='flex items-center'>
             <input
               type='number'
@@ -149,12 +149,12 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ isVisible, onClose }) => 
 
         {/* Token Approval */}
         <div className='flex flex-col gap-2'>
-          <h1>Token Approval</h1>
+          <h1 className='font-medium'>Token Approval</h1>
           <div className='flex items-center justify-between'>
             <span>Allow Infinite approval</span>
             <button
               onClick={handleTokenApprovalChange}
-              className={`relative inline-flex h-4 w-9 items-center rounded-full ${
+              className={`relative inline-flex h-5 w-9 items-center rounded-full ${
                 localTokenApproval === 'max' ? 'bg-secondary' : 'bg-gray-700'
               }`}>
               <span className='sr-only'>Allow Infinite approval</span>
@@ -165,7 +165,7 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ isVisible, onClose }) => 
               />
             </button>
           </div>
-          <p className='mb-6 -mt-0.5 text-sm gray-text'>
+          <p className='mb-6 -mt-1 text-sm gray-text'>
             {localTokenApproval === 'max'
               ? 'Lower gas fees, fewer transactions'
               : 'Higher security, approve per transaction'}
