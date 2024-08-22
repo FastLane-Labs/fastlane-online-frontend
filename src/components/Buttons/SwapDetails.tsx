@@ -114,7 +114,7 @@ const SwapDetails = () => {
           <div
             className='custom-tooltip md:tooltip md:tooltip-left lg:tooltip-right'
             data-tip='The impact your trade has on the market price of this pool.'>
-            <span className='text-end text-neutral-content'>{`${priceImpact?.toFixed(2)}%`}</span>
+            <span className='text-end text-neutral-content'>{`${priceImpact ? priceImpact.toFixed(2) : '0'}%`}</span>
           </div>
         </div>
 
