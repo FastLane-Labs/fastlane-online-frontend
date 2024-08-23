@@ -28,7 +28,7 @@ export function NotificationsDrawer() {
   }, [transactions])
 
   if (!isClient) {
-    return null // Or a loading spinner
+    return null
   }
 
   return (

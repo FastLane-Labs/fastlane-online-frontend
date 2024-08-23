@@ -15,7 +15,7 @@ export const WALLETCONNECT_CONFIG = rainbowGetDefaultConfig({
   appUrl: SITE_URL,
   projectId: WALLETCONNECT_PROJECT_ID,
   chains: SUPPORTED_CHAINS,
-  ssr: true, // If your dApp uses server-side rendering (SSR)
+  ssr: true,
   storage: createStorage({
     storage: cookieStorage,
   }),

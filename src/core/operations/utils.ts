@@ -51,7 +51,7 @@ export function newUserOperation(prop: {
     deadline: prop.deadline,
     dapp: prop.dapp,
     control: prop.control,
-    callConfig: prop.callConfig, // New field
+    callConfig: prop.callConfig,
     sessionKey: prop.sessionKey || ZeroAddress,
     data: prop.data,
     signature: prop.signature || ZeroBytes,

@@ -32,7 +32,7 @@ const SwapButton: React.FC<SwapButtonProps> = ({ handleSwap, isLoading }) => {
     setAllowQuoteUpdate,
     updateAllowance,
     checkAllowance,
-    swapMode, // Add this line to get the swapMode
+    swapMode,
   } = useSwapStateContext()
   const { address: userAddress, status, isConnected, chainId } = useAccount()
   const [isSupportedChain, setIsSupportedChain] = useState(false)

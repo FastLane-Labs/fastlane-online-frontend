@@ -4,7 +4,7 @@ interface ModalWrapperProps {
   isVisible: boolean
   onClose: () => void
   children: ReactNode
-  style?: CSSProperties // Added this line
+  style?: CSSProperties
 }
 
 const ModalWrapper: React.FC<ModalWrapperProps> = ({ isVisible, onClose, children, style }) => {
