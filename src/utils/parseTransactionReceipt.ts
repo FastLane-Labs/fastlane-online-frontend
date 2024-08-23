@@ -117,26 +117,3 @@ export const parseTransactionReceipt = (
 
   return { events, isSolverTxSuccessful, userReceivedAmount, baselineAmountOut, boostedAmount }
 }
-
-export const logParsedReceipt = (parsedReceipt: ParsedTransactionReceipt) => {
-  if (parsedReceipt.isSolverTxSuccessful) {
-    console.log('Swap was successful')
-    if (parsedReceipt.userReceivedAmount !== null) {
-      console.log('User received amount:', parsedReceipt.userReceivedAmount.toString())
-      if (parsedReceipt.baselineAmountOut !== null) {
-        console.log('Baseline amount:', parsedReceipt.baselineAmountOut.toString())
-        if (parsedReceipt.boostedAmount !== null) {
-          console.log('Boosted amount:', parsedReceipt.boostedAmount.toString())
-        } else {
-          console.warn('Boosted amount could not be calculated')
-        }
-      } else {
-        console.warn('Baseline amount not found in the receipt')
-      }
-    } else {
-      console.warn('User received amount not found in the receipt')
-    }
-  } else {
-    console.warn('No successful solver transactions found in the receipt')
-  }
-}

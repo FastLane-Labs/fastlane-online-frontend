@@ -1,7 +1,6 @@
 import '@rainbow-me/rainbowkit/styles.css'
-import type { Metadata, Viewport } from 'next'
+import type { Viewport } from 'next'
 import { Fragment, PropsWithChildren } from 'react'
-// import { SITE_DESCRIPTION, SITE_EMOJI, SITE_INFO, SITE_NAME, SITE_URL } from '@/utils/siteInfo'
 import { Layout } from '@/components/Layout'
 import ClientWeb3Provider from '../context/ClientWeb3Provider'
 import { NotificationProvider } from '@/context/Notifications'
