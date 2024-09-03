@@ -1,6 +1,4 @@
 import React, { PropsWithChildren } from 'react'
-import { Header } from './Navbar/Header'
-import { Footer } from './Footer/Footer'
 
 export function Layout(props: PropsWithChildren) {
   return (
