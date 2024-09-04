@@ -1,10 +1,20 @@
+'use client'
+import { useEffect } from 'react'
 import Logo from '../Logo/Logo'
+import { useAnalytics } from '@/context/AnalyticsContext'
 
 interface GeoBlockProps {
   country: string
 }
 
 const GeoBlock: React.FC<GeoBlockProps> = ({ country }) => {
+  const { trackPageView, trackEvent } = useAnalytics()
+
+  useEffect(() => {
+    trackPageView(window.location.pathname)
+    trackEvent({ type: 'GEOBLOCKED', country })
+  }, [trackPageView, trackEvent, country])
+
   return (
     <div className='relative overflow-hidden'>
       <div

@@ -47,7 +47,7 @@ const SwapDetails = () => {
       return `$${usdFees.toFixed(4)}`
     }
     return formattedNetworkCost
-  }, [estimatedFees, fromToken, showFeeInUsd, nativeTokenUsdPrice, exchangeRate])
+  }, [estimatedFees, showFeeInUsd, nativeTokenUsdPrice, exchangeRate])
 
   const minimumReceived = useMemo(() => {
     if (!quote || !toToken) return 'N/A'

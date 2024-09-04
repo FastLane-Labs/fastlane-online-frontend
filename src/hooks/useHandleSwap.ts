@@ -7,7 +7,7 @@ import { nativeEvmTokenAddress, SOLVER_GAS_ESTIMATE, SWAP_GAS_ESTIMATE } from '@
 import { signUserOperation } from '@/core/atlas'
 import { getEip712Domain } from '@/utils/getContractAddress'
 import { getAtlasGasSurcharge, getFeeData } from '@/utils/gasFee'
-import { ethers, formatUnits, parseEther } from 'ethers'
+import { ethers, formatUnits } from 'ethers'
 import { FastlaneOnlineAbi } from '@/abis'
 import { Token, TransactionParams, TransactionStatus } from '@/types'
 import { useNotifications } from '@/context/Notifications'
@@ -17,6 +17,7 @@ import { useErrorNotification } from './useErrorNotification'
 import { parseTransactionReceipt } from '@/utils/parseTransactionReceipt'
 import { shortFormat } from '@/utils/format'
 import { capitalize } from '@/utils/helpers/formatTools'
+import { useAnalytics } from '@/context/AnalyticsContext'
 
 export const useHandleSwap = () => {
   const { signer, provider } = useEthersProviderContext()
@@ -38,6 +39,7 @@ export const useHandleSwap = () => {
   const { atlasAddress, dappAddress, atlasVerificationAddress } = useFastLaneAddresses()
   const { sendNotification } = useNotifications()
   const { handleProviderError } = useErrorNotification()
+  const { trackEvent } = useAnalytics()
 
   const handleSignature = useCallback(async () => {
     if (!swapData?.userOperation || !signer || !chainId || swapData.type !== 'swap') {
@@ -53,11 +55,21 @@ export const useHandleSwap = () => {
     } catch (error: any) {
       handleProviderError(error)
       setSwapDataSigned(false)
+      trackEvent({ type: 'SIGNATURE_FAILED' }, { reason: error.message })
       return false
     } finally {
       setIsSigning(false)
     }
-  }, [swapData?.userOperation, swapData?.type, signer, chainId, setIsSigning, setSwapDataSigned, handleProviderError])
+  }, [
+    swapData?.userOperation,
+    swapData?.type,
+    signer,
+    chainId,
+    setIsSigning,
+    setSwapDataSigned,
+    handleProviderError,
+    trackEvent,
+  ])
 
   const handleDappContractSwap = useCallback(async () => {
     // Check if all required data is available
@@ -118,6 +130,16 @@ export const useHandleSwap = () => {
         boosted: false,
       }
 
+      trackEvent({
+        type: 'SWAP_ATTEMPTED',
+        swapEvent: {
+          tokenIn: fromToken.symbol,
+          tokenOut: toToken.symbol,
+          amountIn: formatUnits(quote.amountIn, fromToken.decimals),
+          amountOut: formatUnits(quote.amountOut, toToken.decimals),
+        },
+      })
+
       const contract = new ethers.Contract(dappAddress, FastlaneOnlineAbi, signer)
       const tx = await contract.fastOnlineSwap(swapData.userOperation?.toStruct(), {
         gasLimit: gas,
@@ -145,6 +167,16 @@ export const useHandleSwap = () => {
 
       if (isBoosted) {
         const boostedAmount = receivedAmount - baselineAmount
+        trackEvent({
+          type: 'SWAP_BOOSTED',
+          swapEvent: {
+            tokenIn: fromToken.symbol,
+            tokenOut: toToken.symbol,
+            amountIn: formatUnits(quote.amountIn, fromToken.decimals),
+            amountOut: formatUnits(receivedAmount, toToken.decimals),
+          },
+          boostedAmount: formatUnits(boostedAmount, toToken.decimals),
+        })
         sendNotification(
           `Swap ${fromToken.symbol} to ${toToken.symbol} Boosted successful. Received: ${shortFormat(receivedAmount, toToken.decimals, 4)} ${toToken.symbol} Boosted by ${shortFormat(boostedAmount, toToken.decimals, 4)} ${toToken.symbol}`,
           {
@@ -158,6 +190,15 @@ export const useHandleSwap = () => {
           }
         )
       } else {
+        trackEvent({
+          type: 'SWAP_COMPLETED',
+          swapEvent: {
+            tokenIn: fromToken.symbol,
+            tokenOut: toToken.symbol,
+            amountIn: formatUnits(quote.amountIn, fromToken.decimals),
+            amountOut: formatUnits(receivedAmount, toToken.decimals),
+          },
+        })
         sendNotification(
           `Swap ${fromToken.symbol} to ${toToken.symbol} successful. Received: ${shortFormat(receivedAmount, toToken.decimals, 4)} ${toToken.symbol}`,
           {
@@ -182,6 +223,19 @@ export const useHandleSwap = () => {
 
       return true
     } catch (error: any) {
+      trackEvent(
+        {
+          type: 'SWAP_FAILED',
+          swapEvent: {
+            tokenIn: fromToken.symbol,
+            tokenOut: toToken.symbol,
+            amountIn: formatUnits(quote.amountIn, fromToken.decimals),
+            amountOut: formatUnits(quote.amountOut, toToken.decimals),
+          },
+        },
+        { error: error.message }
+      )
+
       if (transactionParams?.txHash) {
         // If we have a transaction hash, update its status to failed
         sendNotification(`Swap ${fromToken.symbol} to ${toToken.symbol} failed`, {
@@ -215,6 +269,7 @@ export const useHandleSwap = () => {
     hasUserOperationSignature,
     sendNotification,
     handleProviderError,
+    trackEvent,
   ])
 
   const handleWrap = useCallback(async () => {

@@ -9,6 +9,11 @@ import React from 'react'
 import GeoBlock from '@/components/GeoBlock/GeoBlock'
 import { AppStateProvider } from '@/context/AppStateContext'
 import { TokenPriceProvider } from '@/context/TokenPriceProvider'
+import dynamic from 'next/dynamic'
+
+const AnalyticsProvider = dynamic(() => import('@/context/AnalyticsContext').then((mod) => mod.AnalyticsProvider), {
+  ssr: false,
+})
 
 export const viewport: Viewport = {
   width: 'device-width',
@@ -65,19 +70,23 @@ export default function RootLayout(props: PropsWithChildren) {
       </head>
       <body>
         {isRestricted ? (
-          <GeoBlock country={country} />
+          <AnalyticsProvider>
+            <GeoBlock country={country} />
+          </AnalyticsProvider>
         ) : (
-          <ClientWeb3Provider>
-            <TokenPriceProvider>
-              <NotificationProvider>
-                <AppStateProvider>
-                  <AppRouter>
-                    <Layout>{props.children}</Layout>
-                  </AppRouter>
-                </AppStateProvider>
-              </NotificationProvider>
-            </TokenPriceProvider>
-          </ClientWeb3Provider>
+          <AnalyticsProvider>
+            <ClientWeb3Provider>
+              <TokenPriceProvider>
+                <NotificationProvider>
+                  <AppStateProvider>
+                    <AppRouter>
+                      <Layout>{props.children}</Layout>
+                    </AppRouter>
+                  </AppStateProvider>
+                </NotificationProvider>
+              </TokenPriceProvider>
+            </ClientWeb3Provider>
+          </AnalyticsProvider>
         )}
       </body>
     </html>
