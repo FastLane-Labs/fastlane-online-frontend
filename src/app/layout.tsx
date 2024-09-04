@@ -1,6 +1,8 @@
+'use client'
+
 import '@rainbow-me/rainbowkit/styles.css'
 import type { Viewport } from 'next'
-import { Fragment, PropsWithChildren } from 'react'
+import { Fragment, PropsWithChildren, useEffect } from 'react'
 import { Layout } from '@/components/Layout'
 import ClientWeb3Provider from '../context/ClientWeb3Provider'
 import { NotificationProvider } from '@/context/Notifications'
@@ -10,6 +12,7 @@ import GeoBlock from '@/components/GeoBlock/GeoBlock'
 import { AppStateProvider } from '@/context/AppStateContext'
 import { TokenPriceProvider } from '@/context/TokenPriceProvider'
 import dynamic from 'next/dynamic'
+import { useAnalytics } from '@/context/AnalyticsContext'
 
 const AnalyticsProvider = dynamic(() => import('@/context/AnalyticsContext').then((mod) => mod.AnalyticsProvider), {
   ssr: false,
@@ -21,6 +24,34 @@ export const viewport: Viewport = {
   initialScale: 1.0,
   viewportFit: 'cover',
   themeColor: '#F12379',
+}
+
+function AnalyticsWrapper({ children }: PropsWithChildren) {
+  const { trackEvent } = useAnalytics()
+
+  useEffect(() => {
+    const referrer = document.referrer
+    const urlParams = new URLSearchParams(window.location.search)
+    const utmSource = urlParams.get('utm_source')
+    const utmMedium = urlParams.get('utm_medium')
+    const utmCampaign = urlParams.get('utm_campaign')
+
+    trackEvent(
+      {
+        type: 'FUNNEL',
+        step: 'page_view',
+        details: window.location.pathname,
+      },
+      {
+        referrer,
+        utmSource,
+        utmMedium,
+        utmCampaign,
+      }
+    )
+  }, [trackEvent])
+
+  return <>{children}</>
 }
 
 export default function RootLayout(props: PropsWithChildren) {
@@ -69,25 +100,23 @@ export default function RootLayout(props: PropsWithChildren) {
         <meta name='theme-color' content='#F12379' />
       </head>
       <body>
-        {isRestricted ? (
-          <AnalyticsProvider>
-            <GeoBlock country={country} />
-          </AnalyticsProvider>
-        ) : (
-          <AnalyticsProvider>
-            <ClientWeb3Provider>
-              <TokenPriceProvider>
-                <NotificationProvider>
-                  <AppStateProvider>
-                    <AppRouter>
+        <AnalyticsProvider>
+          <AnalyticsWrapper>
+            {isRestricted ? (
+              <GeoBlock country={country} />
+            ) : (
+              <ClientWeb3Provider>
+                <TokenPriceProvider>
+                  <NotificationProvider>
+                    <AppStateProvider>
                       <Layout>{props.children}</Layout>
-                    </AppRouter>
-                  </AppStateProvider>
-                </NotificationProvider>
-              </TokenPriceProvider>
-            </ClientWeb3Provider>
-          </AnalyticsProvider>
-        )}
+                    </AppStateProvider>
+                  </NotificationProvider>
+                </TokenPriceProvider>
+              </ClientWeb3Provider>
+            )}
+          </AnalyticsWrapper>
+        </AnalyticsProvider>
       </body>
     </html>
   )

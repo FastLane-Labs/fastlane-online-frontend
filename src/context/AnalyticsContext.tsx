@@ -4,13 +4,19 @@
 import React, { createContext, useCallback, useContext, useEffect, useState } from 'react'
 import { AnalyticsEvent } from '@/types/analytics'
 import ReactGA from 'react-ga4'
+import { parseUrl } from 'query-string'
 
 export type AnalyticsContextType = {
   trackPageView: (path: string) => void
   trackEvent: (event: AnalyticsEvent, additionalData?: Record<string, any>) => void
 }
 
-export const AnalyticsContext = createContext<AnalyticsContextType | undefined>(undefined)
+const defaultAnalyticsContext: AnalyticsContextType = {
+  trackPageView: () => {},
+  trackEvent: () => {},
+}
+
+export const AnalyticsContext = createContext<AnalyticsContextType>(defaultAnalyticsContext)
 
 const MEASUREMENT_ID = 'G-7LHEG7ZQZX' // Replace with your actual Measurement ID
 
@@ -21,15 +27,6 @@ export const AnalyticsProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     ReactGA.initialize(MEASUREMENT_ID)
     setIsInitialized(true)
   }, [])
-
-  const trackPageView = useCallback(
-    (path: string) => {
-      if (isInitialized) {
-        ReactGA.send({ hitType: 'pageview', page: path })
-      }
-    },
-    [isInitialized]
-  )
 
   const trackEvent = useCallback(
     (event: AnalyticsEvent, additionalData: Record<string, any> = {}) => {
@@ -96,13 +93,45 @@ export const AnalyticsProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     [isInitialized]
   )
 
+  const trackPageView = useCallback(
+    (path: string) => {
+      if (isInitialized) {
+        const url = parseUrl(window.location.href)
+        const utmParams = {
+          utm_source: url.query.utm_source,
+          utm_medium: url.query.utm_medium,
+          utm_campaign: url.query.utm_campaign,
+        }
+        const referrer = document.referrer
+
+        ReactGA.send({
+          hitType: 'pageview',
+          page: path,
+          ...utmParams,
+          referrer,
+        })
+
+        // Track funnel step
+        trackEvent(
+          {
+            type: 'FUNNEL',
+            step: 'page_view',
+            details: path,
+          },
+          {
+            ...utmParams,
+            referrer,
+          }
+        )
+      }
+    },
+    [isInitialized, trackEvent]
+  )
+
   return <AnalyticsContext.Provider value={{ trackPageView, trackEvent }}>{children}</AnalyticsContext.Provider>
 }
 
 export const useAnalytics = (): AnalyticsContextType => {
   const context = useContext(AnalyticsContext)
-  if (context === undefined) {
-    throw new Error('useAnalytics must be used within an AnalyticsProvider')
-  }
   return context
 }
