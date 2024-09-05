@@ -1,6 +1,5 @@
-'use client' // Add this at the top of the file
+'use client'
 
-// AnalyticsContext.tsx
 import React, { createContext, useCallback, useContext, useEffect, useState } from 'react'
 import { AnalyticsEvent } from '@/types/analytics'
 import ReactGA from 'react-ga4'
