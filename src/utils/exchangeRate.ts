@@ -7,6 +7,10 @@ export const calculateExchangeRate = (
   amountIn: string,
   amountOut: string
 ): string => {
+  if (amountIn === '.' || amountOut === '.') {
+    return '0'
+  }
+
   const sourceAmount = parseUnits(amountIn, fromToken.decimals)
   const destAmount = parseUnits(amountOut, toToken.decimals)
 
